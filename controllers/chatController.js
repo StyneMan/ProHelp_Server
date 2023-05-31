@@ -1,7 +1,6 @@
 import User from "../model/User.model.js";
 import Chat from "../model/Chat.model.js";
 import Message from "../model/Message.model.js";
-import { json } from "express";
 
 export async function initiateChat(req, res) {
   try {

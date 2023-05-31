@@ -64,6 +64,50 @@ export const UserSchema = new mongoose.Schema(
         required: false,
       },
     },
+    subscription: {
+      plan: {
+        type: String,
+        enum: ["1k 5 contacts", "2k 10 contacts"],
+      },
+      totalSlots: {
+        type: Number,
+      },
+      availableSlots: {
+        type: Number,
+      },
+      amountSpent: {
+        type: Number,
+      },
+      paidOn: {
+        type: String,
+      },
+      updatedAt: {
+        type: String,
+      },
+    },
+    jobsPostingPlan: {
+      plan: {
+        type: String,
+        enum: ["1k per job", "free posting"],
+        default: "free posting",
+      },
+      totalPosted: {
+        type: Number,
+        default: 0,
+      },
+      availableSlots: {
+        type: Number,
+      },
+      amountSpent: {
+        type: Number,
+      },
+      paidOn: {
+        type: String,
+      },
+      updatedAt: {
+        type: String,
+      },
+    },
     profession: {
       type: String,
       default: "",
@@ -235,6 +279,18 @@ export const UserSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+      },
+    ],
+    savedJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ], 
+    myJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
       },
     ],
     accountType: { type: String, default: "freelancer" },

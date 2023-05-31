@@ -5,6 +5,7 @@ const router = Router();
 import * as controller from '../controllers/authController.js';
 import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
+import * as jobController from '../controllers/jobsController.js';
 import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables } from '../middleware/auth.js';
 
@@ -52,6 +53,13 @@ router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/support/:email').post(Auth, appController.addSupport);
 
 
+
+                        // ***** JOBS ***** //
+// router.route('/search/:key').get(appController.searcher); //Search endpoint
+router.route('/job/post/:email').post(Auth, jobController.postJob);
+router.route('/job/all/:email').get(Auth, jobController.getAllJobs);
+router.route('/job/recommended/:email').get(Auth, jobController.getRecommendedJobs);
+router.route('/job/byUser/:email').get(Auth, jobController.getJobsByUser);
                 
 
 
