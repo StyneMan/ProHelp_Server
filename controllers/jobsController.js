@@ -55,6 +55,7 @@ export async function postJob(req, res) {
       description: req.body?.description,
       screeningQuestions: req.body?.screeningQuestions,
       recruiter: req.body?.recruiter,
+      profession: req.body?.profession,
     });
 
     // return save result as a response
@@ -82,7 +83,7 @@ export async function postJob(req, res) {
             $set: {
               "wallet.balance": em.wallet?.balance - 200,
               "wallet.prevBalance": em?.wallet?.balance,
-              "wallet.updatedAt": new Date().toISOString(), 
+              "wallet.updatedAt": new Date().toISOString(),
               jobCount: em.jobCount + 1,
             },
           },
@@ -94,6 +95,10 @@ export async function postJob(req, res) {
         //Now send email here
         sendJobEmail(email, req.body?.jobTitle, em?.bio?.fullname).then(
           (val) => {
+            global.io.emit("job-posted", {
+              message: "New job posted",
+            });
+
             res.status(200).send({
               success: true,
               message: "Job has been posted successfully ",
@@ -146,7 +151,7 @@ export async function getJobsByUser(req, res) {
 export async function getRecommendedJobs(req, res) {
   try {
     const { userId } = req.query;
-    const usr = User.findOne({ _id: userId });
+    const usr = await User.findOne({ _id: userId });
 
     if (!usr) {
       return res
@@ -160,12 +165,13 @@ export async function getRecommendedJobs(req, res) {
     };
 
     const jobs = await Job.aggregate([
-      { $match: { jobTitle: usr?.profession } },
-      { $sort: { updatedAt: -1 } },
+      // { $or: { jobTitle: { $regex: { $in: [usr?.skills] } } } },
+      { $match: { profession: usr.profession } },
+      // { $sort: { updatedAt: -1 } },
       // pagination
       { $skip: options.page * options.limit },
       { $limit: options.limit },
-      { $sort: { updatedAt: 1 } },
+      { $sort: { updatedAt: -1 } },
     ]);
 
     return res.status(200).send({
@@ -352,7 +358,12 @@ export async function applyJob(req, res) {
         }
       );
 
-      console.log("JB LOG .... ", jb);
+      // console.log("JB LOG .... ", jb);
+
+      global.io.emit("job-application", {
+        job: job,
+        message: `${req.body?.applicant?.name} just applied`,
+      });
 
       //Now send email here
       sendJobApplicationEmail(

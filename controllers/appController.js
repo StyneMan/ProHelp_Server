@@ -327,6 +327,10 @@ export async function searcher(req, res) {
         { "education.degree": { $regex: req.params.key } },
         { "education.course": { $regex: req.params.key } },
         { "skills.name": { $regex: req.params.key } },
+        { "address.state": { $regex: req.params.key } },
+        { "address.country": { $regex: req.params.key } },
+        { "address.city": { $regex: req.params.key } },
+        { profession: { $regex: req.params.key } },
         { accountType: { $regex: req.params.key } },
       ],
     });

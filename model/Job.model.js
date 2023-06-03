@@ -8,6 +8,9 @@ export const JobSchema = mongoose.Schema(
     jobTitle: {
       type: String,
     },
+    professoin: {
+      type: String,
+    },
     company: {
       type: String,
     },
