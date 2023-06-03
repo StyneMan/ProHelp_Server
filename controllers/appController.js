@@ -290,7 +290,7 @@ export async function getLikedUsers(req, res) {
 
     User.findOne({ email: email })
       .then((user) => {
-        console.log("STR ARR ", `${user.savedPros}`);
+        // console.log("STR ARR ", `${user.savedPros}`);
         const stringArray = user.savedPros.map((objectId) =>
           objectId.toString()
         );
@@ -299,7 +299,7 @@ export async function getLikedUsers(req, res) {
 
         User.find({ _id: { $in: stringArray } })
           .then((rs) => {
-            console.log("STR RES ", rs);
+            // console.log("STR RES ", rs);
             res
               .status(200)
               .send({ success: true, message: "Success", data: rs });
@@ -342,9 +342,12 @@ export async function searcher(req, res) {
 }
 
 export async function saveConnection(req, res) {
-  const { guestId, guestName, userId } = req.body;
   try {
-    if (!userId)
+    const { guestId, guestName, userId } = req.body;
+    const { email } = req.params;
+
+    const em = await User.findOne({ email });
+    if (!em)
       return res
         .status(404)
         .send({ success: false, message: "Account does not exist" });
@@ -361,6 +364,21 @@ export async function saveConnection(req, res) {
       userId,
       {
         $push: { connections: guestId },
+        $push: {
+          transactions: {
+            type: "connection",
+            amount: 200,
+            summary: `You connected with ${guestName}`,
+            status: "success",
+            reference: guestId,
+            createdAt: new Date().toISOString(),
+          },
+        },
+        $set: {
+          "wallet.balance": em.wallet?.balance - 200,
+          "wallet.prevBalance": em?.wallet?.balance,
+          "wallet.updatedAt": new Date().toISOString(),
+        },
       },
       { new: true }
     );
@@ -522,7 +540,7 @@ export async function deleteReview(req, res) {
         message: "User does not exist on our platform",
       });
     }
-    
+
     // console.log("USER DATA <<<>>> ", findReviewer);
 
     Review.deleteOne({
@@ -664,6 +682,51 @@ export async function getReviewsByUser(req, res) {
       success: true,
       data: reviews,
     });
+  } catch (error) {
+    console.log("REVIEW ERR>> ", error);
+    return res.status(500).send({ success: false, message: error });
+  }
+}
+
+export async function topUpWallet(req, res) {
+  try {
+    const { userId, amount, reference, type, summary, status } = req.body;
+    const { email } = req.params;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    }
+
+    //Create a new transaction
+    let usr = await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: {
+          transactions: {
+            type: type,
+            reference: reference,
+            createdAt: new Date().toISOString(),
+            amount: amount,
+            summary: summary,
+            status: status,
+          },
+        },
+        $set: {
+          wallet: {
+            balance: user.wallet.balance + amount,
+            prevBalance: user.wallet.balance,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      },
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .send({ success: true, message: "Wallet topup successful", data: usr });
   } catch (error) {
     console.log("REVIEW ERR>> ", error);
     return res.status(500).send({ success: false, message: error });

@@ -6,7 +6,7 @@ import * as controller from '../controllers/authController.js';
 import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
 import * as jobController from '../controllers/jobsController.js';
-import { registerMail } from '../controllers/mailer.js'
+// import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables } from '../middleware/auth.js';
 
 
@@ -51,6 +51,7 @@ router.route('/review/reply/:email').put(Auth, appController.replyReview); //rep
                         // ***** APPLICATION ***** //
 router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/support/:email').post(Auth, appController.addSupport);
+router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
 
 
 
@@ -60,6 +61,13 @@ router.route('/job/post/:email').post(Auth, jobController.postJob);
 router.route('/job/all/:email').get(Auth, jobController.getAllJobs);
 router.route('/job/recommended/:email').get(Auth, jobController.getRecommendedJobs);
 router.route('/job/byUser/:email').get(Auth, jobController.getJobsByUser);
+router.route('/job/savedJobs/:email').get(Auth, jobController.getSavedJobs);
+router.route('/job/delete/:email').put(Auth, jobController.deleteJob);
+router.route('/job/update/:email').put(Auth, jobController.updateJob);
+router.route('/job/save/:email').put(Auth, jobController.bookmarkJob);
+router.route('/job/apply/:email').post(Auth, jobController.applyJob);
+router.route('/job/applications/:email').get(Auth, jobController.getJobApplications);
+router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJobApplication);
                 
 
 

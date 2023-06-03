@@ -64,27 +64,40 @@ export const UserSchema = new mongoose.Schema(
         required: false,
       },
     },
-    subscription: {
-      plan: {
-        type: String,
-        enum: ["1k 5 contacts", "2k 10 contacts"],
-      },
-      totalSlots: {
+    wallet: {
+      balance: {
         type: Number,
-      },
-      availableSlots: {
-        type: Number,
-      },
-      amountSpent: {
-        type: Number,
-      },
-      paidOn: {
-        type: String,
+        default: 1000,
       },
       updatedAt: {
         type: String,
       },
+      prevBalance: {
+        type: Number,
+        default: 0,
+      },
     },
+    transactions: [
+      {
+        type: {
+          type: String,
+          enums: ["fund_wallet", "job_posting", "connection"],
+        },
+        reference: {
+          type: String,
+        },
+        createdAt: {
+          type: String,
+        },
+        amount: {
+          type: Number,
+        },
+        summary: String,
+        status: {
+          type: String,
+        },
+      },
+    ],
     jobsPostingPlan: {
       plan: {
         type: String,
@@ -286,8 +299,18 @@ export const UserSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Job",
       },
-    ], 
+    ],
     myJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
+    jobCount: {
+      type: Number,
+      default: 0,
+    },
+    myJobApplications: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Job",

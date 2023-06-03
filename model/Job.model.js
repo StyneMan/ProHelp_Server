@@ -21,9 +21,13 @@ export const JobSchema = mongoose.Schema(
       country: String,
     },
     screeningQuestions: [],
+    requirements: [],
     jobType: {
       type: String,
       enums: ["full-time", "part-time", "contract", "volunteer"],
+    },
+    minimumQualification: {
+      type: String,
     },
     description: {
       type: String,
@@ -43,6 +47,7 @@ export const JobSchema = mongoose.Schema(
       id: String,
       name: String,
       photo: String,
+      email: String,
     },
   },
   { timestamps: true }
