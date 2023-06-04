@@ -197,10 +197,10 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                         border: none;
                                         height: auto;
                                         float: none;
-                                        width: 15%;
-                                        max-width: 256px;
+                                        width: 22%;
+                                        max-width: 140px;
                                       "
-                                      width="75.8"
+                                      width="140.0"
                                     />
                                     <h1 style="padding-left: 21px">
                                       ProHelp
@@ -299,25 +299,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       "
                                       align="center"
                                     >
-                                      <img
-                                        align="center"
-                                        border="0"
-                                        src="https://cdn.templates.unlayer.com/assets/1597218650916-xxxxc.png"
-                                        alt="Image"
-                                        title="Image"
-                                        style="
-                                          outline: none;
-                                          text-decoration: none;
-                                          -ms-interpolation-mode: bicubic;
-                                          clear: both;
-                                          display: inline-block !important;
-                                          border: none;
-                                          height: auto;
-                                          float: none;
-                                          width: 26%;
-                                          max-width: 150.8px;
-                                        "
-                                        width="150.8"
+                                      
                                       />
                                     </td>
                                   </tr>
@@ -1346,12 +1328,12 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                         border: none;
                                         height: auto;
                                         float: none;
-                                        width: 15%;
-                                        max-width: 256px;
+                                        width: 20%;
+                                        max-width: 150px;
                                       "
-                                      width="75.8"
+                                      width="150"
                                     />
-                                    <h1 style="padding-left: 21px">
+                                    <h1 style="padding-left: 24px">
                                       ProHelp
                                     </h1>
                                   </div>
@@ -1448,26 +1430,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       "
                                       align="center"
                                     >
-                                      <img
-                                        align="center"
-                                        border="0"
-                                        src="https://cdn.templates.unlayer.com/assets/1597218650916-xxxxc.png"
-                                        alt="Image"
-                                        title="Image"
-                                        style="
-                                          outline: none;
-                                          text-decoration: none;
-                                          -ms-interpolation-mode: bicubic;
-                                          clear: both;
-                                          display: inline-block !important;
-                                          border: none;
-                                          height: auto;
-                                          float: none;
-                                          width: 26%;
-                                          max-width: 150.8px;
-                                        "
-                                        width="150.8"
-                                      />
+                                      
                                     </td>
                                   </tr>
                                 </table>
@@ -2445,10 +2408,10 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                         border: none;
                                         height: auto;
                                         float: none;
-                                        width: 15%;
-                                        max-width: 256px;
+                                        width: 25%;
+                                        max-width: 130px;
                                       "
-                                      width="75.8"
+                                      width="130"
                                     />
                                     <h1 style="padding-left: 21px">
                                       ProHelp
@@ -2547,26 +2510,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       "
                                       align="center"
                                     >
-                                      <img
-                                        align="center"
-                                        border="0"
-                                        src="https://cdn.templates.unlayer.com/assets/1597218650916-xxxxc.png"
-                                        alt="Image"
-                                        title="Image"
-                                        style="
-                                          outline: none;
-                                          text-decoration: none;
-                                          -ms-interpolation-mode: bicubic;
-                                          clear: both;
-                                          display: inline-block !important;
-                                          border: none;
-                                          height: auto;
-                                          float: none;
-                                          width: 26%;
-                                          max-width: 150.8px;
-                                        "
-                                        width="150.8"
-                                      />
+                                     
                                     </td>
                                   </tr>
                                 </table>
