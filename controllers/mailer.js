@@ -3549,10 +3549,10 @@ export const sendJobApplicationEmailNotice = async (
                                         border: none;
                                         height: auto;
                                         float: none;
-                                        width: 15%;
-                                        max-width: 256px;
+                                        width: 20%;
+                                        max-width: 200.8px;
                                       "
-                                      width="75.8"
+                                      width="130.0"
                                     />
                                     <h1 style="padding-left: 21px">
                                       ProHelp
@@ -3651,26 +3651,7 @@ export const sendJobApplicationEmailNotice = async (
                                       "
                                       align="center"
                                     >
-                                      <img
-                                        align="center"
-                                        border="0"
-                                        src="https://cdn.templates.unlayer.com/assets/1597218650916-xxxxc.png"
-                                        alt="Image"
-                                        title="Image"
-                                        style="
-                                          outline: none;
-                                          text-decoration: none;
-                                          -ms-interpolation-mode: bicubic;
-                                          clear: both;
-                                          display: inline-block !important;
-                                          border: none;
-                                          height: auto;
-                                          float: none;
-                                          width: 26%;
-                                          max-width: 150.8px;
-                                        "
-                                        width="150.8"
-                                      />
+                                      
                                     </td>
                                   </tr>
                                 </table>
