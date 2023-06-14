@@ -736,3 +736,38 @@ export async function topUpWallet(req, res) {
     return res.status(500).send({ success: false, message: error });
   }
 }
+
+export async function getSupports(req, res) {
+  try {
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      };
+    } else {
+      query = {};
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
+
+    const supports = await Support.paginate(query, options);
+
+    res.status(200).send(supports);
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Some error occurred while fetching loan.",
+    });
+  }
+}

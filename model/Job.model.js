@@ -8,7 +8,7 @@ export const JobSchema = mongoose.Schema(
     jobTitle: {
       type: String,
     },
-    professoin: {
+    profession: {
       type: String,
     },
     company: {

@@ -6,8 +6,10 @@ import * as controller from '../controllers/authController.js';
 import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
 import * as jobController from '../controllers/jobsController.js';
+import * as adminController from '../controllers/adminController.js';
+
 // import { registerMail } from '../controllers/mailer.js'
-import Auth, { localVariables } from '../middleware/auth.js';
+import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
 
 
                         // ***** AUTHENTICATION ***** //
@@ -68,7 +70,16 @@ router.route('/job/save/:email').put(Auth, jobController.bookmarkJob);
 router.route('/job/apply/:email').post(Auth, jobController.applyJob);
 router.route('/job/applications/:email').get(Auth, jobController.getJobApplications);
 router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJobApplication);
-                
 
+
+
+                        // ***** ADMIN ***** //
+router.route('/admin/create').post(verifyAdmin, adminController.register);
+router.route('/admin/login').post(verifyAdmin, adminController.login);
+router.route('/support/all/').get([verifyAdmin, verifyCookie], appController.getSupports);
+router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.profile);
+router.route('/job/all/').get([verifyAdmin, verifyCookie], jobController.getAllJobs);
+router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);
+router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.allUsers);
 
 export default router;

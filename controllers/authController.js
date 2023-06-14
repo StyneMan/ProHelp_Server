@@ -540,3 +540,38 @@ export async function getGoogleParams(req, res) {
     res.status(500).send({ success: false, message: error });
   }
 }
+
+export async function allUsers(req, res) {
+  try {
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      };
+    } else {
+      query = {};
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
+
+    const users = await User.paginate(query, options);
+
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Some error occurred while fetching loan.",
+    });
+  }
+}
