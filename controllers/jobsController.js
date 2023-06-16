@@ -344,7 +344,24 @@ export async function applyJob(req, res) {
 
       const usr = await User.findOneAndUpdate(
         { email: email },
-        { $push: { myJobApplications: req.body?.jobId } },
+        {
+          $push: { myJobApplications: req.body?.jobId },
+          $push: {
+            transactions: {
+              type: "job_application",
+              amount: 200,
+              summary: `You applied for a job with the title ${req.body?.job?.jobTitle}`,
+              status: "success",
+              reference: result?._id?.toString(),
+              createdAt: new Date().toISOString(),
+            },
+          },
+          $set: {
+            "wallet.balance": em.wallet?.balance - 200,
+            "wallet.prevBalance": em?.wallet?.balance,
+            "wallet.updatedAt": new Date().toISOString(),
+          },
+        },
         {
           new: true,
         }
@@ -368,13 +385,13 @@ export async function applyJob(req, res) {
       //Now send email here
       sendJobApplicationEmail(
         usr?.email,
-        req.body?.jobTitle,
+        req.body?.job?.jobTitle,
         usr?.bio?.fullname
       )
         .then((val) => {
           sendJobApplicationEmailNotice(
             job?.recruiter?.email,
-            req.body?.jobTitle,
+            req.body?.job?.jobTitle,
             job?.recruiter?.name,
             usr?.bio?.fullname
           )

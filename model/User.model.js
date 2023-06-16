@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 
-
 export const UserSchema = new mongoose.Schema(
   {
     bio: {
@@ -83,7 +82,12 @@ export const UserSchema = new mongoose.Schema(
       {
         type: {
           type: String,
-          enums: ["fund_wallet", "job_posting", "connection"],
+          enums: [
+            "fund_wallet",
+            "job_posting",
+            "job_application",
+            "connection",
+          ],
         },
         reference: {
           type: String,
