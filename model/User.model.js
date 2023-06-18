@@ -4,7 +4,17 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export const UserSchema = new mongoose.Schema(
   {
     bio: {
-      fullname: {
+      middlename: {
+        type: String,
+        default: "",
+        required: false,
+      },
+      firstname: {
+        type: String,
+        default: "",
+        required: false,
+      },
+      lastname: {
         type: String,
         default: "",
         required: false,
@@ -147,6 +157,14 @@ export const UserSchema = new mongoose.Schema(
       default: "regular",
     },
     isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isDocumentVerified: {
       type: Boolean,
       default: false,
     },
@@ -363,6 +381,10 @@ UserSchema.method("toJSON", function () {
   const { _id, ...object } = this.toObject();
   object.id = _id;
   return object;
+});
+
+UserSchema.virtual("fullname").get(function () {
+  return this.firstname + " " + this.lastname;
 });
 
 export default mongoose.model("User", UserSchema);

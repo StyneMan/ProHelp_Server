@@ -27,34 +27,51 @@ class WebSockets {
       });
     });
 
+    client.on("checkOnline", (userId) => {
+      console.log("ONLINE IDENTITY >> ", userId);
+      let found = this.usersArr?.filter(
+        (user) => user.userId === userId
+      );
+      console.log("ONL >> ", found);
+      client.emit("isOnline", { data: found });
+    });
+
     client.on("isRead", (data) => {
       console.log("IS READ DATA >>>", data);
       let chatId = data?.chatId;
       //Handle mark as read
 
-      Chat.findOne({ _id: chatId }).then(async (cht) => {
-        if (!cht) {
-          return;
-        }
- 
-        if (data?.sender === "") {
-        }
-
-        let result = await Chat.findOneAndUpdate(
-          { _id: chatId },
-          { $pull: { unreadMsgs: { receiverId: data?.reader } } },
-          {
-            new: true,
+      Chat.findOne({ _id: chatId })
+        .then(async (cht) => {
+          if (!cht) {
+            return;
           }
-        );
 
-        //Now mark all messages with this chat is as read
-        Message.updateMany({ chatId: chatId, 'receiver.id': data?.reader }, { isRead: true }).then((msg) => {
-          client
-            .in(chatId)
-            .emit("message-read", { message: "Message is read", data: result });
-        }).catch((error) => console.log('ERROR INNER CHAT READ', error));
-      }).catch((error) => console.log('ERROR CHAT READ', error));;
+          if (data?.sender === "") {
+          }
+
+          let result = await Chat.findOneAndUpdate(
+            { _id: chatId },
+            { $pull: { unreadMsgs: { receiverId: data?.reader } } },
+            {
+              new: true,
+            }
+          );
+
+          //Now mark all messages with this chat is as read
+          Message.updateMany(
+            { chatId: chatId, "receiver.id": data?.reader },
+            { isRead: true }
+          )
+            .then((msg) => {
+              client.in(chatId).emit("message-read", {
+                message: "Message is read",
+                data: result,
+              });
+            })
+            .catch((error) => console.log("ERROR INNER CHAT READ", error));
+        })
+        .catch((error) => console.log("ERROR CHAT READ", error));
     });
 
     // subscribe person to chat & other user as well

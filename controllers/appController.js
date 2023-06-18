@@ -364,11 +364,13 @@ export async function saveConnection(req, res) {
       { new: true }
     );
 
+    console.log("GUEST ID", guestId);
+
     let usr = await User.findByIdAndUpdate(
       userId,
       {
-        $push: { connections: guestId },
         $push: {
+          connections: guestId,
           transactions: {
             type: "connection",
             amount: 200,
