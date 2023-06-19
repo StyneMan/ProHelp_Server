@@ -47,6 +47,18 @@ export const UserSchema = new mongoose.Schema(
         type: String,
         default: "",
       },
+      idcard: {
+        frontview: {
+          type: String,
+        },
+        backview: {
+          type: String,
+        },
+        idType: {
+          type: String,
+          enums: ["national_id", "voters_card", "drivers_licence", "international_passport"]
+        },
+      }
     },
     address: {
       street: {
@@ -142,6 +154,17 @@ export const UserSchema = new mongoose.Schema(
       default: "",
       required: false,
     },
+    experienceYears: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    languagesSpoken: [],
+    languagesWriteSpeak: [],
+    disability: {
+      type: String,
+      default: "none",
+    },
     password: {
       type: String,
       required: [true, "Please provide a password"],
@@ -164,7 +187,7 @@ export const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    isDocumentVerified: {
+    isEmailVerified: {
       type: Boolean,
       default: false,
     },
@@ -383,8 +406,8 @@ UserSchema.method("toJSON", function () {
   return object;
 });
 
-UserSchema.virtual("fullname").get(function () {
-  return this.firstname + " " + this.lastname;
+UserSchema.virtual("bio.fullname").get(function () {
+  return this.bio.firstname + " " + this.bio.lastname;
 });
 
 export default mongoose.model("User", UserSchema);

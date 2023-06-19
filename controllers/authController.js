@@ -72,7 +72,7 @@ export async function register(req, res) {
             .then(async (result) => {
               //Now send email here 
               let code = generateOTP();
-              sendVerificationCode(email, code, result.bio.fullname, "register")
+              sendVerificationCode(email, code, result.bio.firstname, "register")
                 .then((val) => {
                   res.status(200).send({
                     success: true,
@@ -345,7 +345,7 @@ export async function verifyOTP(req, res) {
 
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isVerified: true } },
+        { $set: { isEmailVerified: true } },
         {
           new: true,
         }
@@ -472,7 +472,7 @@ export async function getGoogleParams(req, res) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
         { email: tic.getAttributes().payload.email },
-        { $set: { isVerified: true } },
+        { $set: { isEmailVerified: true } },
         {
           new: true,
         }
@@ -503,10 +503,11 @@ export async function getGoogleParams(req, res) {
     } else {
       //Does not exist, register here
       const user = new User({
-        "bio.fullname": username.toLowerCase(),
+        "bio.firstname": username.toLowerCase().split(" ")[0],
+        "bio.lastname": username.toLowerCase().split(" ")[1],
         "bio.image": tic.getAttributes().payload.picture,
         email: tic.getAttributes().payload.email,
-        isVerified: true,
+        isEmailVerified: true,
         authType: "google",
       });
 
