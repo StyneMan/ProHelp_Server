@@ -696,7 +696,7 @@ export async function getReviewsByUser(req, res) {
 
 export async function topUpWallet(req, res) {
   try {
-    const { userId, amount, reference, type, summary, status } = req.body;
+    const { userId, amount, value, reference, type, summary, status } = req.body;
     const { email } = req.params;
     const user = await User.findOne({ email });
     if (!user) {
@@ -721,7 +721,7 @@ export async function topUpWallet(req, res) {
         },
         $set: {
           wallet: {
-            balance: user.wallet.balance + amount,
+            balance: user.wallet.balance + value,
             prevBalance: user.wallet.balance,
             updatedAt: new Date().toISOString(),
           },
