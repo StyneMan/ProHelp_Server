@@ -295,7 +295,7 @@ export async function updateUser(req, res) {
         .send({ success: false, message: "User does not exist!" });
     }
   } catch (error) {
-    return res.status(403).send({ error });
+    return res.status(500).send({ error });
   }
 }
 
@@ -383,7 +383,7 @@ export async function verifyOTP(req, res) {
     //
   } catch (error) {
     console.log("ERROR VERIFICATION", error);
-    return res.status(401).send({ error });
+    return res.status(500).send({ error });
   }
 }
 

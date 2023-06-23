@@ -322,11 +322,17 @@ export async function bookmarkJob(req, res) {
 export async function applyJob(req, res) {
   try {
     const { jobId, email } = req.params;
-    const { job } = req.body;
+    const { job, applicant } = req.body;
+    const { id } = applicant;
 
     const em = await Job.findOne({ jobId });
+    const user = await User.findOne({ id });
     if (!em) {
       return res.status(404).send({ success: false, message: "Job not found" });
+    }
+
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
     }
 
     const application = await new JobApplication({
@@ -345,8 +351,8 @@ export async function applyJob(req, res) {
       const usr = await User.findOneAndUpdate(
         { email: email },
         {
-          $push: { myJobApplications: req.body?.jobId },
           $push: {
+            myJobApplications: req.body?.jobId,
             transactions: {
               type: "job_application",
               amount: 200,
@@ -357,8 +363,8 @@ export async function applyJob(req, res) {
             },
           },
           $set: {
-            "wallet.balance": em.wallet?.balance - 200,
-            "wallet.prevBalance": em?.wallet?.balance,
+            "wallet.balance": user?.wallet?.balance - 200,
+            "wallet.prevBalance": user?.wallet?.balance,
             "wallet.updatedAt": new Date().toISOString(),
           },
         },

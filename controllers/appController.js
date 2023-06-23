@@ -52,7 +52,7 @@ export async function addSupport(req, res) {
       .save()
       .then(async (result) => {
         //Now send email here
-        sendSupportEmail(email, ticketId, purpose).then((val) => {
+        sendSupportEmail(user, ticketId, purpose).then((val) => {
           res.status(200).send({
             success: true,
             message: "Request received! Check your email for your ticket ID ",
@@ -373,9 +373,9 @@ export async function saveConnection(req, res) {
           connections: guestId,
           transactions: {
             type: "connection",
-            amount: 200,
+            amount: 200, 
             summary: `You connected with ${guestName}`,
-            status: "success",
+            status: "success", 
             reference: guestId,
             createdAt: new Date().toISOString(),
           },

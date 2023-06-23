@@ -94,6 +94,7 @@ export const UserSchema = new mongoose.Schema(
       },
       updatedAt: {
         type: String,
+        default: "01/01/1900"
       },
       prevBalance: {
         type: Number,
