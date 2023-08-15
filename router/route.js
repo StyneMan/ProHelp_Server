@@ -7,11 +7,12 @@ import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
 import * as jobController from '../controllers/jobsController.js';
 import * as adminController from '../controllers/adminController.js';
+import * as professionController from '../controllers/professionController.js';
 
 // import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
 
-
+ 
                         // ***** AUTHENTICATION ***** //
 router.route('/register').post(controller.register); // register user
 router.route('/login').post(controller.login); // login in app
@@ -35,7 +36,7 @@ router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessa
                         // ***** ACCOUNT ***** //
 router.route('/users').get(controller.getAllUsers)
 router.route('/user/:email').get(Auth, controller.getUser) // user with email
-router.route('/freelancers/:email').get(Auth, appController.getAllFreelancers) // freelancer with email
+router.route('/freelancers/').get(appController.getAllFreelancers) // freelancer with email
 router.route('/recruiters/:email').get(Auth, appController.getAllRecruiters) // freelancer with email
 router.route('/createResetSession').get(controller.createResetSession) // reset all the variables
 router.route('/logout/:email').get(Auth, controller.logout); //Log user out
@@ -54,13 +55,15 @@ router.route('/review/reply/:email').put(Auth, appController.replyReview); //rep
 router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/support/:email').post(Auth, appController.addSupport);
 router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
+router.route('/profession/all').get(professionController.allProfession);
 
 
 
                         // ***** JOBS ***** //
 // router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/job/post/:email').post(Auth, jobController.postJob);
-router.route('/job/all/:email').get(Auth, jobController.getAllJobs);
+router.route('/job/all/').get(jobController.getAllJobs);
+router.route('/job/search/:key').get(jobController.searchJob);
 router.route('/job/recommended/:email').get(Auth, jobController.getRecommendedJobs);
 router.route('/job/byUser/:email').get(Auth, jobController.getJobsByUser);
 router.route('/job/savedJobs/:email').get(Auth, jobController.getSavedJobs);
@@ -81,5 +84,9 @@ router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.
 router.route('/job/all/').get([verifyAdmin, verifyCookie], jobController.getAllJobs);
 router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);
 router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.allUsers);
+router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
+router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);
+router.route('/profession/update').put([verifyAdmin, verifyCookie], professionController.updateProfession);
+
 
 export default router;

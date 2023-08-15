@@ -110,62 +110,93 @@ export async function addAlert(type, message, userId, user) {
 }
 
 export async function getAllFreelancers(req, res) {
-  const { email } = req.params;
+  // const { email } = req.params;
   try {
-    if (!email)
-      return res
-        .status(404)
-        .send({ success: false, message: "User does not exist" });
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
 
-    User.findOne({ email: email }).then((user) => {
-      if (user.accountType === "freelancer") {
-        User.find({ accountType: "freelancer", email: { $ne: email } })
-          .then((val) => {
-            let emptArr = [];
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+        accountType: {
+          $eq: "freelancer",
+        },
+      };
+    } else {
+      query = {
+        accountType: {
+          $eq: "freelancer",
+        },
+      };
+    }
 
-            val.forEach((element) => {
-              const { password, ...rest } = Object.assign({}, element.toJSON());
-              emptArr.push(rest);
-            });
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
 
-            res.status(200).send({
-              success: true,
-              message: "Operation successful",
-              data: emptArr,
-            });
-          })
-          .catch((error) => {
-            console.log("ERROR LOOg >> ", error);
-            res.status(500).send({
-              success: false,
-              message: "An error occurred",
-            });
-          });
-      } else {
-        User.find({ accountType: "freelancer" })
-          .then((val) => {
-            let emptArr = [];
+    const users = await User.paginate(query, options);
 
-            val.forEach((element) => {
-              const { password, ...rest } = Object.assign({}, element.toJSON());
-              emptArr.push(rest);
-            });
+    res.status(200).send(users);
 
-            res.status(200).send({
-              success: true,
-              message: "Operation successful",
-              data: emptArr,
-            });
-          })
-          .catch((error) => {
-            console.log("ERROR LOOg >> ", error);
-            res.status(500).send({
-              success: false,
-              message: "An error occurred",
-            });
-          });
-      }
-    });
+    // if (!email)
+    //   return res
+    //     .status(404)
+    //     .send({ success: false, message: "User does not exist" });
+
+    // User.findOne({ email: email }).then((user) => {
+    //   if (user.accountType === "freelancer") {
+    //     User.find({ accountType: "freelancer", email: { $ne: email } })
+    //       .then((val) => {
+    //         let emptArr = [];
+
+    //         val.forEach((element) => {
+    //           const { password, ...rest } = Object.assign({}, element.toJSON());
+    //           emptArr.push(rest);
+    //         });
+
+    //         res.status(200).send({
+    //           success: true,
+    //           message: "Operation successful",
+    //           data: emptArr,
+    //         });
+    //       })
+    //       .catch((error) => {
+    //         console.log("ERROR LOOg >> ", error);
+    //         res.status(500).send({
+    //           success: false,
+    //           message: "An error occurred",
+    //         });
+    //       });
+    //   } else {
+    //     User.find({ accountType: "freelancer" })
+    //       .then((val) => {
+    //         let emptArr = [];
+
+    //         val.forEach((element) => {
+    //           const { password, ...rest } = Object.assign({}, element.toJSON());
+    //           emptArr.push(rest);
+    //         });
+
+    //         res.status(200).send({
+    //           success: true,
+    //           message: "Operation successful",
+    //           data: emptArr,
+    //         });
+    //       })
+    //       .catch((error) => {
+    //         console.log("ERROR LOOg >> ", error);
+    //         res.status(500).send({
+    //           success: false,
+    //           message: "An error occurred",
+    //         });
+    //       });
+    //   }
+    // });
   } catch (error) {
     console.log("ERROR OCCURED >. ", error);
     return res.status(404).send({ error: "Cannot Find User Data" });
@@ -373,9 +404,9 @@ export async function saveConnection(req, res) {
           connections: guestId,
           transactions: {
             type: "connection",
-            amount: 200, 
+            amount: 200,
             summary: `You connected with ${guestName}`,
-            status: "success", 
+            status: "success",
             reference: guestId,
             createdAt: new Date().toISOString(),
           },
@@ -696,7 +727,8 @@ export async function getReviewsByUser(req, res) {
 
 export async function topUpWallet(req, res) {
   try {
-    const { userId, amount, value, reference, type, summary, status } = req.body;
+    const { userId, amount, value, reference, type, summary, status } =
+      req.body;
     const { email } = req.params;
     const user = await User.findOne({ email });
     if (!user) {

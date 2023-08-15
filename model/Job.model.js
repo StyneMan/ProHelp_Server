@@ -21,7 +21,7 @@ export const JobSchema = mongoose.Schema(
     jobLocation: {
       state: String,
       city: String,
-      country: String,
+      country: String, 
     },
     screeningQuestions: [],
     requirements: [],

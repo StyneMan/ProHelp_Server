@@ -332,7 +332,9 @@ export async function applyJob(req, res) {
     }
 
     if (!user) {
-      return res.status(404).send({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
     }
 
     const application = await new JobApplication({
@@ -587,5 +589,36 @@ export async function getAllApplications(req, res) {
         error?.message ||
         "Some error occurred while fetching loan.",
     });
+  }
+}
+
+export async function searchJob(req, res) {
+  try {
+    if (!req.params.key) {
+      //Return all jobs by default since nothing is typed yet
+      getAllJobs(req, res);
+    } else {
+      let data = await Job.find({
+        $or: [
+          { jobType: { $regex: req.params.key } },
+          { jobStatus: { $regex: req.params.key } },
+          { "jobLocation.country": { $regex: req.params.key } },
+          { "jobLocation.city": { $regex: req.params.key } },
+          { "jobLocation.state": { $regex: req.params.key } },
+          { workplaceType: { $regex: req.params.key } },
+          { company: { $regex: req.params.key } },
+          { jobTitle: { $regex: req.params.key } },
+          { profession: { $regex: req.params.key } },
+        ],
+      });
+
+      res.status(200).send({
+        success: true,
+        message: "search success",
+        data: data,
+      });
+    }
+  } catch (error) {
+    throw new Error(error);
   }
 }

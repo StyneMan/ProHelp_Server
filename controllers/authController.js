@@ -47,7 +47,7 @@ export async function verifyUser(req, res, next) {
 */
 export async function register(req, res) {
   try {
-    const { password, email } = req.body;
+    const { password, email, source } = req.body;
 
     const em = await User.findOne({ email }); // check if a user with the same email exists in the database
 
@@ -61,36 +61,87 @@ export async function register(req, res) {
       bcrypt
         .hash(password, 10)
         .then((hashedPassword) => {
-          const user = new User({
-            password: hashedPassword,
-            email,
-          });
+          if (source === "web") {
+            const user = new User({
+              password: hashedPassword,
+              email,
+              accountType: req.body?.accountType,
+              bio: {
+                gender: req.body?.gender,
+                firstname: req.body?.firstname,
+                lastname: req.body?.lastname,
+                middlename: req.body?.middlename,
+                phone: req.body?.phone,
+              },
+            });
 
-          // return save result as a response
-          user
-            .save()
-            .then(async (result) => {
-              //Now send email here 
-              let code = generateOTP();
-              sendVerificationCode(email, code, result.bio.firstname, "register")
-                .then((val) => {
-                  res.status(200).send({
-                    success: true,
-                    message: "An OTP code has been sent to your email. ",
+            // return save result as a response
+            user
+              .save()
+              .then(async (result) => {
+                //Now send email here
+                let code = generateOTP();
+                sendVerificationCode(
+                  email,
+                  code,
+                  result.bio.firstname,
+                  "register"
+                )
+                  .then((val) => {
+                    res.status(200).send({
+                      success: true,
+                      message: "An OTP code has been sent to your email. ",
+                    });
+                    //Now save the otp code here
+                    app.locals.otp = code;
+
+                    //Save for uauth type
+                    app.locals.authType = "normal";
+                  })
+                  .catch((err) => {
+                    res.status(500).send({ success: false, message: err });
                   });
-                  //Now save the otp code here
-                  app.locals.otp = code;
+              })
+              .catch((error) =>
+                res.status(500).send({ success: false, message: error })
+              );
+          } else { // App
+            const user = new User({
+              password: hashedPassword,
+              email,
+            });
 
-                  //Save for uauth type
-                  app.locals.authType = "normal";
-                })
-                .catch((err) => {
-                  res.status(500).send({ success: false, message: err });
-                });
-            })
-            .catch((error) =>
-              res.status(500).send({ success: false, message: error })
-            );
+            // return save result as a response
+            user
+              .save()
+              .then(async (result) => {
+                //Now send email here
+                let code = generateOTP();
+                sendVerificationCode(
+                  email,
+                  code,
+                  result.bio.firstname,
+                  "register"
+                )
+                  .then((val) => {
+                    res.status(200).send({
+                      success: true,
+                      message: "An OTP code has been sent to your email. ",
+                    });
+                    //Now save the otp code here
+                    app.locals.otp = code;
+
+                    //Save for uauth type
+                    app.locals.authType = "normal";
+                  })
+                  .catch((err) => {
+                    res.status(500).send({ success: false, message: err });
+                  });
+              })
+              .catch((error) =>
+                res.status(500).send({ success: false, message: error })
+              );
+          }
         })
         .catch((error) => {
           return res.status(500).send({
@@ -345,7 +396,7 @@ export async function verifyOTP(req, res) {
 
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isEmailVerified: true } },
+        { $set: { isEmailVerified: true } }, 
         {
           new: true,
         }
@@ -367,13 +418,13 @@ export async function verifyOTP(req, res) {
             success: true,
             token: jwtToken,
           });
-
         })
         .catch((error) => {
           console.log("ERROR UPDA >> ", `${error}`);
-          res.status(500).send({ message: "Account verification failed!", success: false });
+          res
+            .status(500)
+            .send({ message: "Account verification failed!", success: false });
         });
-
     } else {
       return res.status(400).send({
         success: false,
