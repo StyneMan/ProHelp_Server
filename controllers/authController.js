@@ -66,6 +66,7 @@ export async function register(req, res) {
               password: hashedPassword,
               email,
               accountType: req.body?.accountType,
+              profession: req.body?.profession,
               bio: {
                 gender: req.body?.gender,
                 firstname: req.body?.firstname,
@@ -363,7 +364,7 @@ export async function resendOTP(req, res) {
     const { email, type } = req.query;
     app.locals.otp = null;
     let code = generateOTP();
-    sendVerificationCode(
+    sendVerificationCode( 
       email,
       code,
       "",

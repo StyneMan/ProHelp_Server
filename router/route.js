@@ -57,7 +57,7 @@ router.route('/support/:email').post(Auth, appController.addSupport);
 router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
 router.route('/profession/all').get(professionController.allProfession);
 
-
+ 
 
                         // ***** JOBS ***** //
 // router.route('/search/:key').get(appController.searcher); //Search endpoint

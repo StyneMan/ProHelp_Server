@@ -4,12 +4,16 @@
   "description": "",
   "main": "server.js",
   "type": "module",
+  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Stanley Nyekpeye",
+    "email": "stanleynyekpeye@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
