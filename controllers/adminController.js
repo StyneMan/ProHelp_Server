@@ -1,4 +1,5 @@
 import Admin from "../model/Admin.model.js";
+import Legal from "../model/Legal.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import ENV from "../config.js";
@@ -8,7 +9,7 @@ import { sendVerificationCode } from "./mailer.js";
 // import serviceAccount from "../middleware/serviceAccKey.json";
 import express from "express";
 
-let customErr = new Error() 
+let customErr = new Error();
 
 export async function register(req, res) {
   try {
@@ -153,31 +154,206 @@ export async function getAdmins(req, res, next) {
 
 export async function profile(req, res) {
   try {
-
     // console.log("LOGGER ", req);
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You are forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ email: req.decoded.username })
+    const admin = await Admin.findOne({ email: req.decoded.username });
 
     if (!admin) {
-      customErr.message = 'No user found!'
-      customErr.code = 404
-      throw customErr
+      customErr.message = "No user found!";
+      customErr.code = 404;
+      throw customErr;
     }
 
     const { password, ...rest } = Object.assign({}, admin.toJSON());
 
-    res.send(rest)
+    res.send(rest);
 
     //populate data
   } catch (error) {
     res.status(error?.code || 500).send({
-      message: error?.message || 'Some error occurred while retrieving data.',
-    })
+      message: error?.message || "Some error occurred while retrieving data.",
+    });
   }
 }
+
+export async function setPrivacyPolicy(req, res) {
+  try {
+    let { privacy, id } = req.body;
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const admin = await Admin.findOne({ email: req.decoded.username });
+
+    if (!admin) {
+      customErr.message = "No admin found!";
+      customErr.code = 404;
+      throw customErr;
+    }
+
+    if (!id) {
+      console.log("DHN", privacy);
+      const lega = new Legal({
+        privacy: privacy,
+        terms: "",
+        cookies: "",
+      });
+
+      lega
+        .save()
+        .then(async (result) => {
+          res.status(200).send({
+            success: true,
+            message: "Privacy policy set successfully",
+            data: result,
+          });
+        })
+        .catch((error) => {
+          console.log("ERZX", error);
+          res.status(500).send({ success: false, message: error });
+        });
+    } else {
+      const legal = await Legal.findById({ _id: id });
+
+      if (!legal) {
+        //Create new here
+        const lega = new Legal({
+          privacy: privacy,
+          terms: "",
+          cookies: "",
+        });
+
+        lega
+          .save()
+          .then(async (result) => {
+            res.status(200).send({
+              success: true,
+              message: "Privacy policy set successfully",
+              data: result,
+            });
+          })
+          .catch((error) =>
+            res.status(500).send({ success: false, message: error })
+          );
+      } else {
+        let updateLegal = await Legal.findByIdAndUpdate(
+          id,
+          {
+            $set: {
+              privacy: privacy,
+            },
+          },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          success: true,
+          message: "Privacy policy set successfully",
+          data: updateLegal,
+        });
+      }
+    }
+  } catch (error) {
+    customErr.message = error?.message || "An error occurred!";
+    customErr.code = 500;
+    throw customErr;
+  }
+}
+
+export async function setCookiePolicy() {}
+
+export async function setTermsOfUse(req, res) {
+  try {
+    let { terms, id } = req.body;
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const admin = await Admin.findOne({ email: req.decoded.username });
+
+    if (!admin) {
+      customErr.message = "No admin found!";
+      customErr.code = 404;
+      throw customErr;
+    }
+
+    if (!id) {
+      const lega = new Legal({
+        privacy: "",
+        terms: terms,
+        cookies: "",
+      });
+
+      lega
+        .save()
+        .then(async (result) => {
+          res.status(200).send({
+            success: true,
+            message: "Terms of service set successfully",
+            data: result,
+          });
+        })
+        .catch((error) => {
+          console.log("ERZX", error);
+          res.status(500).send({ success: false, message: error });
+        });
+    } else {
+      const legal = await Legal.findById({ _id: id });
+
+      if (!legal) {
+        //Create new here
+        const lega = new Legal({
+          privacy: "",
+          terms: terms,
+          cookies: "",
+        });
+
+        lega
+          .save()
+          .then(async (result) => {
+            res.status(200).send({
+              success: true,
+              message: "Terms of service set successfully",
+              data: result,
+            });
+          })
+          .catch((error) =>
+            res.status(500).send({ success: false, message: error })
+          );
+      } else {
+        let updateLegal = await Legal.findByIdAndUpdate(
+          id,
+          {
+            $set: {
+              terms: terms,
+            },
+          },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          success: true,
+          message: "Terms of service updated successfully",
+          data: updateLegal,
+        });
+      }
+    }
+  } catch (error) {
+    customErr.message = error?.message || "An error occurred!";
+    customErr.code = 500;
+    throw customErr;
+  }
+}
+

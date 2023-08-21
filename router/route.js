@@ -51,11 +51,13 @@ router.route('/review/byUser/:email').get(Auth, appController.getReviewsByUser);
 router.route('/review/reply/:email').put(Auth, appController.replyReview); //reply a specific review
 
 
+
                         // ***** APPLICATION ***** //
 router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/support/:email').post(Auth, appController.addSupport);
 router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
 router.route('/profession/all').get(professionController.allProfession);
+router.route('/legal/all').get(appController.getLegal);
 
  
 
@@ -87,6 +89,9 @@ router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.al
 router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
 router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);
 router.route('/profession/update').put([verifyAdmin, verifyCookie], professionController.updateProfession);
+router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], adminController.setPrivacyPolicy);
+router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], adminController.setTermsOfUse);
+
 
 
 export default router;

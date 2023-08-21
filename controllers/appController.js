@@ -4,7 +4,7 @@ import { sendSupportEmail } from "./mailer.js";
 import User from "../model/User.model.js";
 import Alert from "../model/Alert.model.js";
 import Review from "../model/Review.model.js";
-// import SupportModel from "../model/Support.model";
+import Legal from "../model/Legal.model.js";
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -802,6 +802,38 @@ export async function getSupports(req, res) {
         error?.response?.data?.message ||
         error?.message ||
         "Some error occurred while fetching loan.",
+    });
+  }
+}
+
+export async function getLegal(req, res) {
+  try {
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      };
+    } else {
+      query = {};
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
+
+    const legal = await Legal.paginate(query, options);
+    res.status(200).send(legal);
+
+  } catch (error) {
+    res.status(error?.code || 500).send({
+      message: error?.message || "Some error occurred while retrieving data.",
     });
   }
 }
