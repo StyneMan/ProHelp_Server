@@ -50,10 +50,11 @@ router.route('/review/delete/:email').put(Auth, appController.deleteReview); //D
 router.route('/review/byUser/:email').get(Auth, appController.getReviewsByUser); //get all user's reviews
 router.route('/review/reply/:email').put(Auth, appController.replyReview); //reply a specific review
 
-
+ 
 
                         // ***** APPLICATION ***** //
-router.route('/search/:key').get(appController.searcher); //Search endpoint
+router.route('/search/:key').get(appController.searcher); //Search endpoint 
+router.route('/searching/:key').get(appController.searcherAdvanced); //Search endpoint
 router.route('/support/:email').post(Auth, appController.addSupport);
 router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
 router.route('/profession/all').get(professionController.allProfession);

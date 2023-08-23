@@ -5,6 +5,8 @@ import User from "../model/User.model.js";
 import Alert from "../model/Alert.model.js";
 import Review from "../model/Review.model.js";
 import Legal from "../model/Legal.model.js";
+import Job from "../model/Job.model.js";
+// import JobModel from "../model/Job.model.js";
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -372,6 +374,126 @@ export async function searcher(req, res) {
       data: data,
     });
   } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function searcherAdvanced(req, res) {
+  const { key } = req.params;
+  const { location } = req.query;
+  try {
+    const escapedKey = req.params.key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    console.log("LOCATION:: :: ", location);
+
+    if (location !== undefined) {
+      //Add location filtering here
+      let data = await User.find({
+        $and: [
+          {
+            $or: [
+              { "bio.firstname": { $regex: req.params.key } },
+              { "experience.company": { $regex: req.params.key } },
+              { "experience.region": { $regex: req.params.key } },
+              { "experience.country": { $regex: req.params.key } },
+              { "experience.workType": { $regex: req.params.key } },
+              { "experience.role": { $regex: req.params.key } },
+              { "education.school": { $regex: req.params.key } },
+              { "education.degree": { $regex: req.params.key } },
+              { "education.course": { $regex: req.params.key } },
+              { "skills.name": { $regex: req.params.key } },
+              { "address.state": { $regex: req.params.key } },
+              { "address.country": { $regex: req.params.key } },
+              { "address.city": { $regex: req.params.key } },
+              { profession: { $regex: req.params.key } },
+              { accountType: { $regex: req.params.key } },
+            ],
+          },
+          {
+            $or: [
+              { "address.state": { $regex: location, $options: "i" } },
+              { "address.city": { $regex: location, $options: "i" } },
+            ],
+          },
+        ],
+      });
+
+      let jobData = await Job.find({
+        $and: [
+          {
+            $or: [
+              { company: { $regex: escapedKey, $options: "i" } },
+              { jobType: { $regex: escapedKey, $options: "i" } },
+              { jobTitle: { $regex: escapedKey, $options: "i" } },
+              { profession: { $regex: escapedKey, $options: "i" } },
+              { workplaceType: { $regex: escapedKey, $options: "i" } },
+            ],
+          },
+          {
+            $or: [
+              { "jobLocation.state": { $regex: location, $options: "i" } },
+              { "jobLocation.city": { $regex: location, $options: "i" } },
+            ],
+          },
+        ],
+      });
+
+      const combinedResults = [...data, ...jobData];
+
+      console.log("KLL", combinedResults?.length);
+      console.log("D", data?.length);
+      console.log("J", jobData?.length);
+
+      res.status(200).send({
+        success: true,
+        message: "search success",
+        data: combinedResults,
+      });
+    } else {
+      let data = await User.find({
+        $or: [
+          { "bio.firstname": { $regex: req.params.key } },
+          { "experience.company": { $regex: req.params.key } },
+          { "experience.region": { $regex: req.params.key } },
+          { "experience.country": { $regex: req.params.key } },
+          { "experience.workType": { $regex: req.params.key } },
+          { "experience.role": { $regex: req.params.key } },
+          { "education.school": { $regex: req.params.key } },
+          { "education.degree": { $regex: req.params.key } },
+          { "education.course": { $regex: req.params.key } },
+          { "skills.name": { $regex: req.params.key } },
+          { "address.state": { $regex: req.params.key } },
+          { "address.country": { $regex: req.params.key } },
+          { "address.city": { $regex: req.params.key } },
+          { profession: { $regex: req.params.key } },
+          { accountType: { $regex: req.params.key } },
+        ],
+      });
+
+      let jobData = await Job.find({
+        $or: [
+          { company: { $regex: escapedKey, $options: "i" } },
+          { jobType: { $regex: escapedKey, $options: "i" } },
+          { jobTitle: { $regex: escapedKey, $options: "i" } },
+          { profession: { $regex: escapedKey, $options: "i" } },
+          { workplaceType: { $regex: escapedKey, $options: "i" } },
+        ],
+      });
+
+      const combinedResults = [...data, ...jobData];
+
+      console.log("KLL", combinedResults?.length);
+      console.log("D", data?.length);
+      console.log("J", jobData?.length);
+
+      res.status(200).send({
+        success: true,
+        message: "search success",
+        data: combinedResults,
+      });
+    }
+  } catch (error) {
+    console.log("ERROR RESPONSE HERE :: ", error);
     throw new Error(error);
   }
 }
@@ -830,7 +952,6 @@ export async function getLegal(req, res) {
 
     const legal = await Legal.paginate(query, options);
     res.status(200).send(legal);
-
   } catch (error) {
     res.status(error?.code || 500).send({
       message: error?.message || "Some error occurred while retrieving data.",
