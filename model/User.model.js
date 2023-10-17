@@ -29,6 +29,10 @@ export const UserSchema = new mongoose.Schema(
         default: "Male",
         required: false,
       },
+      maritalStatus: {
+        type: String,
+        enums: ["single", "married", "divorced", "widowed"]
+      },
       dob: {
         type: String,
         default: "",

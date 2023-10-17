@@ -142,63 +142,116 @@ export async function getAllFreelancers(req, res) {
     };
 
     const users = await User.paginate(query, options);
-
+    // console.log("PROS :: ", users);
     res.status(200).send(users);
+  } catch (error) {
+    console.log("ERROR OCCURED >. ", error);
+    return res.status(404).send({ error: "Cannot Find User Data" });
+  }
+}
 
-    // if (!email)
-    //   return res
-    //     .status(404)
-    //     .send({ success: false, message: "User does not exist" });
+function calculateAge(dateOfBirth) {
+  // Parse the date of birth into a Date object
+  const dob = new Date(dateOfBirth);
 
-    // User.findOne({ email: email }).then((user) => {
-    //   if (user.accountType === "freelancer") {
-    //     User.find({ accountType: "freelancer", email: { $ne: email } })
-    //       .then((val) => {
-    //         let emptArr = [];
+  // Get the current date
+  const currentDate = new Date();
 
-    //         val.forEach((element) => {
-    //           const { password, ...rest } = Object.assign({}, element.toJSON());
-    //           emptArr.push(rest);
-    //         });
+  // Calculate the difference in milliseconds
+  const ageDiff = currentDate - dob;
 
-    //         res.status(200).send({
-    //           success: true,
-    //           message: "Operation successful",
-    //           data: emptArr,
-    //         });
-    //       })
-    //       .catch((error) => {
-    //         console.log("ERROR LOOg >> ", error);
-    //         res.status(500).send({
-    //           success: false,
-    //           message: "An error occurred",
-    //         });
-    //       });
-    //   } else {
-    //     User.find({ accountType: "freelancer" })
-    //       .then((val) => {
-    //         let emptArr = [];
+  // Convert the difference to years
+  const ageDate = new Date(ageDiff);
+  const years = ageDate.getUTCFullYear() - 1970;
 
-    //         val.forEach((element) => {
-    //           const { password, ...rest } = Object.assign({}, element.toJSON());
-    //           emptArr.push(rest);
-    //         });
+  return years;
+}
 
-    //         res.status(200).send({
-    //           success: true,
-    //           message: "Operation successful",
-    //           data: emptArr,
-    //         });
-    //       })
-    //       .catch((error) => {
-    //         console.log("ERROR LOOg >> ", error);
-    //         res.status(500).send({
-    //           success: false,
-    //           message: "An error occurred",
-    //         });
-    //       });
-    //   }
-    // });
+export async function getAllFreelancersByProfession(req, res) {
+  const { profession } = req.params;
+  try {
+    let query;
+    const {
+      page = 1,
+      range,
+      limit = 25,
+      location,
+      skills,
+      age,
+      maritalStatus,
+    } = req.query;
+
+    console.log("LOCATION :: ", location);
+    console.log("SKILLS :: ", skills);
+    console.log("AGE:: ", age);
+    console.log("MARITAL STATUS :: ", maritalStatus);
+
+    // console.log("AGE :: ", calculateAge(age));
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+        accountType: {
+          $eq: "freelancer",
+        },
+        profession: { $eq: profession },
+      };
+    } else {
+      if (location && skills) {
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            { "address.state": { $eq: location } },
+            {
+              skills: {
+                $elemMatch: {
+                  name: { $in: skills },
+                },
+              },
+            },
+          ],
+        };
+      } else if (location && !skills) {
+        console.log("NOW THIS");
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            { "address.state": { $eq: location } },
+          ],
+        };
+      } else if (!location && skills) {
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            {
+              skills: {
+                $elemMatch: {
+                  name: { $in: skills },
+                },
+              },
+            },
+          ],
+        };
+      } else {
+        query = {
+          profession: { $eq: profession },
+        };
+        console.log("THIS CASE");
+      }
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
+
+    const users = await User.paginate(query, options);
+    // console.log("FOUND USERS :: ", users);
+    res.status(200).send(users);
   } catch (error) {
     console.log("ERROR OCCURED >. ", error);
     return res.status(404).send({ error: "Cannot Find User Data" });

@@ -1,4 +1,5 @@
 import User from "../model/User.model.js";
+import OTP from "../model/OTP.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import ENV from "../config.js";
@@ -8,6 +9,7 @@ import admin from "firebase-admin";
 // import serviceAccount from "../middleware/serviceAccKey.json";
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
+import OTPModel from "../model/OTP.model.js";
 
 const app = express();
 
@@ -88,13 +90,20 @@ export async function register(req, res) {
                   result.bio.firstname,
                   "register"
                 )
-                  .then((val) => {
+                  .then(async (val) => {
                     res.status(200).send({
                       success: true,
                       message: "An OTP code has been sent to your email. ",
                     });
                     //Now save the otp code here
                     app.locals.otp = code;
+                    const otp = await OTP.findOne({ user: user?.id });
+
+                    if (otp) {
+                      //Override OTP code
+                      console.log("JK", otp);
+                    } else {
+                    }
 
                     //Save for uauth type
                     app.locals.authType = "normal";
@@ -106,7 +115,8 @@ export async function register(req, res) {
               .catch((error) =>
                 res.status(500).send({ success: false, message: error })
               );
-          } else { // App
+          } else {
+            // App
             const user = new User({
               password: hashedPassword,
               email,
@@ -124,12 +134,37 @@ export async function register(req, res) {
                   result.bio.firstname,
                   "register"
                 )
-                  .then((val) => {
+                  .then(async (val) => {
                     res.status(200).send({
                       success: true,
                       message: "An OTP code has been sent to your email. ",
                     });
                     //Now save the otp code here
+                    const otp = await OTP.findOne({ user: user?.id });
+
+                    if (otp) {
+                      //Override OTP code
+
+                      const updated = await OTP.findOneAndUpdate(
+                        otp?._id,
+                        {
+                          $set: {
+                            code: code,
+                          },
+                        },
+                        { new: true }
+                      );
+                      console.log("JK", otp);
+                    } else {
+                      const addOTP = await new OTP({
+                        user: user?.id,
+                        emailAddress: email,
+                        code,
+                      }).save();
+
+                      console.log("SAVED RESPONSE ::: ", addOTP);
+                    }
+
                     app.locals.otp = code;
 
                     //Save for uauth type
@@ -362,19 +397,40 @@ function generateOTP() {
 export async function resendOTP(req, res) {
   try {
     const { email, type } = req.query;
+    const user = await User.findOne({ email });
     app.locals.otp = null;
     let code = generateOTP();
-    sendVerificationCode( 
+    sendVerificationCode(
       email,
       code,
       "",
       type === "register" ? "register" : "password"
-    ).then((val) => {
+    ).then(async (val) => {
       res.status(200).send({
         success: true,
         message: "An OTP code has been sent to your email. ",
       });
       //Now save the otp code here
+      const otp = await OTP.findOne({ user: user?.id });
+
+      if (otp) {
+        // Update OTP code
+        const updated = await OTP.findOneAndUpdate(
+          otp?._id,
+          {
+            $set: {
+              code: code,
+            },
+          },
+          { new: true }
+        );
+      } else {
+        const addOTP = await new OTP({
+          user: user?.id,
+          emailAddress: email,
+          code,
+        }).save();
+      }
       app.locals.otp = code;
     });
   } catch (error) {
@@ -391,14 +447,32 @@ export async function verifyOTP(req, res) {
   console.log("OTP CODE", code);
   console.log("OTP CODE2", app.locals.otp);
   try {
-    if (parseInt(app.locals.otp) === parseInt(code)) {
+    const otp = await OTP.findOne({ emailAddress: email });
+    if (!otp) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Code not found!" });
+    }
+
+    if (parseInt(otp?.code) === parseInt(code)) {
       app.locals.otp = null; // reset the OTP value
       app.locals.resetSession = true; // start session for reset password
 
+      // Now reset OTP  code here
+       await OTP.findOneAndUpdate(
+        otp?._id,
+        {
+          $set: {
+            code: '',
+          },
+        },
+        { new: true }
+      );
+
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isEmailVerified: true } }, 
-        {
+        { $set: { isEmailVerified: true } },
+        { 
           new: true,
         }
       )
