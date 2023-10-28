@@ -13,6 +13,13 @@ export async function initiateChat(req, res) {
       },
     });
 
+    if (!availableRoom) {
+      return res.status(404).send({
+        message: "Chat room not found!",
+        success: false,
+      });
+    }
+
     if (availableRoom) {
       global.io.in(chatInitiator).emit("new-chat", { message: availableRoom });
       return res.status(200).send({
@@ -46,7 +53,10 @@ export async function initiateChat(req, res) {
     });
   } catch (error) {
     console.log("error on start chat method", error);
-    throw error;
+    return res.status(500).send({
+      message: error?.message,
+      success: false,
+    });
   }
 }
 
@@ -79,7 +89,10 @@ export async function getChatsByUser(req, res) {
     });
   } catch (error) {
     console.log("ERROR", error);
-    throw new Error(error);
+    return res.status(500).send({
+      message: error?.message,
+      success: false,
+    });
   }
 }
 
@@ -101,7 +114,10 @@ export async function getChatById(req, res) {
     });
   } catch (error) {
     console.log("ERROR", error);
-    throw new Error(error);
+    return res.status(500).send({
+      message: error?.message,
+      success: false,
+    });
   }
 }
 
@@ -191,7 +207,10 @@ export async function postMessage(req, res) {
     // ]);
     // return aggregate[0];
   } catch (error) {
-    throw error;
+    return res.status(500).send({
+      message: error?.message,
+      success: false,
+    });
   }
 }
 
@@ -270,13 +289,11 @@ export async function deleteMessage(req, res) {
       .in(chatId)
       .emit("is-deleted", { messageId: messageId, message: result });
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "You just deleted a conversation",
-        data: result,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "You just deleted a conversation",
+      data: result,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, error });

@@ -36,8 +36,8 @@ router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessa
                         // ***** ACCOUNT ***** //
 router.route('/users').get(controller.getAllUsers)
 router.route('/user/:email').get(Auth, controller.getUser) // user with email
-router.route('/freelancers/').get(appController.getAllFreelancers) // freelancer with email
-router.route('/freelancers/:profession').get(appController.getAllFreelancersByProfession) // freelancer with email
+router.route('/freelancers/').get(appController.getAllProfessionals) // freelancer with email
+router.route('/freelancers/:profession').get(appController.getAllProfessionalsByProfession) // freelancer with email
 router.route('/recruiters/:email').get(Auth, appController.getAllRecruiters) // freelancer with email
 router.route('/createResetSession').get(controller.createResetSession) // reset all the variables
 router.route('/logout/:email').get(Auth, controller.logout); //Log user out

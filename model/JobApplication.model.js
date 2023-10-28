@@ -27,7 +27,7 @@ export const JobApplicationSchema = mongoose.Schema(
       type: String,
     },
     answers: [
-      {
+      { 
         question: { type: String },
         answer: {
           type: String,

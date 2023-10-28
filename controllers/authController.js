@@ -222,9 +222,18 @@ export async function forgotPassword(req, res) {
 
 export async function login(req, res) {
   const { email, password } = req.body;
+
   try {
     User.findOne({ email })
       .then((user) => {
+        if (!user) {
+          console.log("USER NOT FOUND !!!");
+          return res.status(404).send({
+            success: false,
+            message: "User account does not exist",
+          });
+        }
+
         bcrypt
           .compare(password, user.password)
           .then((passwordCheck) => {
@@ -263,6 +272,7 @@ export async function login(req, res) {
           });
       })
       .catch((error) => {
+        console.log("ERRO  ", error);
         return res.status(404).send({
           success: false,
           message: "User account does not exist",
@@ -459,11 +469,11 @@ export async function verifyOTP(req, res) {
       app.locals.resetSession = true; // start session for reset password
 
       // Now reset OTP  code here
-       await OTP.findOneAndUpdate(
+      await OTP.findOneAndUpdate(
         otp?._id,
         {
           $set: {
-            code: '',
+            code: "",
           },
         },
         { new: true }
@@ -472,7 +482,7 @@ export async function verifyOTP(req, res) {
       User.findOneAndUpdate(
         { email: email },
         { $set: { isEmailVerified: true } },
-        { 
+        {
           new: true,
         }
       )
@@ -553,7 +563,7 @@ export async function resetPassword(req, res) {
             })
             .catch((e) => {
               return res.status(500).send({
-                error: "Enable to update password",
+                error: "Unable to update password",
               });
             });
         })

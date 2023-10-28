@@ -24,7 +24,7 @@ export const SupportSchema = mongoose.Schema(
         type: String,
         required: true,
       },
-      image: { type: String, required: true },
+      image: { type: String, required: false },
     },
     ticket: {
       type: String,

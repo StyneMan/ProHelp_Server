@@ -63,14 +63,14 @@ export async function postJob(req, res) {
       .save()
       .then(async (result) => {
         //Save job to user profile
-        // console.log("RESF", result?._id);
-        // console.log("RESF 2", result?._id?.toString());
+        console.log("RESF", result?._id);
+        console.log("RESF 2", result?._id?.toString());
 
         const usr = await User.findOneAndUpdate(
           { email: email },
           {
-            $push: { myJobs: result?._id?.toString() },
             $push: {
+              myJobs: result?._id?.toString(),
               transactions: {
                 type: "job_posting",
                 amount: 200,
@@ -93,19 +93,21 @@ export async function postJob(req, res) {
         );
 
         //Now send email here
-        sendJobEmail(email, req.body?.jobTitle, em?.bio?.fullname).then(
-          (val) => {
-            global.io.emit("job-posted", {
-              message: "New job posted",
-            });
+        sendJobEmail(
+          email,
+          req.body?.jobTitle,
+          `${em?.bio?.firstname} ${em?.bio?.lastname}`
+        ).then((val) => {
+          global.io.emit("job-posted", {
+            message: "New job posted",
+          });
 
-            res.status(200).send({
-              success: true,
-              message: "Job has been posted successfully ",
-              data: result,
-            });
-          }
-        );
+          res.status(200).send({
+            success: true,
+            message: "Job has been posted successfully ",
+            data: result,
+          });
+        });
       })
       .catch((error) =>
         res
@@ -122,26 +124,25 @@ export async function postJob(req, res) {
 
 export async function getJobsByUser(req, res) {
   try {
-    const { userId } = req.query;
-    const options = {
-      page: parseInt(req.query.page) || 0,
-      limit: parseInt(req.query.limit) || 25,
+    const { email } = req.params;
+    let query;
+    const { page = 1, limit = 30 } = req.query;
+
+    console.log("EMAIL  ::: ", email);
+
+    query = {
+      "recruiter.email": { $eq: email },
     };
 
-    const jobs = await Job.aggregate([
-      { $match: { "recruiter.id": userId } },
-      // { $sort: { updatedAt: -1 } },
-      // pagination
-      { $skip: options.page * options.limit },
-      { $limit: options.limit },
-      { $sort: { updatedAt: -1 } },
-    ]);
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
 
-    return res.status(200).send({
-      success: true,
-      message: "",
-      data: jobs,
-    });
+    const jobs = await Job.paginate(query, options);
+    res.status(200).send(jobs);
+
   } catch (error) {
     console.log("ERROR", error);
     throw new Error(error);

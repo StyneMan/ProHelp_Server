@@ -368,7 +368,7 @@ export const UserSchema = new mongoose.Schema(
         ref: "Job",
       },
     ],
-    accountType: { type: String, default: "freelancer" },
+    accountType: { type: String, default: "professional" },
     reviews: [
       {
         reviewId: {

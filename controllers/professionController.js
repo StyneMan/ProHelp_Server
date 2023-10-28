@@ -1,14 +1,13 @@
-// import { errorMonitor } from "nodemailer/lib/xoauth2"; 
+// import { errorMonitor } from "nodemailer/lib/xoauth2";
 import Profession from "../model/Profession.model.js";
-
-let customErr = new Error();
 
 export async function addProfession(req, res) {
   try {
     if (!req.decoded) {
-      customErr.message = "You are forbidden!";
-      customErr.code = 403;
-      throw customErr;
+      return res.status(403).send({
+        success: false,
+        message: "You are forbidden!",
+      });
     }
 
     const profession = await new Profession({ ...req.body });
@@ -23,9 +22,10 @@ export async function addProfession(req, res) {
       })
       .catch((err) => {
         console.log("ADD PRofession Error =>", err);
-        customErr.message = "An error occurred!";
-        customErr.code = 400;
-        throw customErr;
+        return res.status(400).send({
+          success: false,
+          message: `${err?.message || "An error occurred"}`,
+        });
       });
   } catch (error) {
     console.log("ADD PRofession Error =>", error);
@@ -59,18 +59,20 @@ export async function allProfession(req, res) {
 
     res.status(200).send(professions);
   } catch (error) {
-    customErr.message = "An error occurred";
-    customErr.code = 500;
-    throw customErr;
+    return res.status(500).send({
+      success: false,
+      message: error,
+    });
   }
 }
 
 export async function deleteProfession(req, res) {
   try {
     if (!req.decoded) {
-      customErr.message = "You are forbidden!";
-      customErr.code = 403;
-      throw customErr;
+      return res.status(403).send({
+        success: false,
+        message: "You are forbidden!",
+      });
     }
 
     const { id } = req.query;
@@ -89,14 +91,15 @@ export async function deleteProfession(req, res) {
       data: profe,
     });
   } catch (error) {
-    console.log("DELET ERR PROFESSION", error);
-    customErr.message = "An error occurred!";
-    customErr.code = 500;
-    throw customErr;
+    return res.status(500).send({
+      success: false,
+      message: error,
+    });
   }
 }
 
 export async function updateProfession(req, res) {
+  const customErr = new Error();
   try {
     const payload = req.body;
     const { id } = req.query;

@@ -111,7 +111,7 @@ export async function addAlert(type, message, userId, user) {
   }
 }
 
-export async function getAllFreelancers(req, res) {
+export async function getAllProfessionals(req, res) {
   // const { email } = req.params;
   try {
     let query;
@@ -124,13 +124,13 @@ export async function getAllFreelancers(req, res) {
           $lte: endOfDay(new Date()),
         },
         accountType: {
-          $eq: "freelancer",
+          $eq: "professional",
         },
       };
     } else {
       query = {
         accountType: {
-          $eq: "freelancer",
+          $eq: "professional",
         },
       };
     }
@@ -167,7 +167,7 @@ function calculateAge(dateOfBirth) {
   return years;
 }
 
-export async function getAllFreelancersByProfession(req, res) {
+export async function getAllProfessionalsByProfession(req, res) {
   const { profession } = req.params;
   try {
     let query;
@@ -195,16 +195,17 @@ export async function getAllFreelancersByProfession(req, res) {
           $lte: endOfDay(new Date()),
         },
         accountType: {
-          $eq: "freelancer",
+          $eq: "professional",
         },
         profession: { $eq: profession },
       };
     } else {
-      if (location && skills) {
+      if (location && skills && maritalStatus) {
         query = {
           $and: [
             { profession: { $eq: profession } },
             { "address.state": { $eq: location } },
+            { "bio.maritalStatus": { $eq: maritalStatus } },
             {
               skills: {
                 $elemMatch: {
@@ -214,7 +215,7 @@ export async function getAllFreelancersByProfession(req, res) {
             },
           ],
         };
-      } else if (location && !skills) {
+      } else if (location && !skills && !maritalStatus) {
         console.log("NOW THIS");
         query = {
           $and: [
@@ -222,7 +223,21 @@ export async function getAllFreelancersByProfession(req, res) {
             { "address.state": { $eq: location } },
           ],
         };
-      } else if (!location && skills) {
+      } else if (!location && skills && maritalStatus) {
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            { "bio.maritalStatus": { $eq: maritalStatus } },
+            {
+              skills: {
+                $elemMatch: {
+                  name: { $in: skills },
+                },
+              },
+            },
+          ],
+        };
+      } else if (!location && skills && !maritalStatus) {
         query = {
           $and: [
             { profession: { $eq: profession } },
@@ -235,7 +250,25 @@ export async function getAllFreelancersByProfession(req, res) {
             },
           ],
         };
-      } else {
+      } 
+      else if (!location && !skills && maritalStatus) {
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            { "bio.maritalStatus": { $eq: maritalStatus } },
+          ],
+        };
+      } 
+      else if (location && !skills && maritalStatus) {
+        query = {
+          $and: [
+            { profession: { $eq: profession } },
+            { "address.state": { $eq: location } },
+            { "bio.maritalStatus": { $eq: maritalStatus } },
+          ],
+        };
+      } 
+      else {
         query = {
           profession: { $eq: profession },
         };
@@ -587,10 +620,10 @@ export async function saveConnection(req, res) {
           },
         },
         $set: {
-          "wallet.balance": em.wallet?.balance - 200,
+          "wallet.balance": em.wallet?.balance - 200, 
           "wallet.prevBalance": em?.wallet?.balance,
           "wallet.updatedAt": new Date().toISOString(),
-        },
+        }, 
       },
       { new: true }
     );
@@ -598,7 +631,7 @@ export async function saveConnection(req, res) {
     const { password, ...rest } = Object.assign({}, usr.toJSON());
 
     return res.status(200).send({
-      success: false,
+      success: true,
       message: "Successfully connected to " + guestName,
       data: rest,
     });
