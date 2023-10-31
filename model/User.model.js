@@ -39,7 +39,7 @@ export const UserSchema = new mongoose.Schema(
         required: false,
       },
       nin: {
-        type: String,
+        type: String, 
         required: false,
         default: "",
       },

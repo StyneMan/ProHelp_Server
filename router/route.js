@@ -76,6 +76,7 @@ router.route('/job/update/:email').put(Auth, jobController.updateJob);
 router.route('/job/save/:email').put(Auth, jobController.bookmarkJob);
 router.route('/job/apply/:email').post(Auth, jobController.applyJob);
 router.route('/job/applications/:email').get(Auth, jobController.getJobApplications);
+router.route('/job/applications/byUser/:email').get(Auth, jobController.getJobApplicationsByUser);
 router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJobApplication);
 
 

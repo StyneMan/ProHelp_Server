@@ -142,10 +142,12 @@ export async function getJobsByUser(req, res) {
 
     const jobs = await Job.paginate(query, options);
     res.status(200).send(jobs);
-
   } catch (error) {
     console.log("ERROR", error);
-    throw new Error(error);
+    res.status(500).send({
+      success: false,
+      message: error?.message,
+    });
   }
 }
 
@@ -355,7 +357,7 @@ export async function applyJob(req, res) {
         { email: email },
         {
           $push: {
-            myJobApplications: req.body?.jobId,
+            myJobApplications: result?._id?.toString(),
             transactions: {
               type: "job_application",
               amount: 200,
@@ -413,17 +415,21 @@ export async function applyJob(req, res) {
             })
             .catch((err) => {
               console.log("INNER - ERROR", err);
-              throw new Error(err);
+              return res
+                .status(500)
+                .send({ success: false, message: error?.message });
             });
         })
         .catch((error) => {
           console.log("ERROR", error);
-          throw new Error(error);
+          return res
+            .status(500)
+            .send({ success: false, message: error?.message });
         });
     });
   } catch (error) {
     console.log("CATCH - ERROR", error);
-    throw new Error(error);
+    return res.status(500).send({ success: false, message: error?.message });
   }
 }
 
@@ -489,27 +495,43 @@ export async function getJobApplications(req, res) {
       message: "",
       data: applications,
     });
-
-    // Job.findOne({ jobId })
-    //   .then((job) => {
-    //     if (!job) {
-    //       return res
-    //         .status(404)
-    //         .send({ success: false, message: "Job not found" });
-    //     }
-
-    //     JobApplication.find({ jobId: jobId })
-    //       .then((rs) => {
-    //         // console.log("STR RES ", rs);
-    //         res
-    //           .status(200)
-    //           .send({ success: true, message: "job applications", data: rs });
-    //       })
-    //       .catch((error) => console.log("ERR >> ", error));
-    //   })
-    //   .catch((err) => console.log("ERRORRO >> ", err));
   } catch (error) {
-    throw new Error(error);
+    console.log("ERR ", error);
+    return res.status(500).send({ success: false, message: error?.message });
+  }
+}
+
+export async function getJobApplicationsByUser(req, res) {
+  const { email } = req.params;
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user)
+      return res
+        .status(404)
+        .send({ success: false, message: "Account does not exist" });
+
+    // const { userId } = req.query;
+    const options = {
+      page: parseInt(req.query.page) || 0,
+      limit: parseInt(req.query.limit) || 25,
+    };
+
+    const applications = await JobApplication.aggregate([
+      { $match: { "applicant.email": user?.email } },
+      // { $sort: { updatedAt: -1 } },
+      // pagination
+      // { $skip: options.page * options.limit },
+      // { $limit: options.limit },
+      { $sort: { updatedAt: -1 } },
+    ]);
+
+    return res.status(200).send({
+      success: true,
+      message: "",
+      data: applications,
+    });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: error?.message });
   }
 }
 
