@@ -7,7 +7,14 @@ import {
 import User from "../model/User.model.js";
 import Job from "../model/Job.model.js";
 import JobApplication from "../model/JobApplication.model.js";
+import { ObjectId } from "mongodb";
 // import SupportModel from "../model/Support.model";
+
+const population = [
+  {
+    path: "job",
+  },
+];
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -35,6 +42,12 @@ export async function postJob(req, res) {
     const { email } = req.params;
 
     const em = await User.findOne({ email });
+
+    if (!em) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found!" });
+    }
 
     // if (em?.jobsPostingPlan) {
     //   if (!em?.jobsPostingPlan?.totalPosted > 5 && !hasPayment)
@@ -152,39 +165,37 @@ export async function getJobsByUser(req, res) {
 }
 
 export async function getRecommendedJobs(req, res) {
+  const { email } = req.params;
+  const { profession, page = 1, limit = 25 } = req.query;
+  let query;
   try {
-    const { userId } = req.query;
-    const usr = await User.findOne({ _id: userId });
+    const em = await User.findOne({ email });
 
-    if (!usr) {
+    if (!em)
       return res
         .status(404)
-        .send({ success: false, message: "user does not exist" });
-    }
+        .send({ success: false, message: "Account does not exist" });
 
-    const options = {
-      page: parseInt(req.query.page) || 0,
-      limit: parseInt(req.query.limit) || 25,
+    query = {
+      "profession": { $eq: profession },
     };
 
-    const jobs = await Job.aggregate([
-      // { $or: { jobTitle: { $regex: { $in: [usr?.skills] } } } },
-      { $match: { profession: usr.profession } },
-      // { $sort: { updatedAt: -1 } },
-      // pagination
-      { $skip: options.page * options.limit },
-      { $limit: options.limit },
-      { $sort: { updatedAt: -1 } },
-    ]);
+    const options = {
+      sort: { updatedAt: -1 }, 
+      page,
+      limit,
+    };
+
+    const recommendedJobs = await Job.paginate(query, options);
 
     return res.status(200).send({
       success: true,
       message: "",
-      data: jobs,
+      ...recommendedJobs,
     });
   } catch (error) {
-    console.log("ERROR", error);
-    throw new Error(error);
+    console.log("ERR ", error);
+    return res.status(500).send({ success: false, message: error?.message });
   }
 }
 
@@ -324,14 +335,20 @@ export async function bookmarkJob(req, res) {
 
 export async function applyJob(req, res) {
   try {
-    const { jobId, email } = req.params;
-    const { job, applicant } = req.body;
+    const { email } = req.params;
+    const { job, applicant, jobId } = req.body;
     const { id } = applicant;
 
     const em = await Job.findOne({ jobId });
     const user = await User.findOne({ id });
     if (!em) {
       return res.status(404).send({ success: false, message: "Job not found" });
+    }
+
+    if (em.jobStatus.toLowerCase() !== "accepting") {
+      return res
+        .status(400)
+        .send({ success: false, message: "No longer accepting applications" });
     }
 
     if (!user) {
@@ -341,7 +358,8 @@ export async function applyJob(req, res) {
     }
 
     const application = await new JobApplication({
-      job: req.body?.job,
+      job: new ObjectId(req.body?.jobId),
+      jobData: req.body?.job,
       jobId: req.body?.jobId,
       applicant: req.body?.applicant,
       resume: req.body?.resume,
@@ -467,7 +485,8 @@ export async function getSavedJobs(req, res) {
 
 export async function getJobApplications(req, res) {
   const { email } = req.params;
-  const { jobId } = req.query;
+  const { jobId, page = 1, limit = 25 } = req.query;
+  let query;
   try {
     console.log("JOB ID", jobId);
     if (!email)
@@ -475,25 +494,23 @@ export async function getJobApplications(req, res) {
         .status(404)
         .send({ success: false, message: "Account does not exist" });
 
-    // const { userId } = req.query;
-    const options = {
-      page: parseInt(req.query.page) || 0,
-      limit: parseInt(req.query.limit) || 25,
+    query = {
+      "jobData.id": { $eq: jobId },
     };
 
-    const applications = await JobApplication.aggregate([
-      { $match: { "job.id": jobId } },
-      // { $sort: { updatedAt: -1 } },
-      // pagination
-      // { $skip: options.page * options.limit },
-      // { $limit: options.limit },
-      { $sort: { updatedAt: -1 } },
-    ]);
+    const options = {
+      sort: { updatedAt: -1 },
+      populate: population,
+      page,
+      limit,
+    };
+
+    const applications = await JobApplication.paginate(query, options);
 
     return res.status(200).send({
       success: true,
       message: "",
-      data: applications,
+      ...applications,
     });
   } catch (error) {
     console.log("ERR ", error);
@@ -539,23 +556,17 @@ export async function acceptJobApplication(req, res) {
   try {
     const { applicationId, jobId } = req.body;
 
-    const application = JobApplication.findOne({ _id: applicationId });
+    console.log("APPLICA ID ", applicationId);
 
-    if (!application) {
+    const job = Job.findOne({ jobId });
+
+    if (!job) {
       return res
         .status(404)
-        .send({ success: false, message: "Job application not found." });
+        .send({ success: false, message: "Job not found." });
     }
 
-    await Job.findByIdAndUpdate(
-      jobId,
-      {
-        $set: { jobStatus: "closed" },
-      },
-      { new: true }
-    );
-
-    await JobApplication.findByIdAndUpdate(
+    const application = await JobApplication.findByIdAndUpdate(
       applicationId,
       {
         $set: { status: "accepted" },
@@ -563,20 +574,21 @@ export async function acceptJobApplication(req, res) {
       { new: true }
     );
 
-    let appls = await JobApplication.updateMany(
-      { _id: { $ne: applicationId } },
-      { jobId: { $match: jobId } },
-      { $set: { status: "declined" } }
-    );
+    console.log("APPLICATION DATA LORLO ", application);
+
+    // Trigger socket event
+    global.io.emit("job-application-accepted", {
+      applicant: application?.applicant,
+      message: `Your application for ${application?.jobData?.jobTitle} was accepted`,
+    });
 
     return res.status(200).send({
       success: false,
-      message: " Application accepted successfully",
-      data: appls,
+      message: "Application accepted successfully",
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error });
+    res.status(500).send({ success: false, message: error });
   }
 }
 

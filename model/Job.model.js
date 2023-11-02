@@ -6,7 +6,7 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export const JobSchema = new mongoose.Schema(
   {
     jobTitle: {
-      type: String,
+      type: String, 
     },
     profession: {
       type: String,
@@ -23,7 +23,7 @@ export const JobSchema = new mongoose.Schema(
       city: String,
       country: String, 
     },
-    screeningQuestions: [],
+    screeningQuestions: [], 
     requirements: [],
     jobType: {
       type: String,
@@ -53,7 +53,7 @@ export const JobSchema = new mongoose.Schema(
       email: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true,  versionKey: false, }
 );
 
 JobSchema.plugin(mongoosePaginate);

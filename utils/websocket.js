@@ -10,22 +10,25 @@ class WebSockets {
 
   connection(client) {
     console.log("Connection established");
-    client.on("connect", () => console.log("Socket is connected ahooo!!!"));
-    // event fired when the chat room is disconnected
-    client.on("disconnect", () => {
-      this.usersArr = this.usersArr?.filter(
-        (user) => user.socketId !== client.id
-      );
-    });
-
-    // add identity of user mapped to the socket id
-    client.on("identity", (userId) => {
+    
+     // add identity of user mapped to the socket id
+     client.on("identity", (userId) => {
       console.log("USER IDENTITY >> ", userId);
       this.usersArr?.push({
         socketId: client.id,
         userId: userId,
       });
     });
+
+    // client.on("connect", () => console.log("Socket is connected ahooo!!!"));
+    
+    // event fired when the chat room is disconnected
+    client.on("disconnect", () => {
+      this.usersArr = this.usersArr?.filter(
+        (user) => user.socketId !== client.id
+      );
+    });
+   
 
     client.on("checkOnline", (userId) => {
       console.log("ONLINE IDENTITY >> ", userId);

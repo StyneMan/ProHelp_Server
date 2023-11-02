@@ -6,6 +6,10 @@ import Alert from "../model/Alert.model.js";
 import Review from "../model/Review.model.js";
 import Legal from "../model/Legal.model.js";
 import Job from "../model/Job.model.js";
+
+import websocket from "../utils/websocket.js";
+
+// websocket.usersArr
 // import JobModel from "../model/Job.model.js";
 
 /** middleware for verify user */
@@ -250,16 +254,14 @@ export async function getAllProfessionalsByProfession(req, res) {
             },
           ],
         };
-      } 
-      else if (!location && !skills && maritalStatus) {
+      } else if (!location && !skills && maritalStatus) {
         query = {
           $and: [
             { profession: { $eq: profession } },
             { "bio.maritalStatus": { $eq: maritalStatus } },
           ],
         };
-      } 
-      else if (location && !skills && maritalStatus) {
+      } else if (location && !skills && maritalStatus) {
         query = {
           $and: [
             { profession: { $eq: profession } },
@@ -267,8 +269,7 @@ export async function getAllProfessionalsByProfession(req, res) {
             { "bio.maritalStatus": { $eq: maritalStatus } },
           ],
         };
-      } 
-      else {
+      } else {
         query = {
           profession: { $eq: profession },
         };
@@ -620,10 +621,10 @@ export async function saveConnection(req, res) {
           },
         },
         $set: {
-          "wallet.balance": em.wallet?.balance - 200, 
+          "wallet.balance": em.wallet?.balance - 200,
           "wallet.prevBalance": em?.wallet?.balance,
           "wallet.updatedAt": new Date().toISOString(),
-        }, 
+        },
       },
       { new: true }
     );
@@ -674,8 +675,12 @@ export async function getConnections(req, res) {
 }
 
 export async function saveReview(req, res) {
-  const { reviewer, comment, userId, rating, email } = req.body;
+  const { reviewer, comment, userId, rating, email, fullname } = req.body;
   try {
+    // const el = websocket.usersArr.filter((item) => item?.userId === userId);
+    // const roomId = el[0]
+    // console.log("ELEM SOCKET :: ", websocket.usersArr);
+    // console.log("ELEM SOCKET IO GLOBAL SAVE  :: ", global.io);
     const findReviewer = User.findOne({ email });
     if (!findReviewer) {
       return res.status(404).send({
@@ -698,6 +703,7 @@ export async function saveReview(req, res) {
       rating: rating,
       reviewer: reviewer,
       userId: userId,
+      fullname: fullname,
     });
 
     review
@@ -710,21 +716,12 @@ export async function saveReview(req, res) {
         User.findOne({ _id: userId }).then(async (val) => {
           let existingReviews = val?.reviews;
 
-          console.log("CURRENT REVIEWS ", existingReviews);
-
           existingReviews?.forEach((elem) => {
             ratingsSum = ratingsSum + elem?.rating;
-
-            console.log("RATING ", elem?.rating);
           });
           let length = existingReviews?.length + 1;
           let netSum = ratingsSum + rating;
           ratingsVal = netSum / length;
-
-          console.log("RATING ", rating);
-          console.log("RATING LENGTH ", length);
-          console.log("RATING SUM ", netSum);
-          console.log("RATING NET VALUE >> ", ratingsVal);
 
           //Now update user's profile
           let usr = await User.findByIdAndUpdate(
@@ -747,9 +744,10 @@ export async function saveReview(req, res) {
           // remove password and return user's profile
           const { password, ...rest } = Object.assign({}, usr.toJSON());
 
-          global.io.in(userId).emit("new-review", {
+          global.io.emit("new-review", {
             message: "Someone just reviewed you",
             data: rest,
+            userId: userId,
           });
 
           res.status(200).send({
@@ -772,10 +770,8 @@ export async function deleteReview(req, res) {
   const { userId, reviewerId, reviewId, rating } = req.body;
   const { email } = req.params;
 
-  // console.log("PAYLOAD", reviewerId);
-  // console.log("PAYLOAD", userId);
-  // console.log("PAYLOAD", reviewId);
-  // console.log("PAYLOAD", rating);
+  // console.log("ELEM SOCKET ARRAYS :: ", websocket.usersArr);
+  // console.log("ELEM SOCKET IO GLOBAL DELETE  :: ", global.io);
 
   try {
     const findReviewer = User.findOne({ email });
@@ -797,59 +793,65 @@ export async function deleteReview(req, res) {
       // console.log("PAYLOAD", val);
 
       //Update this users reviews length
-      // User.findByIdAndUpdate(
-      //   userId,
-      //   {
-      //     $pull: {
-      //       reviews: {
-      //         _id: reviewId,
-      //         reviewer: reviewerId,
-      //         rating: rating,
-      //       },
-      //     },
-      //   },
-      //   { new: true }
-      // ).then(async (val) => {
-      //   let existingReviews = val?.reviews;
+      User.findByIdAndUpdate(
+        userId,
+        {
+          $pull: {
+            reviews: {
+              _id: reviewId,
+              reviewer: reviewerId,
+              rating: rating,
+            },
+          },
+        },
+        { new: true }
+      )
+        .then(async (val) => {
+          let existingReviews = val?.reviews;
 
-      //   console.log("CURRENT REVIEWS ", existingReviews);
+          console.log("CURRENT REVIEWS ", existingReviews);
 
-      //   existingReviews?.forEach((elem) => {
-      //     ratingsSum = ratingsSum + elem?.rating;
+          existingReviews?.forEach((elem) => {
+            ratingsSum = ratingsSum + elem?.rating;
 
-      //     console.log("RATING ", elem?.rating);
-      //   });
+            console.log("RATING ", elem?.rating);
+          });
 
-      //   let length = existingReviews?.length;
-      //   ratingsVal = ratingsSum / length;
+          let length = existingReviews?.length;
+          ratingsVal = ratingsSum / length;
 
-      //   console.log("RATING ", rating);
-      //   console.log("RATING LENGTH ", length);
-      //   console.log("RATING SUM ", ratingsSum);
-      //   console.log("RATING NET VALUE >> ", ratingsVal);
+          console.log("RATING ", rating);
+          console.log("RATING LENGTH ", length);
+          console.log("RATING SUM ", ratingsSum);
+          console.log("RATING NET VALUE >> ", ratingsVal);
 
-      //   //Now remove review from user's reviews
-      //   let usr = await User.findByIdAndUpdate(
-      //     { email: val?.email },
-      //     { $set: { rating: ratingsVal } },
-      //     {
-      //       new: true,
-      //     }
-      //   );
+          //Now remove review from user's reviews
+          let usr = await User.findByIdAndUpdate(
+            userId,
+            { $set: { rating: ratingsVal } },
+            {
+              new: true,
+            }
+          );
 
-      //   // remove password and return user's profile
-      //   const { password, ...rest } = Object.assign({}, usr.toJSON());
+          //   // remove password and return user's profile
+          const { password, ...rest } = Object.assign({}, usr.toJSON());
 
-      //   global.io.in(userId).emit("review-updated", {
-      //     message: "Someone just updated a review about you",
-      //     data: rest,
-      //   });
+          global.io.emit("review-updated", {
+            message: "Someone just updated a review about you",
+            data: rest,
+            userId: userId,
+          });
 
-      //   res.status(200).send({
-      //     success: true,
-      //     message: "Review successfully deleted",
-      //   });
-      // });
+          res.status(200).send({
+            success: true,
+            message: "Review successfully deleted",
+          });
+        })
+        .catch((err) => {
+          console.log("RNOT FOUND I GUESS >> ", err);
+          return res.status(404).send({ success: false, message: err });
+        });
     });
   } catch (error) {
     console.log("REVIEW DELETE ERR >> ", error?.message);
@@ -883,6 +885,11 @@ export async function replyReview(req, res) {
         new: true,
       }
     );
+
+    global.io.emit("review-reply", {
+      message: `${review?.fullname} just replied your review`,
+      userId: review?.userId,
+    });
 
     return res.status(200).send({
       success: true,

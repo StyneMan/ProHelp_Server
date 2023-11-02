@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-// const mongoosePaginate = require("mongoose-paginate-v2");
 import mongoosePaginate from "mongoose-paginate-v2";
 
 export const JobApplicationSchema = mongoose.Schema(
   {
+    job: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Job',
+    }, 
     jobId: {
       type: String,
     },
-    job: {
+    jobData: {
       type: Object,
     },
     applicant: {
@@ -35,7 +38,7 @@ export const JobApplicationSchema = mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true,  versionKey: false, }
 );
 
 JobApplicationSchema.plugin(mongoosePaginate);

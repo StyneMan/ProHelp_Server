@@ -20,6 +20,7 @@ export const ReviewSchema = mongoose.Schema(
       createdAt: String,
     },
     userId: String,
+    fullname: String,
   },
   { timestamps: true }
 );
