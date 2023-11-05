@@ -5,6 +5,8 @@ const router = Router();
 import * as controller from '../controllers/authController.js';
 import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
+import * as chat2Controller from '../controllers/chat2Controller.js';
+import * as messageController from '../controllers/messageController.js';
 import * as jobController from '../controllers/jobsController.js';
 import * as adminController from '../controllers/adminController.js';
 import * as professionController from '../controllers/professionController.js';
@@ -30,6 +32,12 @@ router.route('/chat/all/:email').get(Auth, chatController.getChatsByUser);
 router.route('/chat/message/new/:email').post(Auth, chatController.postMessage)
 router.route('/chat/message/all/:email').get(Auth, chatController.getConversationByRoomId)
 router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessage); //Set mark as read
+
+router.route('/chat/init/:email').put(Auth, chat2Controller.accessChat); 
+router.route('/chat/allChats/:email').get(Auth, chat2Controller.fetchChats); 
+router.route('/chat/messages/:email/:chatId').get(Auth, messageController.allMessages); 
+router.route('/chat/message/post/:email').post(Auth, messageController.sendMessage); 
+
 
 
 

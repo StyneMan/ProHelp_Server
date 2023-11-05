@@ -10,9 +10,9 @@ class WebSockets {
 
   connection(client) {
     console.log("Connection established");
-    
-     // add identity of user mapped to the socket id
-     client.on("identity", (userId) => {
+
+    // add identity of user mapped to the socket id
+    client.on("identity", (userId) => {
       console.log("USER IDENTITY >> ", userId);
       this.usersArr?.push({
         socketId: client.id,
@@ -20,21 +20,45 @@ class WebSockets {
       });
     });
 
+    client.on("setup", (userData) => {
+      console.log("SETUP_USER_DATA :: ", userData);
+      client.join(userData.id);
+      client.emit("userConnected");
+    });
+
+    client.on("join chat", (room) => {
+      client.join(room);
+      console.log("User Joined Room: " + room);
+    });
+
+    client.on("typing", (room) => client.in(room).emit("typing"));
+    client.on("stop typing", (room) => client.in(room).emit("stop typing"));
+
+    client.on("new message", (newMessageRecieved) => {
+      var chat = newMessageRecieved?.chat;
+      console.log("NEW MSG GOTTEN ::: ", newMessageRecieved);
+      if (!chat?.users) return console.log("chat.users not defined");
+
+      chat.users.forEach((user) => {
+        console.log("USER DATA ::: ", user);
+        if (user === newMessageRecieved?.sender?.id) return;
+
+        client.in(user).emit("message recieved", newMessageRecieved);
+      });
+    });
+
     // client.on("connect", () => console.log("Socket is connected ahooo!!!"));
-    
+
     // event fired when the chat room is disconnected
     client.on("disconnect", () => {
       this.usersArr = this.usersArr?.filter(
         (user) => user.socketId !== client.id
       );
     });
-   
 
     client.on("checkOnline", (userId) => {
       console.log("ONLINE IDENTITY >> ", userId);
-      let found = this.usersArr?.filter(
-        (user) => user.userId === userId
-      );
+      let found = this.usersArr?.filter((user) => user?.userId === userId);
       console.log("ONL >> ", found);
       client.emit("isOnline", { data: found });
     });
