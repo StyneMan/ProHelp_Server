@@ -95,6 +95,7 @@ router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJo
                         // ***** ADMIN ***** //
 router.route('/admin/create').post(verifyAdmin, adminController.register);
 router.route('/admin/login').post(verifyAdmin, adminController.login);
+router.route('/admin/logout').post(verifyAdmin, adminController.logout);
 router.route('/support/all/').get([verifyAdmin, verifyCookie], appController.getSupports);
 router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.profile);
 router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);

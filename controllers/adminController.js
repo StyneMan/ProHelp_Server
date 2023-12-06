@@ -115,15 +115,10 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-  // if (app.locals.resetSession) {
   app.locals.resetSession = false; // reset session
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });
-  // }
-  // return res
-  // 	.status(403)
-  // 	.send({ success: false, message: "Session expired!" });
 }
 
 export async function getAdmins(req, res, next) {
