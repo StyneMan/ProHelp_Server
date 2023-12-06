@@ -1,4 +1,3 @@
-// require('dotenv').config();
 import dot from "dotenv";
 dot.config();
 import express from "express";
@@ -9,7 +8,6 @@ import connect from "./database/conn.js";
 import router from "./router/route.js";
 import { Server } from "socket.io";
 import WebSockets from "./utils/websocket.js";
-// import indexRouter from "./router/index.js";
 
 const app = express();
 
@@ -21,7 +19,6 @@ app.disable("x-powered-by"); // less hackers know about our stack
 
 const port = 8082;
 
-// socket.Socket(server, {})
 
 /** HTTP GET Request */
 app.get("/", (req, res) => {
@@ -48,31 +45,15 @@ app.use((req, res, next) => {
 const httpServer = http.createServer(app);
 global.io = new Server(httpServer, { cors: { origin: "*" } });
 
-// global.io.on("connection", (socket) => {
-//   console.log("Connection established");
 
-//   getApiAndEmit(socket);
-//   socket.on("disconnect", () => {
-//     console.log("Disconnected");
-//   });
-// });
-
-// const getApiAndEmit = (socket) => {
-//   const response = "response you need";
-//   socket.emit("FromAPI", response);
-// }; 
 
 /** Create socket connection */
-// global.io = socketio.listen(httpServer);
 global.io.on("connection", WebSockets.connection);
 
 /** start server only when we have valid connection */
 connect()
   .then(() => {
     try {
-      // app.listen(port, () => {
-      //   console.log(`Server connected to http://localhost:${port}`);
-      // });
 
       httpServer.listen(port, () => {
         console.log(`Server connected to http://localhost:${port}`);

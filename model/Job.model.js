@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-// import { v4 as uuidv4 } from "uuid";
-// const mongoosePaginate = require("mongoose-paginate-v2");
 import mongoosePaginate from "mongoose-paginate-v2";
 
 export const JobSchema = new mongoose.Schema(

@@ -10,6 +10,7 @@ import * as messageController from '../controllers/messageController.js';
 import * as jobController from '../controllers/jobsController.js';
 import * as adminController from '../controllers/adminController.js';
 import * as professionController from '../controllers/professionController.js';
+import * as cmsController from "../controllers/cmsController.js"
 
 // import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
@@ -68,6 +69,8 @@ router.route('/support/:email').post(Auth, appController.addSupport);
 router.route('/wallet/topup/:email').put(Auth, appController.topUpWallet);
 router.route('/profession/all').get(professionController.allProfession);
 router.route('/legal/all').get(appController.getLegal);
+router.route('/banners/all').get(cmsController.allBanners);
+router.route('/faqs/all').get(cmsController.allFAQs);
 
  
 
@@ -94,14 +97,20 @@ router.route('/admin/create').post(verifyAdmin, adminController.register);
 router.route('/admin/login').post(verifyAdmin, adminController.login);
 router.route('/support/all/').get([verifyAdmin, verifyCookie], appController.getSupports);
 router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.profile);
-router.route('/job/all/').get([verifyAdmin, verifyCookie], jobController.getAllJobs);
 router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);
 router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.allUsers);
 router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
 router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);
 router.route('/profession/update').put([verifyAdmin, verifyCookie], professionController.updateProfession);
-router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], adminController.setPrivacyPolicy);
-router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], adminController.setTermsOfUse);
+router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], cmsController.setPrivacyPolicy);
+router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], cmsController.setTermsOfUse);
+router.route('/cms/banners/add').post([verifyAdmin, verifyCookie], cmsController.addBanner);
+router.route('/cms/banners/update/:bannerId').put([verifyAdmin, verifyCookie], cmsController.updateBanner);
+router.route('/cms/banners/delete/:bannerId').delete([verifyAdmin, verifyCookie], cmsController.deleteBanner);
+router.route('/cms/faqs/add').post([verifyAdmin, verifyCookie], cmsController.addFAQ);
+router.route('/cms/faqs/update/:faqId').put([verifyAdmin, verifyCookie], cmsController.updateFAQ);
+router.route('/cms/faqs/delete/:faqId').delete([verifyAdmin, verifyCookie], cmsController.deleteFAQ);
+
 
 
 
