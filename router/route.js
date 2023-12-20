@@ -59,6 +59,7 @@ router.route('/review/create/:email').post(Auth, appController.saveReview); //sa
 router.route('/review/delete/:email').put(Auth, appController.deleteReview); //Delete/Take down a review
 router.route('/review/byUser/:email').get(Auth, appController.getReviewsByUser); //get all user's reviews
 router.route('/review/reply/:email').put(Auth, appController.replyReview); //reply a specific review
+router.route('/alerts/all/:email').get(Auth, appController.getAlerts); //reply a specific review
 
  
 
@@ -71,6 +72,7 @@ router.route('/profession/all').get(professionController.allProfession);
 router.route('/legal/all').get(appController.getLegal);
 router.route('/banners/all').get(cmsController.allBanners);
 router.route('/faqs/all').get(cmsController.allFAQs);
+router.route('/sections/all').get(cmsController.allSections);
 
  
 
@@ -100,17 +102,23 @@ router.route('/support/all/').get([verifyAdmin, verifyCookie], appController.get
 router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.profile);
 router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);
 router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.allUsers);
+
 router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
 router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);
 router.route('/profession/update').put([verifyAdmin, verifyCookie], professionController.updateProfession);
+
 router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], cmsController.setPrivacyPolicy);
 router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], cmsController.setTermsOfUse);
+
 router.route('/cms/banners/add').post([verifyAdmin, verifyCookie], cmsController.addBanner);
 router.route('/cms/banners/update/:bannerId').put([verifyAdmin, verifyCookie], cmsController.updateBanner);
 router.route('/cms/banners/delete/:bannerId').delete([verifyAdmin, verifyCookie], cmsController.deleteBanner);
 router.route('/cms/faqs/add').post([verifyAdmin, verifyCookie], cmsController.addFAQ);
 router.route('/cms/faqs/update/:faqId').put([verifyAdmin, verifyCookie], cmsController.updateFAQ);
 router.route('/cms/faqs/delete/:faqId').delete([verifyAdmin, verifyCookie], cmsController.deleteFAQ);
+router.route('/cms/sections/add').post([verifyAdmin, verifyCookie], cmsController.addSection);
+router.route('/cms/sections/update/:sectionId').put([verifyAdmin, verifyCookie], cmsController.updateSection);
+router.route('/cms/sections/delete/:sectionId').delete([verifyAdmin, verifyCookie], cmsController.deleteSection);
 
 
 

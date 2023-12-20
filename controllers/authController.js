@@ -1,5 +1,6 @@
 import User from "../model/User.model.js";
 import OTP from "../model/OTP.model.js";
+import Alert from "../model/Alert.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import ENV from "../config.js";
@@ -9,7 +10,7 @@ import admin from "firebase-admin";
 // import serviceAccount from "../middleware/serviceAccKey.json";
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
-import OTPModel from "../model/OTP.model.js";
+
 
 const app = express();
 
@@ -17,9 +18,9 @@ const clientAndroid = new OAuth2Client(
   process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID
 );
 
-// admin.initializeApp({
-// 	credential: admin.credential.cert(serviceAccount),
-// });
+const clientWeb = new OAuth2Client(
+  process.env.GOOGLE_AUTH_CLIENT_ID_WEB
+);
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -91,22 +92,51 @@ export async function register(req, res) {
                   "register"
                 )
                   .then(async (val) => {
-                    res.status(200).send({
-                      success: true,
-                      message: "An OTP code has been sent to your email. ",
-                    });
-                    //Now save the otp code here
+                    
+                    try {
+                      //Now save the otp code here
                     app.locals.otp = code;
-                    const otp = await OTP.findOne({ user: user?.id });
+                    const otp = await OTP.findOne({ user: result?.id });
 
                     if (otp) {
                       //Override OTP code
-                      console.log("JK", otp);
+
+                     await OTP.findOneAndUpdate(
+                        otp?._id,
+                        {
+                          $set: {
+                            code: code,
+                          },
+                        },
+                        { new: true }
+                      );
                     } else {
+                      const addOTP = await new OTP({
+                        user: result?.id,
+                        emailAddress: email,
+                        code,
+                      }).save();
+
+                      console.log("SAVED RESPONSE ::: ", addOTP);
                     }
 
                     //Save for uauth type
                     app.locals.authType = "normal";
+
+                    await new Alert({
+                      type: "auth",
+                      message: "New account registration notification",
+                      user: result?.id,
+                    }).save();
+
+                    return res.status(200).send({
+                      success: true,
+                      message: "An OTP code has been sent to your email. ",
+                    });
+                    } catch (error) {
+                      console.log(error);
+                      res.status(400).send({ success: false, message: err });
+                    }
                   })
                   .catch((err) => {
                     res.status(500).send({ success: false, message: err });
@@ -120,9 +150,9 @@ export async function register(req, res) {
             const user = new User({
               password: hashedPassword,
               email,
+              accountType: req.body?.accountType,
             });
 
-            // return save result as a response
             user
               .save()
               .then(async (result) => {
@@ -143,8 +173,6 @@ export async function register(req, res) {
                     const otp = await OTP.findOne({ user: user?.id });
 
                     if (otp) {
-                      //Override OTP code
-
                       const updated = await OTP.findOneAndUpdate(
                         otp?._id,
                         {
@@ -166,9 +194,14 @@ export async function register(req, res) {
                     }
 
                     app.locals.otp = code;
-
                     //Save for uauth type
                     app.locals.authType = "normal";
+
+                    await new Alert({
+                      type: "auth",
+                      message: "New account registration notification",
+                      user: result?.id,
+                    }).save();
                   })
                   .catch((err) => {
                     res.status(500).send({ success: false, message: err });
@@ -236,8 +269,9 @@ export async function login(req, res) {
 
         bcrypt
           .compare(password, user.password)
-          .then((passwordCheck) => {
-            if (!passwordCheck)
+          .then( async (passwordCheck) => {
+            try {
+              if (!passwordCheck)
               return res.status(400).send({
                 success: false,
                 message: "Incorrect user credentials. Try again.",
@@ -257,12 +291,25 @@ export async function login(req, res) {
 
             const { password, ...rest } = Object.assign({}, user.toJSON());
 
+            const alert = new Alert({
+              type: "auth",
+              message: "Account login notification",
+              user: user?.id,
+            });
+            await alert.save();
+
             return res.status(200).send({
               message: "You have successfully logged in",
               success: true,
               token,
               data: rest,
             });
+            } catch (error) {
+              return res.status(400).send({
+                success: false,
+                message: error,
+              });
+            }
           })
           .catch((error) => {
             return res.status(400).send({
@@ -364,8 +411,10 @@ export async function updateUser(req, res) {
   try {
     const { email } = req.params;
 
+
     if (email) {
       const body = req.body;
+      console.log("SWE:: ", email);
 
       let usr = await User.findOneAndUpdate({ email: email }, body, {
         new: true,
@@ -375,11 +424,11 @@ export async function updateUser(req, res) {
       // mongoose return unnecessary data with object so convert it into json
       const { password, ...rest } = Object.assign({}, usr.toJSON());
 
-      // return res.status(200).send({
-      // 	success: true,
-      // 	message: "Operation successful",
-      // 	data: rest,
-      // });
+      await new Alert({
+        type: "profile",
+        message: "Your profile was updated ",
+        user: usr?.id,
+      }).save();
 
       res.status(200).send({
         success: true,
@@ -580,8 +629,8 @@ export async function resetPassword(req, res) {
 
 export async function getGoogleParams(req, res) {
   try {
-    const token = req.body.token;
-    console.log("TOKEN ", token);
+    const {token, accountType} = req.body;
+    // console.log("TOKEN ", token);
     const tic = await clientAndroid
       .verifyIdToken({
         idToken: token,
@@ -598,16 +647,116 @@ export async function getGoogleParams(req, res) {
     const payload = tic.getPayload();
 
     console.log("PAYLOAD ", payload);
+    console.log("ATTRIBBUTES ", tic.getAttributes());
 
-    const userId = payload["sub"];
-    const username = payload["name"];
-
-    let user = await User.findOne({ email: tic.getAttributes().payload.email });
+    const userId = payload?.sub
+    const username = payload?.name
+    let user = await User.findOne({ email: payload?.email });
 
     if (user) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
-        { email: tic.getAttributes().payload.email },
+        { email: payload?.email },
+        { $set: { isEmailVerified: true } },
+        {
+          new: true,
+        }
+      )
+        .then((usr) => {
+          const jwtToken = jwt.sign(
+            {
+              userId,
+              username: payload?.email,
+            },
+            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            { expiresIn: "24h" }
+          );
+
+          const { password, ...rest } = Object.assign({}, usr.toJSON());
+
+          res.status(200).send({
+            message: "User logged in successfully",
+            success: true,
+            token: jwtToken,
+            data: rest,
+          });
+        })
+        .catch((error) => {
+          console.log("ERROR UPDA >> ", `${error}`);
+          res.status(500).send({ message: "Operation failed", success: false });
+        });
+    } else {
+      //Does not exist, register here
+      const user = new User({
+        "bio.firstname": username.toLowerCase().split(" ")[0] ?? tic.getAttributes().payload.given_name,
+        "bio.lastname": username.toLowerCase().split(" ")[1] ?? tic.getAttributes().payload.family_name,
+        "bio.image": tic.getAttributes()?.payload?.picture,
+        email: tic.getAttributes().payload.email,
+        "bio.phone": `${tic.getAttributes().payload?.phone}`,
+        isEmailVerified: true,
+        authType: "google",
+        password: "google-auth"
+      });
+
+      // return save result as a response
+      user
+        .save()
+        .then(async (result) => {
+          const jwtToken = jwt.sign(
+            {
+              userId,
+              username,
+            },
+            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            { expiresIn: "24h" }
+          );
+
+          const { password, ...rest } = Object.assign({}, result.toJSON());
+
+          res.status(200).send({
+            message: "Account created successfully",
+            success: true,
+            token: jwtToken,
+            data: rest,
+          });
+        })
+        .catch((error) =>
+          res.status(500).send({ success: false, message: error })
+        );
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error });
+  }
+}
+
+export async function getGoogleParamsWeb(req, res) {
+  try {
+    const {token} = req.body;
+    const tic = await clientWeb
+      .verifyIdToken({
+        idToken: token,
+      })
+      .catch((err) => {
+        console.log("TOKOLATAS ", err);
+      });
+
+    app.locals.authType = "google";
+
+    console.log("TOKEN ICK", tic);
+
+    const payload = tic.getPayload();
+
+    console.log("PAYLOAD ", payload);
+    console.log("ATTRIBBUTES ", tic.getAttributes());
+
+    const userId = payload?.sub
+    const username = payload?.name
+    let user = await User.findOne({ email: payload?.email });
+
+    if (user) {
+      //Already exists so now change status to verified
+      User.findOneAndUpdate(
+        { email: payload?.email },
         { $set: { isEmailVerified: true } },
         {
           new: true,
@@ -639,12 +788,14 @@ export async function getGoogleParams(req, res) {
     } else {
       //Does not exist, register here
       const user = new User({
-        "bio.firstname": username.toLowerCase().split(" ")[0],
-        "bio.lastname": username.toLowerCase().split(" ")[1],
-        "bio.image": tic.getAttributes().payload.picture,
+        "bio.firstname": username.toLowerCase().split(" ")[0] ?? tic.getAttributes().payload.given_name,
+        "bio.lastname": username.toLowerCase().split(" ")[1] ?? tic.getAttributes().payload.family_name,
+        "bio.image": tic.getAttributes()?.payload?.picture,
         email: tic.getAttributes().payload.email,
+        "bio.phone": `${tic.getAttributes().payload?.phone}`,
         isEmailVerified: true,
         authType: "google",
+        password: "google-auth"
       });
 
       // return save result as a response

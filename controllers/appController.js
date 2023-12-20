@@ -7,10 +7,10 @@ import Review from "../model/Review.model.js";
 import Legal from "../model/Legal.model.js";
 import Job from "../model/Job.model.js";
 
-import websocket from "../utils/websocket.js";
+const population = {
+  path: "user"
+}
 
-// websocket.usersArr
-// import JobModel from "../model/Job.model.js";
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -57,13 +57,22 @@ export async function addSupport(req, res) {
     support
       .save()
       .then(async (result) => {
-        //Now send email here
-        sendSupportEmail(user, ticketId, purpose).then((val) => {
-          res.status(200).send({
-            success: true,
-            message: "Request received! Check your email for your ticket ID ",
+        try {
+          await new Alert({
+            type: "profile",
+            message: "New support ticket opened ",
+            user: user?.id,
+          }).save();
+          //Now send email here
+          return sendSupportEmail(user, ticketId, purpose).then((val) => {
+            res.status(200).send({
+              success: true,
+              message: "Request received! Check your email for your ticket ID ",
+            });
           });
-        });
+        } catch (error) {
+          return res.status(404).send({ success: false, message: error });
+        }
       })
       .catch((error) =>
         res.status(500).send({ success: false, message: error })
@@ -76,44 +85,6 @@ export async function addSupport(req, res) {
   }
 }
 
-export async function addAlert(type, message, userId, user) {
-  try {
-    const em = await User.findOne({ _id: userId }); // check if a user exists in the database
-
-    if (!em)
-      return res.status(404).json({
-        success: false,
-        message: "Account does not exist on this platform!",
-      });
-
-    const alert = new Alert({
-      type: type,
-      message: message,
-      user: user,
-      userId: userId,
-    });
-
-    // return save result as a response
-    alert
-      .save()
-      .then(async (result) => {
-        console.log("Alert added successfully");
-        // res.status(200).send({
-        // 	success: true,
-        // 	message:
-        // 		"Request rerceived. check your email for your ticket ID ",
-        // });
-      })
-      .catch((error) =>
-        res.status(500).send({ success: false, message: error })
-      );
-  } catch (error) {
-    console.log("MERROR ", error);
-    return res
-      .status(404)
-      .send({ success: false, message: "Authentication error" });
-  }
-}
 
 export async function getAllProfessionals(req, res) {
   // const { email } = req.params;
@@ -629,6 +600,18 @@ export async function saveConnection(req, res) {
       { new: true }
     );
 
+    await new Alert({
+      type: "connection",
+      message: `You have successfully connected to ${guestName}`,
+      user: em?.id,
+    }).save();
+
+    await new Alert({
+      type: "connection",
+      message: `${em?.bio?.firstname} is now connected to you`,
+      user: guestId,
+    }).save();
+
     const { password, ...rest } = Object.assign({}, usr.toJSON());
 
     return res.status(200).send({
@@ -740,6 +723,12 @@ export async function saveReview(req, res) {
             },
             { new: true }
           );
+
+          await new Alert({
+            type: "profile",
+            message: `You have a new review from ${reviewer?.name}` ,
+            user: usr?.id,
+          }).save();
 
           // remove password and return user's profile
           const { password, ...rest } = Object.assign({}, usr.toJSON());
@@ -886,6 +875,12 @@ export async function replyReview(req, res) {
       }
     );
 
+    await new Alert({
+      type: "profile",
+      message: `${review?.fullnamee} just replied your review` ,
+      user: review?.userId,
+    }).save();
+
     global.io.emit("review-reply", {
       message: `${review?.fullname} just replied your review`,
       userId: review?.userId,
@@ -977,6 +972,12 @@ export async function topUpWallet(req, res) {
       { new: true }
     );
 
+    await new Alert({
+      type: "wallet",
+      message: `You have successfully funded your wallet` ,
+      user: usr?.id,
+    }).save();
+
     return res
       .status(200)
       .send({ success: true, message: "Wallet topup successful", data: usr });
@@ -1011,6 +1012,42 @@ export async function getSupports(req, res) {
     const supports = await Support.paginate(query, options);
 
     res.status(200).send(supports);
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Some error occurred while fetching loan.",
+    });
+  }
+}
+
+export async function getAlerts(req, res) {
+  try {
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      };
+    } else {
+      query = {};
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+      populate: population
+    };
+
+    const alerts = await Alert.paginate(query, options);
+
+    res.status(200).send(alerts);
   } catch (error) {
     res.status(500).send({
       message:

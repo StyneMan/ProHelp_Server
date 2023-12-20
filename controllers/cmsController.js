@@ -1,6 +1,7 @@
 import Admin from "../model/Admin.model.js";
 import Legal from "../model/Legal.model.js";
 import Banner from "../model/Banner.model.js";
+import Section from "../model/Section.model.js";
 import FAQ from "../model/FAQ.model.js";
 
 export async function setPrivacyPolicy(req, res) {
@@ -468,6 +469,152 @@ export async function deleteFAQ(req, res) {
       success: true,
       message: "Successfully deleted FAQ",
       data: deleteFAQ,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error });
+  }
+}
+
+export async function addSection(req, res) {
+  try {
+    // let { terms,  } = req.body;
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const admin = await Admin.findOne({ email: req.decoded.username });
+
+    if (!admin) {
+      customErr.message = "No admin found!";
+      customErr.code = 404;
+      throw customErr;
+    }
+
+    const section = new Section({
+      ...req.body,
+    });
+
+    section
+      .save()
+      .then((result) => {
+        res.status(200).send({
+          success: true,
+          message: "New section added successfully",
+          data: result,
+        });
+      })
+      .catch((error) => {
+        console.log("Add section ERROR", error);
+        res.status(500).send({ success: false, message: error });
+      });
+  } catch (error) {
+    customErr.message = error?.message || "An error occurred!";
+    customErr.code = 500;
+    throw customErr;
+  }
+}
+
+export async function allSections(req, res) {
+  try {
+    let query;
+    const { page = 1, range, limit = 25 } = req.query;
+
+    if (range === "recent") {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      };
+    } else {
+      query = {};
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+    };
+
+    const sections = await Section.paginate(query, options);
+
+    res.status(200).send(sections);
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Some error occurred while fetching sections.",
+    });
+  }
+}
+
+export async function updateSection(req, res) {
+  try {
+    const payload = req.body;
+    const {sectionId } = req.params;
+
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const section = Section.findOne({ _id: sectionId });
+
+    if (!section) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Section not found." });
+    }
+
+    let sectionUdate = await Section.findByIdAndUpdate(
+      sectionId,
+      {
+        $set: payload,
+      },
+      { new: true }
+    );
+    return res.status(200).send({
+      success: false,
+      message: "Successfully updated section",
+      data: sectionUdate,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error });
+  }
+}
+
+export async function deleteSection(req, res) {
+  try {
+    const { sectionId } = req.params;
+
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You are forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const section = Section.findOne({ _id: sectionId });
+
+    if (!section) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Section not found." });
+    }
+    const deleteSection = await Section.findByIdAndDelete(sectionId);
+
+    return res.status(200).send({
+      success: true,
+      message: "Successfully deleted section",
+      data: deleteSection,
     });
   } catch (error) {
     console.error(error);

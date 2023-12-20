@@ -105,6 +105,12 @@ export async function postJob(req, res) {
           }
         );
 
+        await new Alert({
+          type: "job",
+          message: `You have successfully posted a job ${req.body?.jobTitle}` ,
+          user: usr?.id,
+        }).save();
+
         //Now send email here
         sendJobEmail(
           email,
@@ -404,7 +410,11 @@ export async function applyJob(req, res) {
         }
       );
 
-      // console.log("JB LOG .... ", jb);
+      await new Alert({
+        type: "job",
+        message: `You have successfully applied for ${req.body?.job?.jobTitle}` ,
+        user: usr?.id,
+      }).save();
 
       global.io.emit("job-application", {
         job: job,
@@ -499,7 +509,7 @@ export async function getJobApplications(req, res) {
     };
 
     const options = {
-      sort: { updatedAt: -1 },
+      sort: { updatedAt: -1 }, 
       populate: population,
       page,
       limit,

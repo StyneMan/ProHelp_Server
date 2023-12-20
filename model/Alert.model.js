@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export const AlertSchema = mongoose.Schema(
 	{
 		type: {
 			type: String,
+			enums: ["auth", "wallet", "job", "connection", "profile"],
 			required: true,
 		},
 		message: {
@@ -11,15 +13,7 @@ export const AlertSchema = mongoose.Schema(
 			required: true,
 		},
 		user: {
-			fullname: {
-				type: String,
-				required: true,
-			},
-			image: { type: String, required: false },
-		},
-		userId: {
-			type: String,
-			required: true,
+			
 		},
 		status: {
 			type: String,
@@ -28,5 +22,7 @@ export const AlertSchema = mongoose.Schema(
 	},
 	{ timestamps: true }
 );
+
+AlertSchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Alert", AlertSchema);
