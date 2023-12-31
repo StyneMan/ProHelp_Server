@@ -731,33 +731,33 @@ export async function getGoogleParams(req, res) {
 
 export async function getGoogleParamsWeb(req, res) {
   try {
-    const {token} = req.body;
-    const tic = await clientWeb
-      .verifyIdToken({
-        idToken: token,
-      })
-      .catch((err) => {
-        console.log("TOKOLATAS ", err);
-      });
+    const {email, firstname, lastname, name, picture, id} = req.body;
+    // const tic = await clientWeb
+    //   .verifyIdToken({
+    //     idToken: token,
+    //   })
+    //   .catch((err) => {
+    //     console.log("TOKOLATAS ", err);
+    //   });
 
     app.locals.authType = "google";
 
-    console.log("TOKEN ICK", tic);
+    // console.log("TOKEN ICK", tic);
 
-    const payload = tic.getPayload();
+    // const payload = tic.getPayload();
 
-    console.log("PAYLOAD ", payload);
-    console.log("ATTRIBBUTES ", tic.getAttributes());
+    // console.log("PAYLOAD ", payload);
+    // console.log("ATTRIBBUTES ", tic.getAttributes());
 
-    const userId = payload?.sub
-    const username = payload?.name
-    let user = await User.findOne({ email: payload?.email });
+    const userId = id;
+    const username = name
+    let user = await User.findOne({ email: email });
 
     if (user) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
-        { email: payload?.email },
-        { $set: { isEmailVerified: true } },
+        { email: email },
+        { $set: { isEmailVerified: true, authType: 'google' } },
         {
           new: true,
         }
@@ -788,11 +788,10 @@ export async function getGoogleParamsWeb(req, res) {
     } else {
       //Does not exist, register here
       const user = new User({
-        "bio.firstname": username.toLowerCase().split(" ")[0] ?? tic.getAttributes().payload.given_name,
-        "bio.lastname": username.toLowerCase().split(" ")[1] ?? tic.getAttributes().payload.family_name,
-        "bio.image": tic.getAttributes()?.payload?.picture,
-        email: tic.getAttributes().payload.email,
-        "bio.phone": `${tic.getAttributes().payload?.phone}`,
+        "bio.firstname": username.toLowerCase().split(" ")[0] ?? firstname,
+        "bio.lastname": username.toLowerCase().split(" ")[1] ?? lastname,
+        "bio.image": picture,
+        email: email,
         isEmailVerified: true,
         authType: "google",
         password: "google-auth"

@@ -21,6 +21,7 @@ router.route('/register').post(controller.register); // register user
 router.route('/login').post(controller.login); // login in app
 router.route('/forgotPassword').post(controller.forgotPassword); // forgot password send email
 router.route('/auth/google').post(controller.getGoogleParams);
+router.route('/auth/google/web').post(controller.getGoogleParamsWeb);
 router.route('/verifyOTP').get(controller.verifyUser, controller.verifyOTP) // verify generated OTP
 router.route('/resendOTP').get(controller.resendOTP, ) // verify generated OTP
 router.route('/resetPassword').put(controller.verifyUser, controller.resetPassword); // use to reset password
