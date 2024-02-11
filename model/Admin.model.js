@@ -3,7 +3,17 @@ import mongoose from "mongoose";
 export const AdminSchema = new mongoose.Schema(
   {
     bio: {
-      fullname: {
+      firstname: {
+        type: String,
+        default: "",
+        required: false,
+      },
+      lastname: {
+        type: String,
+        default: "",
+        required: false,
+      },
+      middlename: {
         type: String,
         default: "",
         required: false,

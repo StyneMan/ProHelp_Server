@@ -399,6 +399,11 @@ export const UserSchema = new mongoose.Schema(
         },
       },
     ],
+    accountStatus: {
+      type: String,
+      enum: ['active', 'frozen'],
+      default: 'active',
+    },
   },
   { timestamps: true }
 );
