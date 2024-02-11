@@ -1,5 +1,6 @@
-const { default: axios } = require('axios')
-const nodemailer = require('nodemailer')
+
+import nodemailer from "nodemailer";
+import axios from "axios"
 
 
 const transporter = nodemailer.createTransport({
@@ -38,7 +39,7 @@ const transporter = nodemailer.createTransport({
 //     })
 // }
 
-exports.sendUserEmailLink = async (payload) => {
+export async function sendUserEmailLink(payload) {
   let msg = {
     from: 'info.prohelpng@gmail.com',
     to: payload?.email,
@@ -1165,7 +1166,7 @@ exports.sendUserEmailLink = async (payload) => {
   return transporter.sendMail(msg)
 }
 
-exports.sendAdminCredentials = async (payload) => {
+export async function sendAdminCredentials(payload) {
   let msg = {
     from: 'info.prohelpng@gmail.com',
     to: payload?.email,
