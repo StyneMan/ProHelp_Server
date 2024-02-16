@@ -766,7 +766,7 @@ export async function getGoogleParamsWeb(req, res) {
           const jwtToken = jwt.sign(
             {
               userId,
-              username,
+              username: email,
             },
             process.env.GOOGLE_AUTH_CLIENT_SECRET,
             { expiresIn: "24h" }

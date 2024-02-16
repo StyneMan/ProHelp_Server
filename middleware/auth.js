@@ -14,6 +14,8 @@ export default async function Auth(req, res, next) {
 
     const usr = await User.findOne({ email: paramEmail });
 
+    // console.log("USERE HERE ;;:: ", token);
+
     if (!usr) {
       return res
         .status(401)
@@ -32,8 +34,12 @@ export default async function Auth(req, res, next) {
         ? process.env.GOOGLE_AUTH_CLIENT_SECRET
         : process.env.JWT_SECRET;
 
+        console.log("UNDECODED TOKEN :: ", token);
+        
     // Verify the token
     const decodedToken = jwt.verify(token, secret);
+
+    // console.log("DECODED TOKEN :: ", decodedToken);
 
     // Now use the email to retrieve the user
     const { username } = decodedToken;
@@ -65,7 +71,7 @@ export function localVariables(req, res, next) {
 export function verifyCookie(req, res, next) {
   //check accesspro api key first process.env.ACCESSPRO_API_KEY
   const token = req.headers["authorization"]?.split(" ")[1];
-  // console.log('token', token)
+  console.log('REQ CHECK EHERE :::', req)
 
   // decode token
   if (token) {

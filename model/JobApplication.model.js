@@ -11,15 +11,9 @@ export const JobApplicationSchema = mongoose.Schema(
     jobId: {
       type: String,
     },
-    jobData: {
-      type: Object,
-    },
     applicant: {
-      name: String,
-      id: String,
-      photo: String,
-      email: String,
-      phone: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
     status: {
       type: String,

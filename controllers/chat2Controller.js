@@ -4,7 +4,7 @@
 
 import User from "../model/User.model.js";
 import Chat from "../model/Chat2.model.js";
-import { ObjectId } from "mongodb";
+// import { ObjectId } from "mongodb";
 // import Message from "../model/Message2.model.js";
 
 //@description     Create or fetch One to One Chat
@@ -14,7 +14,7 @@ export async function accessChat(req, res) {
   try {
     const { userId } = req.body;
 
-    console.log("USER :: ", req.user?.userId);
+    // console.log("USER :: ", req.user);
 
     if (!userId) {
         console.log("UserId param not sent with request");
@@ -24,7 +24,7 @@ export async function accessChat(req, res) {
     var isChat = await Chat.find({
       isGroupChat: false,
       $and: [
-        { users: { $elemMatch: { $eq: req.user.userId } } },
+        { users: { $elemMatch: { $eq: req.user?._id?.toString() } } },
         { users: { $elemMatch: { $eq: userId } } },
       ],
     })
@@ -34,7 +34,7 @@ export async function accessChat(req, res) {
 
     isChat = await User.populate(isChat, {
       path: "latestMessage.sender",
-      select: "bio email id",
+      select: "bio email id address",
     });
 
     if (isChat.length > 0) {
@@ -43,8 +43,8 @@ export async function accessChat(req, res) {
       var chatData = {
         chatName: "sender",
         isGroupChat: false,
-        users: [req.user.userId, userId],
-        groupAdmin: req.user?.userId,
+        users: [req.user?._id, userId],
+        groupAdmin: req.user?._id,
       };
 
       try {
@@ -70,7 +70,7 @@ export async function accessChat(req, res) {
 export async function fetchChats(req, res) {
     console.log("ENTERED HERE JUST NOW ::: ");
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user.userId } } })
+    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
       .populate("latestMessage")
@@ -80,9 +80,11 @@ export async function fetchChats(req, res) {
           path: "latestMessage.sender",
           select: "bio id email",
         });
+        console.log("RESO CONVOS ::: ", results);
         res.status(200).send({data: results, message: "", suceess: true});
       });
   } catch (error) {
+    console.log("Error :Pkdk :: ", error);
     res.status(400).send({ message: error?.message });
   }
 }

@@ -208,7 +208,7 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-  app.locals.resetSession = false; // reset session
+  // app.locals.resetSession = false; // reset session
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });

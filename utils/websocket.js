@@ -36,7 +36,7 @@ class WebSockets {
 
     client.on("new message", (newMessageRecieved) => {
       var chat = newMessageRecieved?.chat;
-      console.log("NEW MSG GOTTEN ::: ", newMessageRecieved);
+      // console.log("NEW MSG GOTTEN ::: ", newMessageRecieved);
       if (!chat?.users) return console.log("chat.users not defined");
 
       chat.users.forEach((user) => {

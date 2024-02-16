@@ -2,51 +2,94 @@
 import {
   sendJobApplicationEmail,
   sendJobApplicationEmailNotice,
-  sendJobEmail,
-} from "./mailer.js";
-import User from "../model/User.model.js";
-import Job from "../model/Job.model.js";
-import JobApplication from "../model/JobApplication.model.js";
-import { ObjectId } from "mongodb";
-// import SupportModel from "../model/Support.model";
+  sendJobApplicationStatus,
+  sendJobEmail
+} from './mailer.js'
+import User from '../model/User.model.js'
+import Job from '../model/Job.model.js'
+import JobApplication from '../model/JobApplication.model.js'
+import { ObjectId } from 'mongodb'
+import Alert from '../model/Alert.model.js'
+
+let customErr = new Error();
 
 const population = [
   {
-    path: "job",
+    path: 'job'
+  }
+]
+
+const population2 = [
+  {
+    path: 'profession',
+    select: 'id name image skills description'
   },
-];
+  {
+    path: 'recruiter',
+    select:
+      'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+  }
+]
+
+const population3 = [
+  {
+    path: 'job',
+    populate: [
+      {
+        path: 'profession',
+        select: 'name image skills description'
+      },
+      {
+        path: 'recruiter',
+        select:
+          'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+      }
+    ]
+  },
+  {
+    path: 'applicant',
+    select:
+      'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+  }
+]
+
+const population4 = [
+  {
+    path: 'recruiter'
+  }
+]
 
 /** middleware for verify user */
-export async function verifyUser(req, res, next) {
+export async function verifyUser (req, res, next) {
   try {
-    const { email } = req.method == "GET" ? req.query : req.body;
+    const { email } = req.method == 'GET' ? req.query : req.body
 
     // check the user existance
-    let exist = await User.findOne({ email });
+    let exist = await User.findOne({ email })
     if (!exist)
       return res
         .status(404)
-        .send({ success: false, message: "Can not find user!" });
-    next();
+        .send({ success: false, message: 'Can not find user!' })
+    next()
   } catch (error) {
-    console.log("MERROR ", error);
+    console.log('MERROR ', error)
     return res
       .status(404)
-      .send({ success: false, message: "Authentication error" });
+      .send({ success: false, message: 'Authentication error' })
   }
 }
 
-export async function postJob(req, res) {
+export async function postJob (req, res) {
   try {
-    const { hasPayment } = req.body;
-    const { email } = req.params;
+    const { hasPayment } = req.body
+    const { email } = req.params
 
-    const em = await User.findOne({ email });
+    const em = await User.findOne({ email })
 
     if (!em) {
       return res
         .status(404)
-        .send({ success: false, message: "User not found!" });
+        .send({ success: false, message: 'User not found!' })
     }
 
     // if (em?.jobsPostingPlan) {
@@ -68,16 +111,16 @@ export async function postJob(req, res) {
       description: req.body?.description,
       screeningQuestions: req.body?.screeningQuestions,
       recruiter: req.body?.recruiter,
-      profession: req.body?.profession,
-    });
+      profession: req.body?.profession
+    })
 
     // return save result as a response
     jobData
       .save()
-      .then(async (result) => {
+      .then(async result => {
         //Save job to user profile
-        console.log("RESF", result?._id);
-        console.log("RESF 2", result?._id?.toString());
+        console.log('RESF', result?._id)
+        console.log('RESF 2', result?._id?.toString())
 
         const usr = await User.findOneAndUpdate(
           { email: email },
@@ -85,296 +128,295 @@ export async function postJob(req, res) {
             $push: {
               myJobs: result?._id?.toString(),
               transactions: {
-                type: "job_posting",
+                type: 'job_posting',
                 amount: 200,
                 summary: `You posted a new job with the title ${req.body?.jobTitle}`,
-                status: "success",
+                status: 'success',
                 reference: result?._id?.toString(),
-                createdAt: new Date().toISOString(),
-              },
+                createdAt: new Date().toISOString()
+              }
             },
             $set: {
-              "wallet.balance": em.wallet?.balance - 200,
-              "wallet.prevBalance": em?.wallet?.balance,
-              "wallet.updatedAt": new Date().toISOString(),
-              jobCount: em.jobCount + 1,
-            },
+              'wallet.balance': em.wallet?.balance - 200,
+              'wallet.prevBalance': em?.wallet?.balance,
+              'wallet.updatedAt': new Date().toISOString(),
+              jobCount: em.jobCount + 1
+            }
           },
           {
-            new: true,
+            new: true
           }
-        );
+        )
 
         await new Alert({
-          type: "job",
-          message: `You have successfully posted a job ${req.body?.jobTitle}` ,
-          user: usr?.id,
-        }).save();
+          type: 'job',
+          message: `You have successfully posted a job ${req.body?.jobTitle}`,
+          user: usr?.id
+        }).save()
 
         //Now send email here
         sendJobEmail(
           email,
           req.body?.jobTitle,
           `${em?.bio?.firstname} ${em?.bio?.lastname}`
-        ).then((val) => {
-          global.io.emit("job-posted", {
-            message: "New job posted",
-          });
+        ).then(val => {
+          global.io.emit('job-posted', {
+            message: 'New job posted'
+          })
 
           res.status(200).send({
             success: true,
-            message: "Job has been posted successfully ",
-            data: result,
-          });
-        });
+            message: 'Job has been posted successfully ',
+            data: result
+          })
+        })
       })
-      .catch((error) =>
+      .catch(error =>
         res
           .status(500)
-          .send({ success: false, message: "error msg =>> " + error })
-      );
+          .send({ success: false, message: 'error msg =>> ' + error })
+      )
   } catch (error) {
-    console.log("MERROR ", error);
+    console.log('MERROR ', error)
     return res
       .status(404)
-      .send({ success: false, message: "Authentication error" });
+      .send({ success: false, message: 'Authentication error' })
   }
 }
 
-export async function getJobsByUser(req, res) {
+export async function getJobsByUser (req, res) {
   try {
-    const { email } = req.params;
-    let query;
-    const { page = 1, limit = 30 } = req.query;
+    const { email } = req.params
+    let query
+    const { page = 1, limit = 30 } = req.query
 
-    console.log("EMAIL  ::: ", email);
+    // console.log("EMAIL  ::: ", req.user);
 
     query = {
-      "recruiter.email": { $eq: email },
-    };
-
-    const options = {
-      sort: { createdAt: -1 },
-      page,
-      limit,
-    };
-
-    const jobs = await Job.paginate(query, options);
-    res.status(200).send(jobs);
-  } catch (error) {
-    console.log("ERROR", error);
-    res.status(500).send({
-      success: false,
-      message: error?.message,
-    });
-  }
-}
-
-export async function getRecommendedJobs(req, res) {
-  const { email } = req.params;
-  const { profession, page = 1, limit = 25 } = req.query;
-  let query;
-  try {
-    const em = await User.findOne({ email });
-
-    if (!em)
-      return res
-        .status(404)
-        .send({ success: false, message: "Account does not exist" });
-
-    query = {
-      "profession": { $eq: profession },
-    };
-
-    const options = {
-      sort: { updatedAt: -1 }, 
-      page,
-      limit,
-    };
-
-    const recommendedJobs = await Job.paginate(query, options);
-
-    return res.status(200).send({
-      success: true,
-      message: "",
-      ...recommendedJobs,
-    });
-  } catch (error) {
-    console.log("ERR ", error);
-    return res.status(500).send({ success: false, message: error?.message });
-  }
-}
-
-export async function getAllJobs(req, res) {
-  try {
-    let query;
-    const { page = 1, range, limit = 25 } = req.query;
-
-    if (range === "recent") {
-      query = {
-        createdAt: {
-          $gte: startOfDay(new Date()),
-          $lte: endOfDay(new Date()),
-        },
-      };
-    } else {
-      query = {};
+      recruiter: { $eq: req.user?._id }
     }
 
     const options = {
       sort: { createdAt: -1 },
+      populate: population2,
       page,
-      limit,
-    };
+      limit
+    }
 
-    const jobs = await Job.paginate(query, options);
+    const jobs = await Job.paginate(query, options)
+    res.status(200).send(jobs)
+  } catch (error) {
+    console.log('ERROR', error)
+    res.status(500).send({
+      success: false,
+      message: error?.message
+    })
+  }
+}
 
-    res.status(200).send(jobs);
+export async function getRecommendedJobs (req, res) {
+  const { email } = req.params
+  const { profession, page = 1, limit = 25 } = req.query
+  let query
+  try {
+    const em = await User.findOne({ email })
+
+    if (!em)
+      return res
+        .status(404)
+        .send({ success: false, message: 'Account does not exist' })
+
+    query = {
+      profession: { $eq: profession }
+    }
+
+    const options = {
+      sort: { updatedAt: -1 },
+      page,
+      limit
+    }
+
+    const recommendedJobs = await Job.paginate(query, options)
+
+    return res.status(200).send({
+      success: true,
+      message: '',
+      ...recommendedJobs
+    })
+  } catch (error) {
+    console.log('ERR ', error)
+    return res.status(500).send({ success: false, message: error?.message })
+  }
+}
+
+export async function getAllJobs (req, res) {
+  try {
+    let query
+    const { page = 1, range, limit = 25 } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date())
+        }
+      }
+    } else {
+      query = {}
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      populate: population2,
+      page,
+      limit
+    }
+
+    const jobs = await Job.paginate(query, options)
+
+    res.status(200).send(jobs)
   } catch (error) {
     res.status(500).send({
       message:
         error?.response?.data?.message ||
         error?.message ||
-        "Some error occurred while fetching loan.",
-    });
+        'Some error occurred while fetching loan.'
+    })
   }
 }
 
-export async function deleteJob(req, res) {
+export async function deleteJob (req, res) {
   try {
-    const { jobId } = req.query;
-    const job = Job.findOne({ _id: jobId });
+    const { jobId } = req.query
+    const job = Job.findOne({ _id: jobId })
 
     if (!job) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Job not found." });
+      return res.status(404).send({ success: false, message: 'Job not found.' })
     }
-    const jb = await Job.findByIdAndDelete(jobId);
+    const jb = await Job.findByIdAndDelete(jobId)
 
     return res.status(200).send({
       success: true,
-      message: "Successfully deleted job",
-      data: jb,
-    });
+      message: 'Successfully deleted job',
+      data: jb
+    })
 
     // return res.status(200).send({success: true, message: ''})
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error });
+    console.error(error)
+    res.status(500).send({ message: error })
   }
 }
 
-export async function updateJob(req, res) {
+export async function updateJob (req, res) {
   try {
-    const payload = req.body;
-    const { jobId } = req.query;
+    const payload = req.body
+    const { jobId } = req.query
 
-    const job = Job.findOne({ _id: jobId });
+    const job = Job.findOne({ _id: jobId })
 
     if (!job) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Job not found." });
+      return res.status(404).send({ success: false, message: 'Job not found.' })
     }
 
     let jb = await Job.findByIdAndUpdate(
       jobId,
       {
-        $set: payload,
+        $set: payload
       },
       { new: true }
-    );
+    )
     return res.status(200).send({
       success: false,
-      message: "Successfully updated job",
-      data: jb,
-    });
+      message: 'Successfully updated job',
+      data: jb
+    })
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error });
+    console.error(error)
+    res.status(500).send({ message: error })
   }
 }
 
-export async function bookmarkJob(req, res) {
-  const { jobId, userId } = req.body;
+export async function bookmarkJob (req, res) {
+  const { jobId, userId } = req.body
   try {
     if (!userId)
       res
         .status(404)
-        .send({ success: false, message: "Account does not exist" });
+        .send({ success: false, message: 'Account does not exist' })
 
-    const user = await User.findById(userId);
-    const alreadyAdded = user.savedJobs.find((id) => id.toString() === jobId);
+    const user = await User.findById(userId)
+    const alreadyAdded = user.savedJobs.find(id => id.toString() === jobId)
     if (alreadyAdded) {
       let usr = await User.findByIdAndUpdate(
         userId,
         {
-          $pull: { savedJobs: jobId },
+          $pull: { savedJobs: jobId }
         },
         { new: true }
-      );
+      )
       return res.status(200).send({
         success: false,
-        message: "Successfully removed job from bookmark ",
-        data: usr,
-      });
+        message: 'Successfully removed job from bookmark ',
+        data: usr
+      })
     } else {
       let usr = await User.findByIdAndUpdate(
         userId,
         {
-          $push: { savedJobs: jobId },
+          $push: { savedJobs: jobId }
         },
         { new: true }
-      );
+      )
       return res.status(200).send({
         success: false,
-        message: "Successfully bookmarked job",
-        data: usr,
-      });
+        message: 'Successfully bookmarked job',
+        data: usr
+      })
     }
   } catch (error) {
-    console.log("ERROR LIKING >>> ", error);
-    throw new Error(error);
+    console.log('ERROR LIKING >>> ', error)
+    throw new Error(error)
   }
 }
 
-export async function applyJob(req, res) {
+export async function applyJob (req, res) {
   try {
-    const { email } = req.params;
-    const { job, applicant, jobId } = req.body;
-    const { id } = applicant;
+    const { email } = req.params
+    const { job, applicant, jobId } = req.body
+    const { id } = applicant
+    const { recruiter: recruiterId } = job
 
-    const em = await Job.findOne({ jobId });
-    const user = await User.findOne({ id });
+    console.log('USER ID JOKOLO :: ', job)
+
+    const em = await Job.findOne({ jobId })
+    const user = await User.findOne({ id })
     if (!em) {
-      return res.status(404).send({ success: false, message: "Job not found" });
+      return res.status(404).send({ success: false, message: 'Job not found' })
     }
 
-    if (em.jobStatus.toLowerCase() !== "accepting") {
+    if (em.jobStatus.toLowerCase() !== 'accepting') {
       return res
         .status(400)
-        .send({ success: false, message: "No longer accepting applications" });
+        .send({ success: false, message: 'No longer accepting applications' })
     }
 
     if (!user) {
-      return res
-        .status(404)
-        .send({ success: false, message: "User not found" });
+      return res.status(404).send({ success: false, message: 'User not found' })
     }
 
     const application = await new JobApplication({
-      job: new ObjectId(req.body?.jobId),
-      jobData: req.body?.job,
+      job: req.body?.jobId,
       jobId: req.body?.jobId,
-      applicant: req.body?.applicant,
+      applicant: req?.user?._id?.toString(),
       resume: req.body?.resume,
-      answers: req.body?.answers,
-    });
+      answers: req.body?.answers
+    })
 
-    application.save().then(async (result) => {
+    application.save().then(async result => {
       //Save job to user profile
       // console.log("RESF", result?._id);
+      // new ObjectId("65cb6f9f7c78fb1cc168faea").
       // console.log("RESF 2", result?._id?.toString());
 
       const usr = await User.findOneAndUpdate(
@@ -383,43 +425,54 @@ export async function applyJob(req, res) {
           $push: {
             myJobApplications: result?._id?.toString(),
             transactions: {
-              type: "job_application",
+              type: 'job_application',
               amount: 200,
               summary: `You applied for a job with the title ${req.body?.job?.jobTitle}`,
-              status: "success",
+              status: 'success',
               reference: result?._id?.toString(),
-              createdAt: new Date().toISOString(),
-            },
+              createdAt: new Date().toISOString()
+            }
           },
           $set: {
-            "wallet.balance": user?.wallet?.balance - 200,
-            "wallet.prevBalance": user?.wallet?.balance,
-            "wallet.updatedAt": new Date().toISOString(),
-          },
+            'wallet.balance': user?.wallet?.balance - 200,
+            'wallet.prevBalance': user?.wallet?.balance,
+            'wallet.updatedAt': new Date().toISOString()
+          }
         },
         {
-          new: true,
+          new: true
         }
-      );
+      )
 
       const jb = await Job.findOneAndUpdate(
         { _id: req.body?.jobId },
         { $push: { applicants: req.body?.applicant?.id } },
         {
-          new: true,
+          new: true
         }
-      );
+      )
+
+      const recruiter = await User.findById(recruiterId)
+      if (!recruiter) {
+        // Handle case where recruiter document is not found
+        throw new Error('Recruiter not found')
+      }
+
+      console.log('RECRUITER :: ', recruiter)
+
+      // // Update the recruiter field in the job object with the retrieved recruiter document
+      job.recruiter = recruiter
 
       await new Alert({
-        type: "job",
-        message: `You have successfully applied for ${req.body?.job?.jobTitle}` ,
-        user: usr?.id,
-      }).save();
+        type: 'job',
+        message: `You have successfully applied for ${req.body?.job?.jobTitle}`,
+        user: usr?.id
+      }).save()
 
-      global.io.emit("job-application", {
+      global.io.emit('job-application', {
         job: job,
-        message: `${req.body?.applicant?.name} just applied`,
-      });
+        message: `${req.body?.applicant?.name} just applied`
+      })
 
       //Now send email here
       sendJobApplicationEmail(
@@ -427,243 +480,354 @@ export async function applyJob(req, res) {
         req.body?.job?.jobTitle,
         usr?.bio?.fullname
       )
-        .then((val) => {
+        .then(val => {
           sendJobApplicationEmailNotice(
             job?.recruiter?.email,
             req.body?.job?.jobTitle,
-            job?.recruiter?.name,
+            job?.recruiter?.bio?.firstname,
             usr?.bio?.fullname
           )
-            .then((resp) => {
+            .then(resp => {
               res.status(200).send({
                 success: true,
-                message: "Your job application was successful",
-                data: result,
-              });
+                message: 'Your job application was successful',
+                data: result
+              })
             })
-            .catch((err) => {
-              console.log("INNER - ERROR", err);
+            .catch(err => {
+              console.log('INNER - ERROR', err)
               return res
                 .status(500)
-                .send({ success: false, message: error?.message });
-            });
+                .send({ success: false, message: error?.message })
+            })
         })
-        .catch((error) => {
-          console.log("ERROR", error);
+        .catch(error => {
+          console.log('ERROR', error)
           return res
             .status(500)
-            .send({ success: false, message: error?.message });
-        });
-    });
+            .send({ success: false, message: error?.message })
+        })
+    })
   } catch (error) {
-    console.log("CATCH - ERROR", error);
-    return res.status(500).send({ success: false, message: error?.message });
+    console.log('CATCH - ERROR', error)
+    return res.status(500).send({ success: false, message: error?.message })
   }
 }
 
-export async function getSavedJobs(req, res) {
-  const { email } = req.params;
+export async function getSavedJobs (req, res) {
+  const { email, page = 1, limit = 25 } = req.params; // Default page and limit values
+
   try {
-    if (!email)
-      res
-        .status(404)
-        .send({ success: false, message: "Account does not exist" });
+    if (!email) {
+      return res.status(404).send({ success: false, message: 'Account does not exist' });
+    }
 
-    User.findOne({ email })
-      .then((user) => {
-        // console.log("STR ARR ", `${user.savedPros}`);
-        const stringArray = user.savedJobs.map((objectId) =>
-          objectId.toString()
-        );
-        // console.log("SAVED JOBS  ", user.savedJobs.toString());
-        // console.log("STR ARR ", stringArray);
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send({ success: false, message: 'User not found' });
+    }
 
-        Job.find({ _id: { $in: stringArray } })
-          .then((rs) => {
-            // console.log("STR RES ", rs);
-            res
-              .status(200)
-              .send({ success: true, message: "Success", data: rs });
-          })
-          .catch((error) => console.log("ERR >> ", error));
-      })
-      .catch((err) => console.log("ERRORRO >> ", err));
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-export async function getJobApplications(req, res) {
-  const { email } = req.params;
-  const { jobId, page = 1, limit = 25 } = req.query;
-  let query;
-  try {
-    console.log("JOB ID", jobId);
-    if (!email)
-      return res
-        .status(404)
-        .send({ success: false, message: "Account does not exist" });
-
-    query = {
-      "jobData.id": { $eq: jobId },
-    };
+    const stringArray = user.savedJobs.map(objectId => objectId.toString());
 
     const options = {
-      sort: { updatedAt: -1 }, 
-      populate: population,
+      sort: { updatedAt: -1 },
+      populate: population4,
       page,
-      limit,
+      limit
     };
 
-    const applications = await JobApplication.paginate(query, options);
+    const jobs = await Job.paginate({ _id: { $in: stringArray } }, options);
+
+    console.log("JOBS DAVED ::: ", jobs);
+
+    res.status(200).send({ success: true, message: 'Success', data: jobs });
+  } catch (error) {
+    console.log('Error:', error);
+    res.status(500).send({ success: false, message: 'Internal server error' });
+  }
+}
+
+// export async function getSavedJobs(req, res) {
+//   const { email, page = 1, limit = 25 } = req.params; // Default page and limit values
+
+//   try {
+//     if (!email) {
+//       return res.status(404).send({ success: false, message: 'Account does not exist' });
+//     }
+
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(404).send({ success: false, message: 'User not found' });
+//     }
+
+//     const stringArray = user.savedJobs?.map(objectId => objectId?.toString());
+
+//     const options = {
+//       limit: parseInt(limit), // Convert string to number
+//       skip: (page - 1) * limit // Calculate the number of documents to skip
+//     };
+
+//     const jobs = await Job.find({ _id: { $in: stringArray } }, null, options).populate('recruiter');
+
+//     console.log("JOBS SAVEDS :: ", jobs);
+
+//     res.status(200).send({ success: true, message: 'Success', data: jobs });
+//   } catch (error) {
+//     console.log('Error:', error);
+//     res.status(500).send({ success: false, message: 'Internal server error' });
+//   }
+// }
+
+
+export async function getJobApplications (req, res) {
+  const { jobId, page = 1, limit = 25 } = req.query
+  let query
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+
+    query = {
+      jobId: { $eq: jobId }
+    }
+
+    const options = {
+      sort: { updatedAt: -1 },
+      populate: population3,
+      page,
+      limit
+    }
+
+    const applications = await JobApplication.paginate(query, options)
 
     return res.status(200).send({
       success: true,
-      message: "",
-      ...applications,
-    });
+      message: '',
+      applications
+    })
   } catch (error) {
-    console.log("ERR ", error);
-    return res.status(500).send({ success: false, message: error?.message });
+    console.log('ERR ', error)
+    return res.status(500).send({ success: false, message: error?.message })
   }
 }
 
-export async function getJobApplicationsByUser(req, res) {
-  const { email } = req.params;
+export async function getJobApplicationsByUser (req, res) {
+  const { email } = req.params
+  const { page = 1, limit = 25 } = req.query
+  let query;
+
+  console.log("JONN APPLICATION BODY ::: ", req?.params);
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email })
+
     if (!user)
       return res
         .status(404)
-        .send({ success: false, message: "Account does not exist" });
+        .send({ success: false, message: 'Account does not exist' })
+
+    query = {
+      applicant: { $eq: user?._id }
+    }
+
+    // console.log("USER JOB QUERY  ::: ", query);
+
+    const options = {
+      sort: { updatedAt: -1 },
+      populate: population3,
+      page,
+      limit
+    }
+
+    const applications = await JobApplication.paginate(query, options)
 
     // const { userId } = req.query;
-    const options = {
-      page: parseInt(req.query.page) || 0,
-      limit: parseInt(req.query.limit) || 25,
-    };
+    // const options = {
+    //   page: parseInt(req.query.page) || 0,
+    //   limit: parseInt(req.query.limit) || 25,
+    // };
 
-    const applications = await JobApplication.aggregate([
-      { $match: { "applicant.email": user?.email } },
-      // { $sort: { updatedAt: -1 } },
-      // pagination
-      // { $skip: options.page * options.limit },
-      // { $limit: options.limit },
-      { $sort: { updatedAt: -1 } },
-    ]);
+    // const applications = await JobApplication.aggregate([
+    //   { $match: { "applicant": user?._id } },
+    //   { $sort: { updatedAt: -1 } },
+    // ]);
+
+    // console.log('APPLICATIONS JOBBSER ', applications)
 
     return res.status(200).send({
       success: true,
-      message: "",
-      data: applications,
-    });
+      message: '',
+      data: applications
+    })
   } catch (error) {
-    return res.status(500).send({ success: false, message: error?.message });
+    return res.status(500).send({ success: false, message: error?.message })
   }
 }
 
-export async function acceptJobApplication(req, res) {
+export async function acceptJobApplication (req, res) {
   try {
-    const { applicationId, jobId } = req.body;
+    const { data } = req.body
+    const { jobId, applicant, id, job, status } = data
 
-    console.log("APPLICA ID ", applicationId);
+    console.log('APPLICA ID ', applicant?._id)
 
-    const job = Job.findOne({ jobId });
+    const jb = Job.findOne({ jobId })
 
-    if (!job) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Job not found." });
+    if (!jb) {
+      return res.status(404).send({ success: false, message: 'Job not found.' })
     }
 
     const application = await JobApplication.findByIdAndUpdate(
-      applicationId,
+      id,
       {
-        $set: { status: "accepted" },
+        $set: { status: 'accepted' }
       },
       { new: true }
-    );
+    )
 
-    console.log("APPLICATION DATA LORLO ", application);
+    console.log('APPLICATION DATA LORLO ', application)
+
+    // Send notification email here
+    await sendJobApplicationStatus(
+      applicant?.email,
+      job?.jobTitle,
+      applicant?.bio?.firstname + ' ' + applicant?.bio?.lastname,
+      status,
+      'Job Application Acceptance',
+      'Your job application has been accepted. You will be contacted on the next steps'
+    )
 
     // Trigger socket event
-    global.io.emit("job-application-accepted", {
+    global.io.emit('job-application-accepted', {
       applicant: application?.applicant,
-      message: `Your application for ${application?.jobData?.jobTitle} was accepted`,
-    });
+      message: `Your application for ${application?.jobData?.jobTitle} was accepted`
+    })
 
     return res.status(200).send({
       success: false,
-      message: "Application accepted successfully",
-    });
+      message: 'Application accepted successfully'
+    })
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ success: false, message: error });
+    console.error(error)
+    res.status(500).send({ success: false, message: error })
   }
 }
 
-export async function getAllApplications(req, res) {
+export async function declineJobApplication (req, res) {
   try {
-    let query;
-    const { page = 1, range, limit = 25 } = req.query;
+    const { data } = req.body
+    const { jobId, applicant, id, job, status } = data
 
-    if (range === "recent") {
+    console.log('APPLICA ID ', applicant?._id)
+
+    const jb = Job.findOne({ jobId })
+
+    if (!jb) {
+      return res.status(404).send({ success: false, message: 'Job not found.' })
+    }
+
+    const application = await JobApplication.findByIdAndUpdate(
+      id,
+      {
+        $set: { status: 'declined' }
+      },
+      { new: true }
+    )
+
+    console.log('APPLICATION DATA LORLO ', application)
+
+    // Send notification email here
+    await sendJobApplicationStatus(
+      applicant?.email,
+      job?.jobTitle,
+      applicant?.bio?.firstname + ' ' + applicant?.bio?.lastname,
+      status,
+      'Job Application Declined',
+      'Unfortunately we would not be going further with your application. We encourage you to keep trying'
+    )
+
+    // Trigger socket event
+    global.io.emit('job-application-declined', {
+      applicant: application?.applicant,
+      message: `Your application for ${application?.jobData?.jobTitle} was declined`
+    })
+
+    return res.status(200).send({
+      success: false,
+      message: 'Application declined successfully'
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ success: false, message: error })
+  }
+}
+
+export async function getAllApplications (req, res) {
+  try {
+    let query
+    const { page = 1, range, limit = 25 } = req.query
+
+    if (range === 'recent') {
       query = {
         createdAt: {
           $gte: startOfDay(new Date()),
-          $lte: endOfDay(new Date()),
-        },
-      };
+          $lte: endOfDay(new Date())
+        }
+      }
     } else {
-      query = {};
+      query = {}
     }
 
     const options = {
       sort: { createdAt: -1 },
+      populate: population3,
       page,
-      limit,
-    };
+      limit
+    }
 
-    const jobApplications = await JobApplication.paginate(query, options);
+    const jobApplications = await JobApplication.paginate(query, options)
 
-    res.status(200).send(jobApplications);
+    res.status(200).send(jobApplications)
   } catch (error) {
     res.status(500).send({
       message:
         error?.response?.data?.message ||
         error?.message ||
-        "Some error occurred while fetching loan.",
-    });
+        'Some error occurred while fetching loan.'
+    })
   }
 }
 
-export async function searchJob(req, res) {
+export async function searchJob (req, res) {
   try {
     if (!req.params.key) {
       //Return all jobs by default since nothing is typed yet
-      getAllJobs(req, res);
+      getAllJobs(req, res)
     } else {
       let data = await Job.find({
         $or: [
           { jobType: { $regex: req.params.key } },
           { jobStatus: { $regex: req.params.key } },
-          { "jobLocation.country": { $regex: req.params.key } },
-          { "jobLocation.city": { $regex: req.params.key } },
-          { "jobLocation.state": { $regex: req.params.key } },
+          { 'jobLocation.country': { $regex: req.params.key } },
+          { 'jobLocation.city': { $regex: req.params.key } },
+          { 'jobLocation.state': { $regex: req.params.key } },
           { workplaceType: { $regex: req.params.key } },
           { company: { $regex: req.params.key } },
           { jobTitle: { $regex: req.params.key } },
-          { profession: { $regex: req.params.key } },
-        ],
-      });
+          { profession: { $regex: req.params.key } }
+        ]
+      })
 
       res.status(200).send({
         success: true,
-        message: "search success",
-        data: data,
-      });
+        message: 'search success',
+        data: data
+      })
     }
   } catch (error) {
-    throw new Error(error);
+    console.log(error)
+    throw new Error(error)
   }
 }

@@ -38,6 +38,8 @@ export async function allProfession(req, res) {
     let query;
     const { page = 1, range, limit = 25 } = req.query;
 
+    // console.log("USER :: TEST :: - :: ", req);
+
     if (range === "recent") {
       query = {
         createdAt: {
@@ -46,7 +48,9 @@ export async function allProfession(req, res) {
         },
       };
     } else {
-      query = {};
+      query = {
+        
+      };
     }
 
     const options = {

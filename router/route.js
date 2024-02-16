@@ -22,18 +22,18 @@ router.route('/login').post(controller.login); // login in app
 router.route('/forgotPassword').post(controller.forgotPassword); // forgot password send email
 router.route('/auth/google').post(controller.getGoogleParams);
 router.route('/auth/google/web').post(controller.getGoogleParamsWeb);
-router.route('/verifyOTP').get(controller.verifyUser, controller.verifyOTP) // verify generated OTP
+router.route('/verifyOTP').get(controller.verifyOTP) // verify generated OTP
 router.route('/resendOTP').get(controller.resendOTP, ) // verify generated OTP
 router.route('/resetPassword').put(controller.verifyUser, controller.resetPassword); // use to reset password
 
 
 
                         // ***** CHAT ***** //
-router.route('/chat/initiate/:email').post(Auth, chatController.initiateChat);
-router.route('/chat/all/:email').get(Auth, chatController.getChatsByUser);
-router.route('/chat/message/new/:email').post(Auth, chatController.postMessage)
-router.route('/chat/message/all/:email').get(Auth, chatController.getConversationByRoomId)
-router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessage); //Set mark as read
+// router.route('/chat/initiate/:email').post(Auth, chatController.initiateChat);
+// router.route('/chat/all/:email').get(Auth, chatController.getChatsByUser);
+// router.route('/chat/message/new/:email').post(Auth, chatController.postMessage)
+// router.route('/chat/message/all/:email').get(Auth, chatController.getConversationByRoomId)
+// router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessage); //Set mark as read
 
 router.route('/chat/init/:email').put(Auth, chat2Controller.accessChat); 
 router.route('/chat/allChats/:email').get(Auth, chat2Controller.fetchChats); 
@@ -89,9 +89,10 @@ router.route('/job/delete/:email').put(Auth, jobController.deleteJob);
 router.route('/job/update/:email').put(Auth, jobController.updateJob);
 router.route('/job/save/:email').put(Auth, jobController.bookmarkJob);
 router.route('/job/apply/:email').post(Auth, jobController.applyJob);
-router.route('/job/applications/:email').get(jobController.getJobApplications);
+router.route('/job/applications/:email').get([verifyAdmin, verifyCookie], jobController.getJobApplications);
 router.route('/job/applications/byUser/:email').get(Auth, jobController.getJobApplicationsByUser);
 router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJobApplication);
+router.route('/job/applications/decline/:email').put(Auth, jobController.declineJobApplication);
 
 
 

@@ -8,30 +8,36 @@ export const UserSchema = new mongoose.Schema(
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       firstname: {
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       lastname: {
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       phone: {
         type: String,
         default: "",
         required: false,
+        
       },
       gender: {
         type: String,
         default: "Male",
         required: false,
+        lowercase: true,
       },
       maritalStatus: {
         type: String,
-        enums: ["single", "married", "divorced", "widowed"]
+        enums: ["single", "married", "divorced", "widowed"],
+        lowercase: true,
       },
       dob: {
         type: String,
@@ -69,21 +75,25 @@ export const UserSchema = new mongoose.Schema(
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       city: {
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       state: {
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       country: {
         type: String,
         default: "",
         required: false,
+        lowercase: true,
       },
       zipCode: {
         type: String,
@@ -158,6 +168,7 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
       required: false,
+      lowercase: true,
     },
     experienceYears: {
       type: String,
@@ -169,6 +180,8 @@ export const UserSchema = new mongoose.Schema(
     disability: {
       type: String,
       default: "none",
+      enum: ['none', "deaf", "dumb", "blind", "crippled"],
+      lowercase: true,
     },
     password: {
       type: String,
@@ -243,6 +256,7 @@ export const UserSchema = new mongoose.Schema(
         company: {
           type: String,
           required: false,
+          lowercase: true,
         },
         companyLogo: {
           type: String,
@@ -251,18 +265,22 @@ export const UserSchema = new mongoose.Schema(
         role: {
           type: String,
           required: false,
+          lowercase: true,
         },
         region: {
           type: String,
           required: false,
+          lowercase: true,
         },
         country: {
           type: String,
           required: false,
+          lowercase: true,
         },
         workType: {
           type: String,
           required: false,
+          lowercase: true,
         },
         startDate: {
           type: String,
@@ -283,14 +301,17 @@ export const UserSchema = new mongoose.Schema(
         school: {
           type: String,
           required: false,
+          lowercase: true,
         },
         degree: {
           type: String,
           required: false,
+          lowercase: true,
         },
         course: {
           type: String,
           required: false,
+          lowercase: true,
         },
         schoolLogo: {
           type: String,
@@ -392,6 +413,7 @@ export const UserSchema = new mongoose.Schema(
         name: {
           type: String,
           required: false,
+          lowercase: true,
         },
         proficiency: {
           type: String,

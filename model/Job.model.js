@@ -4,10 +4,11 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export const JobSchema = new mongoose.Schema(
   {
     jobTitle: {
-      type: String, 
+      type: String,
     },
     profession: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profession",
     },
     company: {
       type: String,
@@ -19,9 +20,9 @@ export const JobSchema = new mongoose.Schema(
     jobLocation: {
       state: String,
       city: String,
-      country: String, 
+      country: String,
     },
-    screeningQuestions: [], 
+    screeningQuestions: [],
     requirements: [],
     jobType: {
       type: String,
@@ -45,13 +46,11 @@ export const JobSchema = new mongoose.Schema(
       default: "accepting",
     },
     recruiter: {
-      id: String,
-      name: String,
-      photo: String,
-      email: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
-  { timestamps: true,  versionKey: false, }
+  { timestamps: true, versionKey: false }
 );
 
 JobSchema.plugin(mongoosePaginate);
@@ -62,8 +61,8 @@ JobSchema.method("toJSON", function () {
   return object;
 });
 
-JobSchema.virtual("recruiter.fullname").get(function () {
-  return this.recruiter.name;
-});
+// JobSchema.virtual("recruiter.fullname").get(function () {
+//   return this.recruiter.name;
+// });
 
 export default mongoose.model("Job", JobSchema);
