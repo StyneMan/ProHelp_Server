@@ -1,14 +1,15 @@
 import Admin from "../model/Admin.model.js";
-import Legal from "../model/Legal.model.js";
+// import Legal from "../model/Legal.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import ENV from "../config.js";
-import otpGenerator from "otp-generator";
-import { sendVerificationCode } from "./mailer.js";
+// import otpGenerator from "otp-generator";
+// import { sendVerificationCode } from "./mailer.js";
 // import admin from "firebase-admin";
 // import serviceAccount from "../middleware/serviceAccKey.json";
-import express from "express";
+// import express from "express";
 import { sendAdminCredentials } from "./sendEmailLink.js";
+import User from "../model/User.model.js";
 
 let customErr = new Error();
 
@@ -98,9 +99,9 @@ export async function create (req, res) {
       throw customErr
     }
 
-    const { emailAddress, password } = req.body
+    const { email, password } = req.body
 
-    if (!emailAddress && !password) {
+    if (!email && !password) {
       customErr.message = 'provide all required fields'
       customErr.code = 400
       throw customErr
@@ -115,7 +116,7 @@ export async function create (req, res) {
     }).save()
 
     // Now email this new admin with neccessary credentials
-    await sendAdminCredentials({emailAddress: req.body?.emailAddress, phoneNumber: req.body?.phoneNumber, password: req.body?.password})
+    await sendAdminCredentials({email: req.body?.email, phone: req.body?.phone, password: req.body?.password})
 
     const response = {
       status: true,
@@ -217,23 +218,26 @@ export async function logout(req, res) {
 export async function getAdmins(req, res, next) {
   const { email } = req.params;
   try {
-    if (!email)
-      return res
-        .status(500)
-        .send({ success: false, message: "Account does not exist" });
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
 
-    const finder = await Admin.find({ email: { $ne: email } });
+    const admin = await Admin.findOne({ email: req.decoded?.username })
 
-    let emptArr = [];
+    console.log("ADMIN DATA HE--- ", admin);
 
-    finder.forEach((element) => {
-      const { password, ...rest } = Object.assign({}, element.toJSON());
-      emptArr.push(rest);
-    });
+    const result = await Admin.find({
+      _id: { $nin: [admin?._id] },
+    })
+      // .populate(population)
+      .sort({ createdAt: -1 })
 
-    res
-      .status(200)
-      .send({ success: true, message: "Operation successful", data: emptArr });
+      console.log("RESULT ::: ", result);
+
+    res.send(result)
   } catch (error) {
     console.log("ERROR OCCURED >. ", error);
     return res.status(404).send({ error: "Cannot Find User Data" });
@@ -242,7 +246,6 @@ export async function getAdmins(req, res, next) {
 
 export async function profile(req, res) {
   try {
-    // console.log("LOGGER ", req);
     if (!req.decoded) {
       //forbidden
       customErr.message = "You are forbidden!";
@@ -286,7 +289,7 @@ export async function otherAdminUpdate (req, res) {
       throw customErr
     }
 
-    const admin = await Admin.findOne({ emailAddress: req.decoded?.username })
+    const admin = await Admin.findOne({ email: req.decoded?.username })
 
     //VALIDATE PRIVILEGE
     if (
@@ -305,21 +308,22 @@ export async function otherAdminUpdate (req, res) {
       if (req.body?.password) {
         // Reset password here
         console.log("PASSWORD :: ", req.body?.password);
-        const hash = await hashPassword(req.body?.password)
+        const hash = await bcrypt.hash(req.body?.password, 12)
 
         const update = await Admin.findByIdAndUpdate(req.params.id, {password: hash}, {
           useFindAndModify: false,
           new: true,
         })
 
+
         if (!update) {
           customErr.message = 'No admin found to update!'
-          customErr.code = 403
+          customErr.code = 404
           throw customErr
         }
 
         // Now notify the admin whose password was updated
-        await sendAdminCredentials({emailAddress: update?.emailAddress, phoneNumber: update?.phoneNumber, password: req.body?.password})
+        await sendAdminCredentials({email: update?.email, phone: update?.bio?.phone, password: "Newly updated password is " + req.body?.password})
         const response = {
           status: true,
           data: update,
@@ -386,5 +390,52 @@ export async function otherAdminsDelete(req, res) {
   }
 }
 
+// Update General User Account
+export async function updateUser (req, res) {
+  console.log("UPDATE USER BY ADMIN TEST HERE >>>>");
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
 
+    const admin = await Admin.findOne({ email: req.decoded?.username })
+    //VALIDATE PRIVILEGE
+    if (
+      admin.privilege.role !== 'manager' &&
+      admin.privilege.role !== 'developer' &&
+      admin.privilege.access.toLowerCase() !== "read/write"
+    ) {
+      customErr.message = 'Sorry you are not privileged to perform this action!'
+      customErr.code = 403
+      throw customErr
+    }
+
+    let payload = req.body
+
+    const updated = await User.findOneAndUpdate(
+      { email: req.body.email },
+      payload,
+      {
+        new: true,
+      }
+    )
+
+    if (!updated) {
+      customErr.message = `Cannot update User with this email (${req.body.email})!`
+      customErr.code = 404
+      throw customErr
+    }
+
+    res.send(updated)
+  } catch (error) {
+    console.log('error', error)
+    res.status(500).send({
+      message:
+        error?.message || 'Some error occurred while updating your profile.',
+    })
+  }
+}
 

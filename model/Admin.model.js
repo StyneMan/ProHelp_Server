@@ -1,69 +1,84 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 export const AdminSchema = new mongoose.Schema(
   {
     bio: {
       firstname: {
         type: String,
-        default: "",
-        required: false,
+        default: '',
+        required: false
       },
       lastname: {
         type: String,
-        default: "",
-        required: false,
+        default: '',
+        required: false
       },
       middlename: {
         type: String,
-        default: "",
-        required: false,
+        default: '',
+        required: false
       },
       phone: {
         type: String,
-        default: "",
-        required: false,
+        default: '',
+        required: false
       },
       gender: {
         type: String,
-        default: "Male",
-        required: false,
+        default: 'Male',
+        required: false
       },
       image: {
         type: String,
-        default: "",
-      },
+        default: ''
+      }
+    },
+    accountStatus: {
+      type: String,
+      enum: ['active', 'disabled'],
+      default: 'active',
     },
     privilege: {
-        type: {
-            type: String,
-            enum: ["admin", "superadmin"],
-            trim: true,
-        },
-        role: {
-            type: String,
-            enum: ["manager", "developer", "editor", "sales"],
-            trim: true,
-        },
-        access: {
-            type: String,
-            enum: ["readonly", "read/write", "approve"],
-            trim: true,
-        }
+      type: {
+        type: String,
+        enum: ['admin', 'superadmin'],
+        trim: true
+      },
+      role: {
+        type: String,
+        enum: ['manager', 'developer', 'editor'],
+        trim: true
+      },
+      access: {
+        type: String,
+        enum: ['readonly', 'read/write'],
+        trim: true
+      }
     },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
+      required: [true, 'Please provide a password']
     },
     email: {
       type: String,
-      required: [true, "Please provide a unique email"],
-      unique: true,
+      required: [true, 'Please provide a unique email'],
+      unique: true
     },
     device: {
       os: String
     }
   },
   { timestamps: true }
-);
+)
 
-export default mongoose.model("Admin", AdminSchema);
+AdminSchema.method('toJSON', function () {
+  const { _id, ...object } = this.toObject()
+  object.id = _id
+  return object
+})
+
+AdminSchema.virtual('fullname').get(function () {
+  return this.firstname + ' ' + this.lastname
+})
+
+export default mongoose.model('Admin', AdminSchema)

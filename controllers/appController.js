@@ -6,6 +6,7 @@ import Alert from '../model/Alert.model.js'
 import Review from '../model/Review.model.js'
 import Legal from '../model/Legal.model.js'
 import Job from '../model/Job.model.js'
+import Admin from '../model/Admin.model.js'
 
 const population = {
   path: 'user'
@@ -446,54 +447,123 @@ export async function searcherAdvanced (req, res) {
         $and: [
           {
             $or: [
-              { 'bio.firstname': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'bio.lastname': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'bio.lastname': { $regex: new RegExp(String(req.params.key.split(' ')[1]), 'i') } },
-              { 'experience.company': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'experience.region': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'experience.country': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'experience.workType': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'experience.role': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'education.school': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'education.degree': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'education.course': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'skills.name': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'address.state': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'address.country': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'address.city': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'profession': { $regex: new RegExp(String(req.params.key), 'i') } },
-            ],
+              {
+                'bio.firstname': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'bio.lastname': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'bio.lastname': {
+                  $regex: new RegExp(String(req.params.key.split(' ')[1]), 'i')
+                }
+              },
+              {
+                'experience.company': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'experience.region': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'experience.country': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'experience.workType': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'experience.role': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'education.school': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'education.degree': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'education.course': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'skills.name': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'address.state': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'address.country': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                'address.city': {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              },
+              {
+                profession: { $regex: new RegExp(String(req.params.key), 'i') }
+              }
+            ]
           },
           {
-            accountType: { $ne: 'recruiter' },
-          },
+            accountType: { $ne: 'recruiter' }
+          }
         ],
         $or: [
           { 'address.state': { $regex: new RegExp(String(location), 'i') } },
           { 'address.city': { $regex: new RegExp(String(location), 'i') } },
           { 'address.country': { $regex: new RegExp(String(location), 'i') } }
         ]
-      });
-      
+      })
 
       let jobData = await Job.find({
         $and: [
           {
             $or: [
-              { 'company': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'jobType': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'jobTitle': { $regex: new RegExp(String(req.params.key), 'i') } },
-              { 'workplaceType': { $regex: new RegExp(String(req.params.key), 'i') } },
-            ],
+              { company: { $regex: new RegExp(String(req.params.key), 'i') } },
+              { jobType: { $regex: new RegExp(String(req.params.key), 'i') } },
+              { jobTitle: { $regex: new RegExp(String(req.params.key), 'i') } },
+              {
+                workplaceType: {
+                  $regex: new RegExp(String(req.params.key), 'i')
+                }
+              }
+            ]
           },
           {
-            jobStatus: { $eq: 'accepting' },
-          },
+            jobStatus: { $eq: 'accepting' }
+          }
         ],
         $or: [
-          { 'jobLocation.state': { $regex: new RegExp(String(location), 'i') } },
+          {
+            'jobLocation.state': { $regex: new RegExp(String(location), 'i') }
+          },
           { 'jobLocation.city': { $regex: new RegExp(String(location), 'i') } },
-          { 'jobLocation.country': { $regex: new RegExp(String(location), 'i') } }
+          {
+            'jobLocation.country': { $regex: new RegExp(String(location), 'i') }
+          }
         ]
       })
 
@@ -1148,6 +1218,57 @@ export async function getLegal (req, res) {
   } catch (error) {
     res.status(error?.code || 500).send({
       message: error?.message || 'Some error occurred while retrieving data.'
+    })
+  }
+}
+
+export async function closeSupport (req, res) {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+
+    const admin = await Admin.findOne({ email: req.decoded.userId })
+    const support = await Support.findOne({ _id: req.params?.id })
+
+    if (!support) {
+      customErr.message = 'Support not found'
+      customErr.code = 404
+      throw customErr
+    }
+    //VALIDATE PRIVILEGE
+    if (
+      admin.privilege.role !== 'manager' &&
+      admin.privilege.role !== 'developer' &&
+      admin.privilege.access !== 'read/write'
+    ) {
+      customErr.message = 'Sorry you are not privileged to perform this action!'
+      customErr.code = 403
+      throw customErr
+    }
+
+    // Update support here
+    const updateSupport = await Support.findOneAndUpdate(
+      { _id: req.params?.id },
+      { status: 'closed' },
+      {
+        new: true
+      }
+    )
+
+    res.send({
+      message: 'Support ticket successfully closed',
+      data: updateSupport
+    })
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while creating loan.'
     })
   }
 }

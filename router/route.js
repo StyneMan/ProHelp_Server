@@ -98,12 +98,19 @@ router.route('/job/applications/decline/:email').put(Auth, jobController.decline
 
                         // ***** ADMIN ***** //
 router.route('/admin/create').post(verifyAdmin, adminController.register);
+router.route('/admin/new').post([verifyAdmin, verifyCookie], adminController.create);
+router.route('/admin/all').get([verifyAdmin, verifyCookie], adminController.getAdmins);
 router.route('/admin/login').post(verifyAdmin, adminController.login);
 router.route('/admin/logout').post(verifyAdmin, adminController.logout);
 router.route('/support/all/').get([verifyAdmin, verifyCookie], appController.getSupports);
+router.route('/support/close/').put([verifyAdmin, verifyCookie], appController.closeSupport);
 router.route('/admin/profile').get([verifyAdmin, verifyCookie], adminController.profile);
 router.route('/applications/all/').get([verifyAdmin, verifyCookie], jobController.getAllApplications);
 router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.allUsers);
+router.route('/admin/users/update/').put([verifyAdmin, verifyCookie], adminController.updateUser);
+router.route('/admin/delete/:id/').delete([verifyAdmin, verifyCookie], adminController.otherAdminsDelete);
+router.route('/admin/update/:id/').put([verifyAdmin, verifyCookie], adminController.otherAdminUpdate);
+
 
 router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
 router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);

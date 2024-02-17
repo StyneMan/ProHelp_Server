@@ -30,6 +30,11 @@ export const SupportSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['open', 'closed'],
+      default: 'open',
+    }
   },
   { timestamps: true }
 );
