@@ -18,9 +18,9 @@ const clientAndroid = new OAuth2Client(
   process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID
 );
 
-const clientWeb = new OAuth2Client(
-  process.env.GOOGLE_AUTH_CLIENT_ID_WEB
-);
+// const clientWeb = new OAuth2Client(
+//   process.env.GOOGLE_AUTH_CLIENT_ID_WEB
+// );
 
 /** middleware for verify user */
 export async function verifyUser(req, res, next) {
@@ -117,7 +117,6 @@ export async function register(req, res) {
                         code,
                       }).save();
 
-                      console.log("SAVED RESPONSE ::: ", addOTP);
                     }
 
                     //Save for uauth type
@@ -182,7 +181,6 @@ export async function register(req, res) {
                         },
                         { new: true }
                       );
-                      console.log("JK", otp);
                     } else {
                       const addOTP = await new OTP({
                         user: user?.id,
@@ -190,7 +188,6 @@ export async function register(req, res) {
                         code,
                       }).save();
 
-                      console.log("SAVED RESPONSE ::: ", addOTP);
                     }
 
                     app.locals.otp = code;
@@ -260,7 +257,6 @@ export async function login(req, res) {
     User.findOne({ email })
       .then((user) => {
         if (!user) {
-          console.log("USER NOT FOUND !!!");
           return res.status(404).send({
             success: false,
             message: "User account does not exist",
@@ -331,15 +327,12 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-  // if (app.locals.resetSession) {
+  
   app.locals.resetSession = false; // reset session
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });
-  // }
-  // return res
-  // 	.status(403)
-  // 	.send({ success: false, message: "Session expired!" });
+    
 }
 
 export async function getUser(req, res) {
@@ -414,7 +407,6 @@ export async function updateUser(req, res) {
 
     if (email) {
       const body = req.body;
-      console.log("SWE:: ", email);
 
       let usr = await User.findOneAndUpdate({ email: email }, body, {
         new: true,
@@ -503,8 +495,6 @@ export async function resendOTP(req, res) {
 
 export async function verifyOTP(req, res) {
   const { code, email } = req.query;
-  console.log("OTP CODE", code);
-  console.log("OTP CODE2", app.locals.otp);
   try {
     const otp = await OTP.findOne({ emailAddress: email });
     if (!otp) {
@@ -630,14 +620,12 @@ export async function resetPassword(req, res) {
 export async function getGoogleParams(req, res) {
   try {
     const {token, accountType} = req.body;
-    // console.log("TOKEN ", token);
     const tic = await clientAndroid
       .verifyIdToken({
         idToken: token,
         // audience: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID,
       })
       .catch((err) => {
-        console.log("TOKOLATAS ", err);
       });
 
     app.locals.authType = "google";
@@ -732,23 +720,9 @@ export async function getGoogleParams(req, res) {
 export async function getGoogleParamsWeb(req, res) {
   try {
     const {email, firstname, lastname, name, picture, id} = req.body;
-    // const tic = await clientWeb
-    //   .verifyIdToken({
-    //     idToken: token,
-    //   })
-    //   .catch((err) => {
-    //     console.log("TOKOLATAS ", err);
-    //   });
+    
 
     app.locals.authType = "google";
-
-    // console.log("TOKEN ICK", tic);
-
-    // const payload = tic.getPayload();
-
-    // console.log("PAYLOAD ", payload);
-    // console.log("ATTRIBBUTES ", tic.getAttributes());
-
     const userId = id;
     const username = name
     let user = await User.findOne({ email: email });
@@ -757,7 +731,7 @@ export async function getGoogleParamsWeb(req, res) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isEmailVerified: true, authType: 'google' } },
+        { $set: { isEmailVerified: true, authType: 'google', 'bio.image': picture } },
         {
           new: true,
         }

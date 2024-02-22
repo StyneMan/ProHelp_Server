@@ -155,10 +155,10 @@ export async function getAllProfessionalsByProfession (req, res) {
       maritalStatus
     } = req.query
 
-    console.log('LOCATION :: ', location)
-    console.log('SKILLS :: ', skills)
-    console.log('AGE:: ', age)
-    console.log('MARITAL STATUS :: ', maritalStatus)
+    // console.log('LOCATION :: ', location)
+    // console.log('SKILLS :: ', skills)
+    // console.log('AGE:: ', age)
+    // console.log('MARITAL STATUS :: ', maritalStatus)
 
     // console.log("AGE :: ", calculateAge(age));
 
@@ -190,7 +190,6 @@ export async function getAllProfessionalsByProfession (req, res) {
           ]
         }
       } else if (location && !skills && !maritalStatus) {
-        console.log('NOW THIS')
         query = {
           $and: [
             { profession: { $eq: profession } },
@@ -382,8 +381,8 @@ export async function getLikedUsers (req, res) {
       .then(user => {
         // console.log("STR ARR ", `${user.savedPros}`);
         const stringArray = user.savedPros.map(objectId => objectId.toString())
-        console.log('SAVED PROS  ', user.savedPros.toString())
-        console.log('STR ARR ', stringArray)
+        // console.log('SAVED PROS  ', user.savedPros.toString())
+        // console.log('STR ARR ', stringArray)
 
         User.find({ _id: { $in: stringArray } })
           .then(rs => {
@@ -439,7 +438,7 @@ export async function searcherAdvanced (req, res) {
   try {
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-    console.log('LOCATION:: :: ', location)
+    // console.log('LOCATION:: :: ', location)
 
     if (location) {
       //Add location filtering here
@@ -711,7 +710,6 @@ export async function saveConnection (req, res) {
       { new: true }
     )
 
-    console.log('GUEST ID', guestId)
 
     let usr = await User.findByIdAndUpdate(
       userId,
@@ -771,16 +769,12 @@ export async function getConnections (req, res) {
 
     User.findOne({ email: email })
       .then(user => {
-        console.log('STR ARR ', `${user.connections}`)
         const stringArray = user.connections.map(objectId =>
           objectId.toString()
         )
-        console.log('CONNECTIONS  ', user.connections.toString())
-        // console.log("STR ARR ", stringArray);
 
         User.find({ _id: { $in: stringArray } })
           .then(rs => {
-            // console.log("STR RES ", rs);
             res
               .status(200)
               .send({ success: true, message: 'Success', data: rs })
@@ -934,21 +928,19 @@ export async function deleteReview (req, res) {
         .then(async val => {
           let existingReviews = val?.reviews
 
-          console.log('CURRENT REVIEWS ', existingReviews)
 
           existingReviews?.forEach(elem => {
             ratingsSum = ratingsSum + elem?.rating
 
-            console.log('RATING ', elem?.rating)
           })
 
           let length = existingReviews?.length
           ratingsVal = ratingsSum / length
 
-          console.log('RATING ', rating)
-          console.log('RATING LENGTH ', length)
-          console.log('RATING SUM ', ratingsSum)
-          console.log('RATING NET VALUE >> ', ratingsVal)
+          // console.log('RATING ', rating)
+          // console.log('RATING LENGTH ', length)
+          // console.log('RATING SUM ', ratingsSum)
+          // console.log('RATING NET VALUE >> ', ratingsVal)
 
           //Now remove review from user's reviews
           let usr = await User.findByIdAndUpdate(

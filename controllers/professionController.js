@@ -79,7 +79,7 @@ export async function deleteProfession(req, res) {
       });
     }
 
-    const { id } = req.query;
+    const { id } = req.params;
     const profession = Profession.findOne({ _id: id });
 
     if (!profession) {
@@ -87,13 +87,21 @@ export async function deleteProfession(req, res) {
         .status(404)
         .send({ success: false, message: "Profession not found." });
     }
-    const profe = await Profession.findByIdAndDelete(id);
+    const profe = await Profession.findByIdAndDelete(id); 
 
-    return res.status(200).send({
-      success: true,
-      message: "Successfully deleted profession",
-      data: profe,
-    });
+    if (profe) {
+      return res.status(200).send({
+        success: true,
+        message: "Successfully deleted profession",
+        data: profe,
+      });
+    }
+    else {
+      return res.status(400).send({
+        success: false,
+        message: "Failed to delete profession",
+      });
+    }
   } catch (error) {
     return res.status(500).send({
       success: false,
@@ -106,7 +114,7 @@ export async function updateProfession(req, res) {
   const customErr = new Error();
   try {
     const payload = req.body;
-    const { id } = req.query;
+    const { id } = req.params;
 
     if (!req.decoded) {
       customErr.message = "You are forbidden!";
@@ -114,7 +122,7 @@ export async function updateProfession(req, res) {
       throw customErr;
     }
 
-    const profession = Profession.findOne({ _id: jobId });
+    const profession = Profession.findOne({ _id: id });
 
     if (!profession) {
       return res

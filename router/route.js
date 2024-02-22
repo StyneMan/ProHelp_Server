@@ -29,12 +29,6 @@ router.route('/resetPassword').put(controller.verifyUser, controller.resetPasswo
 
 
                         // ***** CHAT ***** //
-// router.route('/chat/initiate/:email').post(Auth, chatController.initiateChat);
-// router.route('/chat/all/:email').get(Auth, chatController.getChatsByUser);
-// router.route('/chat/message/new/:email').post(Auth, chatController.postMessage)
-// router.route('/chat/message/all/:email').get(Auth, chatController.getConversationByRoomId)
-// router.route('/chat/message/delete/:email').put(Auth, chatController.deleteMessage); //Set mark as read
-
 router.route('/chat/init/:email').put(Auth, chat2Controller.accessChat); 
 router.route('/chat/allChats/:email').get(Auth, chat2Controller.fetchChats); 
 router.route('/chat/messages/:email/:chatId').get(Auth, messageController.allMessages); 
@@ -78,7 +72,6 @@ router.route('/sections/all').get(cmsController.allSections);
  
 
                         // ***** JOBS ***** //
-// router.route('/search/:key').get(appController.searcher); //Search endpoint
 router.route('/job/post/:email').post(Auth, jobController.postJob);
 router.route('/job/all/').get(jobController.getAllJobs);
 router.route('/job/search/:key').get(jobController.searchJob);
@@ -110,11 +103,12 @@ router.route('/admin/users/all/').get([verifyAdmin, verifyCookie], controller.al
 router.route('/admin/users/update/').put([verifyAdmin, verifyCookie], adminController.updateUser);
 router.route('/admin/delete/:id/').delete([verifyAdmin, verifyCookie], adminController.otherAdminsDelete);
 router.route('/admin/update/:id/').put([verifyAdmin, verifyCookie], adminController.otherAdminUpdate);
+router.route('/admin/profile/update').put([verifyAdmin, verifyCookie], adminController.updateProfile);
 
 
 router.route('/profession/create').post([verifyAdmin, verifyCookie], professionController.addProfession);
-router.route('/profession/delete').put([verifyAdmin, verifyCookie], professionController.deleteProfession);
-router.route('/profession/update').put([verifyAdmin, verifyCookie], professionController.updateProfession);
+router.route('/profession/delete/:id').delete([verifyAdmin, verifyCookie], professionController.deleteProfession);
+router.route('/profession/update/:id').put([verifyAdmin, verifyCookie], professionController.updateProfession);
 
 router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], cmsController.setPrivacyPolicy);
 router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], cmsController.setTermsOfUse);

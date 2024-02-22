@@ -34,7 +34,7 @@ export default async function Auth(req, res, next) {
         ? process.env.GOOGLE_AUTH_CLIENT_SECRET
         : process.env.JWT_SECRET;
 
-        console.log("UNDECODED TOKEN :: ", token);
+        // console.log("UNDECODED TOKEN :: ", token);
         
     // Verify the token
     const decodedToken = jwt.verify(token, secret);
@@ -71,7 +71,7 @@ export function localVariables(req, res, next) {
 export function verifyCookie(req, res, next) {
   //check accesspro api key first process.env.ACCESSPRO_API_KEY
   const token = req.headers["authorization"]?.split(" ")[1];
-  console.log('REQ CHECK EHERE :::', req)
+  // console.log('REQ CHECK EHERE :::', req)
 
   // decode token
   if (token) {

@@ -190,8 +190,6 @@ export async function getJobsByUser (req, res) {
     let query
     const { page = 1, limit = 30 } = req.query
 
-    // console.log("EMAIL  ::: ", req.user);
-
     query = {
       recruiter: { $eq: req.user?._id }
     }
@@ -387,8 +385,6 @@ export async function applyJob (req, res) {
     const { id } = applicant
     const { recruiter: recruiterId } = job
 
-    console.log('USER ID JOKOLO :: ', job)
-
     const em = await Job.findOne({ jobId })
     const user = await User.findOne({ id })
     if (!em) {
@@ -538,46 +534,12 @@ export async function getSavedJobs (req, res) {
 
     const jobs = await Job.paginate({ _id: { $in: stringArray } }, options);
 
-    console.log("JOBS DAVED ::: ", jobs);
-
     res.status(200).send({ success: true, message: 'Success', data: jobs });
   } catch (error) {
     console.log('Error:', error);
     res.status(500).send({ success: false, message: 'Internal server error' });
   }
 }
-
-// export async function getSavedJobs(req, res) {
-//   const { email, page = 1, limit = 25 } = req.params; // Default page and limit values
-
-//   try {
-//     if (!email) {
-//       return res.status(404).send({ success: false, message: 'Account does not exist' });
-//     }
-
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).send({ success: false, message: 'User not found' });
-//     }
-
-//     const stringArray = user.savedJobs?.map(objectId => objectId?.toString());
-
-//     const options = {
-//       limit: parseInt(limit), // Convert string to number
-//       skip: (page - 1) * limit // Calculate the number of documents to skip
-//     };
-
-//     const jobs = await Job.find({ _id: { $in: stringArray } }, null, options).populate('recruiter');
-
-//     console.log("JOBS SAVEDS :: ", jobs);
-
-//     res.status(200).send({ success: true, message: 'Success', data: jobs });
-//   } catch (error) {
-//     console.log('Error:', error);
-//     res.status(500).send({ success: false, message: 'Internal server error' });
-//   }
-// }
-
 
 export async function getJobApplications (req, res) {
   const { jobId, page = 1, limit = 25 } = req.query
@@ -619,7 +581,7 @@ export async function getJobApplicationsByUser (req, res) {
   const { page = 1, limit = 25 } = req.query
   let query;
 
-  console.log("JONN APPLICATION BODY ::: ", req?.params);
+  // console.log("JONN APPLICATION BODY ::: ", req?.params);
   try {
     const user = await User.findOne({ email: email })
 
@@ -632,7 +594,6 @@ export async function getJobApplicationsByUser (req, res) {
       applicant: { $eq: user?._id }
     }
 
-    // console.log("USER JOB QUERY  ::: ", query);
 
     const options = {
       sort: { updatedAt: -1 },
@@ -642,19 +603,6 @@ export async function getJobApplicationsByUser (req, res) {
     }
 
     const applications = await JobApplication.paginate(query, options)
-
-    // const { userId } = req.query;
-    // const options = {
-    //   page: parseInt(req.query.page) || 0,
-    //   limit: parseInt(req.query.limit) || 25,
-    // };
-
-    // const applications = await JobApplication.aggregate([
-    //   { $match: { "applicant": user?._id } },
-    //   { $sort: { updatedAt: -1 } },
-    // ]);
-
-    // console.log('APPLICATIONS JOBBSER ', applications)
 
     return res.status(200).send({
       success: true,

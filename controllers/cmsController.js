@@ -23,7 +23,6 @@ export async function setPrivacyPolicy(req, res) {
     }
 
     if (!id) {
-      console.log("DHN", privacy);
       const lega = new Legal({
         privacy: privacy,
         terms: "",
@@ -189,9 +188,9 @@ export async function addBanner(req, res) {
       throw customErr;
     }
 
-    console.log("TRIGGERED!!!");
+    // console.log("TRIGGERED!!!");
 
-    const admin = await Admin.findOne({ email: req.decoded.username });
+    const admin = await Admin.findOne({ email: req.decoded?.username });
 
     if (!admin) {
       customErr.message = "No admin found!";

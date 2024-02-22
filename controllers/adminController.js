@@ -1,13 +1,6 @@
 import Admin from "../model/Admin.model.js";
-// import Legal from "../model/Legal.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-// import ENV from "../config.js";
-// import otpGenerator from "otp-generator";
-// import { sendVerificationCode } from "./mailer.js";
-// import admin from "firebase-admin";
-// import serviceAccount from "../middleware/serviceAccKey.json";
-// import express from "express";
 import { sendAdminCredentials } from "./sendEmailLink.js";
 import User from "../model/User.model.js";
 
@@ -65,100 +58,103 @@ export async function register(req, res) {
 }
 
 // Create admin
-export async function create (req, res) {
+export async function create(req, res) {
   try {
-    console.log("DECODE ADMIN :: ", req.decoded);
+    // console.log("DECODE ADMIN :: ", req.decoded);
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
     // Validate request
     if (!Object.values(req.body).length) {
-      customErr.message = 'Content can not be empty!'
-      customErr.code = 400
-      throw customErr
+      customErr.message = "Content can not be empty!";
+      customErr.code = 400;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ emailAddress: req.decoded?.username })
+    const admin = await Admin.findOne({ emailAddress: req.decoded?.username });
 
     if (!admin) {
-      customErr.message = 'You are forbidden!!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You are forbidden!!";
+      customErr.code = 403;
+      throw customErr;
     }
 
     //VALIDATE PRIVILEGE
-    if (
-      admin.privilege.type.toLowerCase() !== 'superadmin' 
-    ) {
-      customErr.message = 'Sorry you are not privileged to perform this action!'
-      customErr.code = 403
-      throw customErr
+    if (admin.privilege.type.toLowerCase() !== "superadmin") {
+      customErr.message =
+        "Sorry you are not privileged to perform this action!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
     if (!email && !password) {
-      customErr.message = 'provide all required fields'
-      customErr.code = 400
-      throw customErr
+      customErr.message = "provide all required fields";
+      customErr.code = 400;
+      throw customErr;
     }
 
-    const hash  = await bcrypt.hash(password, 12)
+    const hash = await bcrypt.hash(password, 12);
     // Create & Save admin in the database
     await new Admin({
       ...req.body,
       password: hash,
-      "bio.image": 'https://i.imgur.com/2XY0wjW.png',
-    }).save()
+      "bio.image": "https://i.imgur.com/2XY0wjW.png",
+    }).save();
 
     // Now email this new admin with neccessary credentials
-    await sendAdminCredentials({email: req.body?.email, phone: req.body?.phone, password: req.body?.password})
+    await sendAdminCredentials({
+      email: req.body?.email,
+      phone: req.body?.phone,
+      password: req.body?.password,
+    });
 
     const response = {
       status: true,
-      message: 'Admin created successfully!.',
-    }
-    res.status(200).send(response)
+      message: "Admin created successfully!.",
+    };
+    res.status(200).send(response);
   } catch (error) {
-    let errors = {}
-    let message = error?.message
-    let errorCode
+    let errors = {};
+    let message = error?.message;
+    let errorCode;
 
     if (!error?.code || error.code === 11000) {
-      errorCode = 500
+      errorCode = 500;
     } else {
-      errorCode = error.code
+      errorCode = error.code;
     }
 
     if (error.code === 11000) {
       message = `An account has already been created with this ${
         Object.values(error?.keyValue)[0]
-      } ${Object.keys(error?.keyValue)[0]}`
+      } ${Object.keys(error?.keyValue)[0]}`;
     } else {
       if (error?.errors) {
-        Object.keys(error.errors).forEach(key => {
-          errors[key] = error.errors[key].message
-        })
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message;
+        });
       }
     }
 
     res.status(errorCode).json(
       message
         ? {
-            message: message || 'Some error occurred while creating the User.',
+            message: message || "Some error occurred while creating the User.",
           }
         : errors
-    )
+    );
   }
 }
 
 export async function login(req, res) {
   const { email, password } = req.body;
-  console.log("PAYLOADS", req.body);
+  // console.log("PAYLOADS", req.body);
   try {
     Admin.findOne({ email })
       .then((admin) => {
@@ -220,24 +216,24 @@ export async function getAdmins(req, res, next) {
   try {
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ email: req.decoded?.username })
+    const admin = await Admin.findOne({ email: req.decoded?.username });
 
-    console.log("ADMIN DATA HE--- ", admin);
+    // console.log("ADMIN DATA HE--- ", admin);
 
     const result = await Admin.find({
       _id: { $nin: [admin?._id] },
     })
       // .populate(population)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 });
 
-      console.log("RESULT ::: ", result);
+    // console.log("RESULT ::: ", result);
 
-    res.send(result)
+    res.send(result);
   } catch (error) {
     console.log("ERROR OCCURED >. ", error);
     return res.status(404).send({ error: "Cannot Find User Data" });
@@ -273,85 +269,91 @@ export async function profile(req, res) {
   }
 }
 
-export async function otherAdminUpdate (req, res) {
+export async function otherAdminUpdate(req, res) {
   try {
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
     // Validate request
     if (!Object.values(req.body).length || !req.params.id) {
-      customErr.message = 'Content can not be empty!'
-      customErr.code = 400
-      throw customErr
+      customErr.message = "Content can not be empty!";
+      customErr.code = 400;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ email: req.decoded?.username })
+    const admin = await Admin.findOne({ email: req.decoded?.username });
 
     //VALIDATE PRIVILEGE
     if (
-      admin.privilege?.role !== 'manager' &&
-      admin.privilege?.role !== 'developer'
+      admin.privilege?.role !== "manager" &&
+      admin.privilege?.role !== "developer"
     ) {
-      customErr.message = 'Sorry you are not privileged to perform this action!'
-      customErr.code = 403
-      throw customErr
+      customErr.message =
+        "Sorry you are not privileged to perform this action!";
+      customErr.code = 403;
+      throw customErr;
     }
 
     if (
-      admin.privileg?.role === 'manager' ||
-      admin.privilege?.role === 'developer' && admin.privilege.type?.toLowerCase() === 'superadmin'
+      admin.privileg?.role === "manager" ||
+      (admin.privilege?.role === "developer" &&
+        admin.privilege.type?.toLowerCase() === "superadmin")
     ) {
       if (req.body?.password) {
         // Reset password here
-        console.log("PASSWORD :: ", req.body?.password);
-        const hash = await bcrypt.hash(req.body?.password, 12)
+        const hash = await bcrypt.hash(req.body?.password, 12);
 
-        const update = await Admin.findByIdAndUpdate(req.params.id, {password: hash}, {
-          useFindAndModify: false,
-          new: true,
-        })
-
+        const update = await Admin.findByIdAndUpdate(
+          req.params.id,
+          { password: hash },
+          {
+            useFindAndModify: false,
+            new: true,
+          }
+        );
 
         if (!update) {
-          customErr.message = 'No admin found to update!'
-          customErr.code = 404
-          throw customErr
+          customErr.message = "No admin found to update!";
+          customErr.code = 404;
+          throw customErr;
         }
 
         // Now notify the admin whose password was updated
-        await sendAdminCredentials({email: update?.email, phone: update?.bio?.phone, password: "Newly updated password is " + req.body?.password})
+        await sendAdminCredentials({
+          email: update?.email,
+          phone: update?.bio?.phone,
+          password: "Newly updated password is " + req.body?.password,
+        });
         const response = {
           status: true,
           data: update,
-          message: 'Admin password updated successfully!',
-        }
-        res.status(200).send(response)
-      }
-      else {
+          message: "Admin password updated successfully!",
+        };
+        res.status(200).send(response);
+      } else {
         const update = await Admin.findByIdAndUpdate(req.params.id, req.body, {
           useFindAndModify: false,
           new: true,
-        })
-    
+        });
+
         if (!update) {
-          customErr.message = 'No admin found to update!'
-          customErr.code = 403
-          throw customErr
+          customErr.message = "No admin found to update!";
+          customErr.code = 403;
+          throw customErr;
         }
-    
-        res.send(update)
+
+        res.send(update);
       }
     }
-    
   } catch (error) {
     res.status(error?.code || 500).send({
       message:
-        error?.message || 'Some error occurred while updating your admin.',
-    })
+        error?.message || "Some error occurred while updating your admin.",
+    });
   }
 }
 
@@ -359,61 +361,130 @@ export async function otherAdminsDelete(req, res) {
   try {
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ email: req.decoded?.username })
+    const admin = await Admin.findOne({ email: req.decoded?.username });
     //VALIDATE PRIVILEGE
     if (
-      admin.privilege.role !== 'manager' &&
-      admin.privilege.role !== 'developer' &&
-      admin.privilege.type.toLowerCase() !== 'superadmin'
+      admin.privilege.role !== "manager" &&
+      admin.privilege.role !== "developer" &&
+      admin.privilege.type.toLowerCase() !== "superadmin"
     ) {
-      customErr.message = 'Sorry you are not privileged to perform this action!'
-      customErr.code = 403
-      throw customErr
+      customErr.message =
+        "Sorry you are not privileged to perform this action!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    await Admin.findByIdAndDelete(req.params.id)
+    await Admin.findByIdAndDelete(req.params.id);
 
     res.send({
       status: true,
-      message: 'Admin deleted',
-    })
+      message: "Admin deleted",
+    });
   } catch (error) {
     res.status(error?.code || 500).send({
       message:
-        error?.message || 'Some error occurred while deleting your admin.',
-    })
+        error?.message || "Some error occurred while deleting your admin.",
+    });
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
+    }
+
+    const admin = await Admin.findOne({ email: req.decoded?.username });
+    //VALIDATE PRIVILEGE
+    if (!admin) {
+      customErr.message = "Admin to update not found";
+      customErr.code = 404;
+      throw customErr;
+    }
+
+    let payload = req.body;
+
+    if (payload?.password) {
+      // Hash the password here
+      const hashedPassword = await bcrypt
+      .hash(payload?.password, 10);
+
+      const updated = await Admin.findOneAndUpdate(
+        { email: req.decoded?.username },
+        { ...payload, password: hashedPassword},
+        {
+          new: true,
+        }
+      );
+  
+      if (!updated) {
+        customErr.message = `Failed to update profile!`;
+        customErr.code = 403;
+        throw customErr;
+      }
+  
+      res.send(updated);
+    }
+    else {
+      const updated = await Admin.findOneAndUpdate(
+        { email: req.decoded?.username },
+        payload,
+        {
+          new: true,
+        }
+      );
+  
+      if (!updated) {
+        customErr.message = `Failed to update profile!`;
+        customErr.code = 403;
+        throw customErr;
+      }
+  
+      res.send(updated);
+    }
+
+   
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({
+      message:
+        error?.message || "Some error occurred while updating your profile.",
+    });
   }
 }
 
 // Update General User Account
-export async function updateUser (req, res) {
-  console.log("UPDATE USER BY ADMIN TEST HERE >>>>");
+export async function updateUser(req, res) {
   try {
     if (!req.decoded) {
       //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
+      customErr.message = "You Are Forbidden!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    const admin = await Admin.findOne({ email: req.decoded?.username })
+    const admin = await Admin.findOne({ email: req.decoded?.username });
     //VALIDATE PRIVILEGE
     if (
-      admin.privilege.role !== 'manager' &&
-      admin.privilege.role !== 'developer' &&
+      admin.privilege.role !== "manager" &&
+      admin.privilege.role !== "developer" &&
       admin.privilege.access.toLowerCase() !== "read/write"
     ) {
-      customErr.message = 'Sorry you are not privileged to perform this action!'
-      customErr.code = 403
-      throw customErr
+      customErr.message =
+        "Sorry you are not privileged to perform this action!";
+      customErr.code = 403;
+      throw customErr;
     }
 
-    let payload = req.body
+    let payload = req.body;
 
     const updated = await User.findOneAndUpdate(
       { email: req.body.email },
@@ -421,21 +492,20 @@ export async function updateUser (req, res) {
       {
         new: true,
       }
-    )
+    );
 
     if (!updated) {
-      customErr.message = `Cannot update User with this email (${req.body.email})!`
-      customErr.code = 404
-      throw customErr
+      customErr.message = `Cannot update User with this email (${req.body.email})!`;
+      customErr.code = 404;
+      throw customErr;
     }
 
-    res.send(updated)
+    res.send(updated);
   } catch (error) {
-    console.log('error', error)
+    console.log("error", error);
     res.status(500).send({
       message:
-        error?.message || 'Some error occurred while updating your profile.',
-    })
+        error?.message || "Some error occurred while updating your profile.",
+    });
   }
 }
-

@@ -14,7 +14,6 @@ export const BannerSchema = new mongoose.Schema(
     },
     page: {
       type: String,
-      unique: [true, "Page is already set. Update instead"],
       enums: ["home", "explore", "faq"],
     },
   },
