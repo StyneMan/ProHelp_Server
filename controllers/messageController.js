@@ -1,6 +1,6 @@
 import User from '../model/User.model.js'
-import Chat from '../model/Chat2.model.js'
-import Message from '../model/Message2.model.js'
+import Chat from '../model/Chat.model.js'
+import Message from '../model/Message.model.js'
 
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId

@@ -5,12 +5,12 @@ const router = Router();
 import * as controller from '../controllers/authController.js';
 import * as appController from '../controllers/appController.js';
 import * as chatController from '../controllers/chatController.js';
-import * as chat2Controller from '../controllers/chat2Controller.js';
 import * as messageController from '../controllers/messageController.js';
 import * as jobController from '../controllers/jobsController.js';
 import * as adminController from '../controllers/adminController.js';
 import * as professionController from '../controllers/professionController.js';
 import * as cmsController from "../controllers/cmsController.js"
+import * as connectionController from "../controllers/connectionController.js"
 
 // import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
@@ -29,8 +29,8 @@ router.route('/resetPassword').put(controller.verifyUser, controller.resetPasswo
 
 
                         // ***** CHAT ***** //
-router.route('/chat/init/:email').put(Auth, chat2Controller.accessChat); 
-router.route('/chat/allChats/:email').get(Auth, chat2Controller.fetchChats); 
+router.route('/chat/init/:email').put(Auth, chatController.accessChat); 
+router.route('/chat/allChats/:email').get(Auth, chatController.fetchChats); 
 router.route('/chat/messages/:email/:chatId').get(Auth, messageController.allMessages); 
 router.route('/chat/message/post/:email').post(Auth, messageController.sendMessage); 
 
@@ -47,8 +47,8 @@ router.route('/createResetSession').get(controller.createResetSession) // reset 
 router.route('/logout/:email').get(Auth, controller.logout); //Log user out
 router.route('/updateuser/:email').put(Auth, controller.updateUser); // is use to update the user profile
 router.route('/likeUser/:email').put(Auth, appController.saveWishlist); // Like/Unlike user
-router.route('/connection/:email').put(Auth, appController.saveConnection); //Add connection after payment
-router.route('/users/savedPros/:email').get(Auth, appController.getLikedUsers); //get saved pros/recruiters for user
+router.route('/connection/request/:email').post(Auth, connectionController.sendConnectionRequest); //Add connection after payment
+router.route('/users/savedPros/:email').get(Auth, appController.getSavedPros); //get saved pros/recruiters for user
 router.route('/users/connections/:email').get(Auth, appController.getConnections); //get all connections of a user
 router.route('/review/create/:email').post(Auth, appController.saveReview); //save a new review
 router.route('/review/delete/:email').put(Auth, appController.deleteReview); //Delete/Take down a review

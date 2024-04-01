@@ -280,7 +280,7 @@ export async function login(req, res) {
                 username: user.email,
               },
               process.env.JWT_SECRET,
-              { expiresIn: "24h" }
+              { expiresIn: "48h" }
             );
 
             app.locals.authType = "normal";
@@ -332,7 +332,6 @@ export async function logout(req, res) {
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });
-    
 }
 
 export async function getUser(req, res) {
@@ -532,7 +531,7 @@ export async function verifyOTP(req, res) {
               username: usr.email,
             },
             process.env.JWT_SECRET,
-            { expiresIn: "24h" }
+            { expiresIn: "48h" }
           );
 
           // const { password, ...rest } = Object.assign({}, usr.toJSON());
@@ -743,7 +742,7 @@ export async function getGoogleParamsWeb(req, res) {
               username: email,
             },
             process.env.GOOGLE_AUTH_CLIENT_SECRET,
-            { expiresIn: "24h" }
+            { expiresIn: "48h" }
           );
 
           const { password, ...rest } = Object.assign({}, usr.toJSON());

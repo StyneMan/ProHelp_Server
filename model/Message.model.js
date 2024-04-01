@@ -2,43 +2,10 @@ import mongoose from "mongoose";
 
 export const MessageSchema = mongoose.Schema(
   {
-    sender: {
-      name: {
-        type: String,
-        required: true,
-      },
-      photo: {
-        type: String,
-      },
-      id: {
-        type: String,
-        required: true,
-      },
-    },
-    receiver: {
-      name: {
-        type: String,
-        required: true,
-      },
-      photo: {
-        type: String,
-      },
-      id: {
-        type: String,
-        required: true,
-      },
-    },
-    message: {
-      type: mongoose.Schema.Types.Mixed,
-      required: true,
-    },
-    chatId: {
-      type: String,
-    },
-    isRead: {
-      type: Boolean,
-      default: false,
-    },
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    content: { type: String, trim: true },
+    chat: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
+    readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

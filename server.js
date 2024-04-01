@@ -46,7 +46,6 @@ const httpServer = http.createServer(app);
 global.io = new Server(httpServer, { cors: { origin: "*" } });
 
 
-
 /** Create socket connection */
 global.io.on("connection", WebSockets.connection);
 

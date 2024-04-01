@@ -8,9 +8,6 @@ export const JobApplicationSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Job',
     }, 
-    jobId: {
-      type: String,
-    },
     applicant: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

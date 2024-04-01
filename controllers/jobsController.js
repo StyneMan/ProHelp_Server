@@ -8,10 +8,10 @@ import {
 import User from '../model/User.model.js'
 import Job from '../model/Job.model.js'
 import JobApplication from '../model/JobApplication.model.js'
-import { ObjectId } from 'mongodb'
 import Alert from '../model/Alert.model.js'
+import Transaction from '../model/Transaction.model.js'
 
-let customErr = new Error();
+let customErr = new Error()
 
 const population = [
   {
@@ -84,6 +84,9 @@ export async function postJob (req, res) {
     const { hasPayment } = req.body
     const { email } = req.params
 
+    console.log("USER ::: ", req?.user);
+    console.log("PAYLOAD ::: ", req.body);
+
     const em = await User.findOne({ email })
 
     if (!em) {
@@ -110,7 +113,7 @@ export async function postJob (req, res) {
       minimumQualification: req.body?.minimumQualification,
       description: req.body?.description,
       screeningQuestions: req.body?.screeningQuestions,
-      recruiter: req.body?.recruiter,
+      recruiter: req.body?.recruiter?.id,
       profession: req.body?.profession
     })
 
@@ -125,28 +128,26 @@ export async function postJob (req, res) {
         const usr = await User.findOneAndUpdate(
           { email: email },
           {
-            $push: {
-              myJobs: result?._id?.toString(),
-              transactions: {
-                type: 'job_posting',
-                amount: 200,
-                summary: `You posted a new job with the title ${req.body?.jobTitle}`,
-                status: 'success',
-                reference: result?._id?.toString(),
-                createdAt: new Date().toISOString()
-              }
-            },
             $set: {
               'wallet.balance': em.wallet?.balance - 200,
               'wallet.prevBalance': em?.wallet?.balance,
               'wallet.updatedAt': new Date().toISOString(),
-              jobCount: em.jobCount + 1
             }
           },
           {
             new: true
           }
         )
+
+        await new Transaction({
+          user: usr.id,
+          type: 'job_posting',
+          amount: 200,
+          summary: `You posted a new job with the title ${req.body?.jobTitle}`,
+          status: 'success',
+          reference: result?._id?.toString(),
+          createdAt: new Date().toISOString()
+        })
 
         await new Alert({
           type: 'job',
@@ -171,10 +172,13 @@ export async function postJob (req, res) {
           })
         })
       })
-      .catch(error =>
+      .catch(error => {
+        console.log("zER:: ", error);
         res
-          .status(500)
-          .send({ success: false, message: 'error msg =>> ' + error })
+        .status(500)
+        .send({ success: false, message: 'error msg =>> ' + error })
+      }
+       
       )
   } catch (error) {
     console.log('MERROR ', error)
@@ -511,33 +515,35 @@ export async function applyJob (req, res) {
 }
 
 export async function getSavedJobs (req, res) {
-  const { email, page = 1, limit = 25 } = req.params; // Default page and limit values
+  const { email, page = 1, limit = 25 } = req.params // Default page and limit values
 
   try {
     if (!email) {
-      return res.status(404).send({ success: false, message: 'Account does not exist' });
+      return res
+        .status(404)
+        .send({ success: false, message: 'Account does not exist' })
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
     if (!user) {
-      return res.status(404).send({ success: false, message: 'User not found' });
+      return res.status(404).send({ success: false, message: 'User not found' })
     }
 
-    const stringArray = user.savedJobs.map(objectId => objectId.toString());
+    const stringArray = user.savedJobs.map(objectId => objectId.toString())
 
     const options = {
       sort: { updatedAt: -1 },
       populate: population4,
       page,
       limit
-    };
+    }
 
-    const jobs = await Job.paginate({ _id: { $in: stringArray } }, options);
+    const jobs = await Job.paginate({ _id: { $in: stringArray } }, options)
 
-    res.status(200).send({ success: true, message: 'Success', data: jobs });
+    res.status(200).send({ success: true, message: 'Success', data: jobs })
   } catch (error) {
-    console.log('Error:', error);
-    res.status(500).send({ success: false, message: 'Internal server error' });
+    console.log('Error:', error)
+    res.status(500).send({ success: false, message: 'Internal server error' })
   }
 }
 
@@ -579,7 +585,7 @@ export async function getJobApplications (req, res) {
 export async function getJobApplicationsByUser (req, res) {
   const { email } = req.params
   const { page = 1, limit = 25 } = req.query
-  let query;
+  let query
 
   // console.log("JONN APPLICATION BODY ::: ", req?.params);
   try {
@@ -593,7 +599,6 @@ export async function getJobApplicationsByUser (req, res) {
     query = {
       applicant: { $eq: user?._id }
     }
-
 
     const options = {
       sort: { updatedAt: -1 },

@@ -1,16 +1,29 @@
 import Support from '../model/Support.model.js'
 import { v4 } from 'uuid'
-import { sendSupportEmail } from './mailer.js'
+import { sendConnectionRequestEmailNotice, sendSupportEmail } from './mailer.js'
 import User from '../model/User.model.js'
 import Alert from '../model/Alert.model.js'
 import Review from '../model/Review.model.js'
 import Legal from '../model/Legal.model.js'
 import Job from '../model/Job.model.js'
 import Admin from '../model/Admin.model.js'
+import SavedProfessional from '../model/SavedProfessional.model.js'
 
 const population = {
-  path: 'user'
+  path: 'user',
+  select: '-password' // Exclude the password field
 }
+
+const population2 = [
+  {
+    path: 'user',
+    select: '-password' // Exclude the password field
+  },
+  {
+    path: 'professional',
+    select: '-password' // Exclude the password field
+  }
+]
 
 /** middleware for verify user */
 export async function verifyUser (req, res, next) {
@@ -330,13 +343,27 @@ export async function saveWishlist (req, res) {
   const { guestId, guestName, userId } = req.body
   try {
     if (!userId)
-      res
+      return res
         .status(404)
         .send({ success: false, message: 'Account does not exist' })
 
+    console.log('JKJD ::: ', req.body)
+
     const user = await User.findById(userId)
-    const alreadyAdded = user.savedPros.find(id => id.toString() === guestId)
+    const savedPros = await SavedProfessional.findOne({ user: userId })
+    if (!user) {
+      return res
+        .status(404)
+        .send({ success: false, message: 'Not does not exist' })
+    }
+
+    const alreadyAdded = savedPros?.professional?.toString() === guestId
     if (alreadyAdded) {
+      await SavedProfessional.findOneAndDelete({
+        user: userId,
+        professional: guestId
+      })
+
       let usr = await User.findByIdAndUpdate(
         userId,
         {
@@ -344,12 +371,18 @@ export async function saveWishlist (req, res) {
         },
         { new: true }
       )
+
       return res.status(200).send({
         success: false,
         message: 'Successfully unliked ' + guestName,
         data: usr
       })
     } else {
+      await new SavedProfessional({
+        user: userId,
+        professional: guestId
+      }).save()
+
       let usr = await User.findByIdAndUpdate(
         userId,
         {
@@ -357,8 +390,9 @@ export async function saveWishlist (req, res) {
         },
         { new: true }
       )
+
       return res.status(200).send({
-        success: false,
+        success: true,
         message: 'Successfully liked ' + guestName,
         data: usr
       })
@@ -372,30 +406,77 @@ export async function saveWishlist (req, res) {
 export async function getLikedUsers (req, res) {
   const { email } = req.params
   try {
-    if (!email)
-      res
-        .status(404)
-        .send({ success: false, message: 'Account does not exist' })
+    let query
+    const { page = 1, range, limit = 25 } = req.query
 
-    User.findOne({ email: email })
-      .then(user => {
-        // console.log("STR ARR ", `${user.savedPros}`);
-        const stringArray = user.savedPros.map(objectId => objectId.toString())
-        // console.log('SAVED PROS  ', user.savedPros.toString())
-        // console.log('STR ARR ', stringArray)
+    console.log(req.user)
 
-        User.find({ _id: { $in: stringArray } })
-          .then(rs => {
-            // console.log("STR RES ", rs);
-            res
-              .status(200)
-              .send({ success: true, message: 'Success', data: rs })
-          })
-          .catch(error => console.log('ERR >> ', error))
-      })
-      .catch(err => console.log('ERRORRO >> ', err))
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date())
+        }
+      }
+    } else {
+      query = {
+        applicant: { $eq: user?._id }
+      }
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit
+    }
+
+    const savedProfessionals = await SavedProfessional.paginate(query, options)
+
+    res.status(200).send(savedProfessionals)
   } catch (error) {
-    throw new Error(error)
+    return res.status(500).send({
+      success: false,
+      message: error
+    })
+  }
+}
+
+export async function getSavedPros (req, res) {
+  const { email } = req.params
+  try {
+    let query
+    const { page = 1, range, limit = 25 } = req.query
+
+    console.log(req.user)
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date())
+        }
+      }
+    } else {
+      query = {
+        user: { $eq: req?.user?._id }
+      }
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+      populate: population2
+    }
+
+    const savedProfessionals = await SavedProfessional.paginate(query, options)
+
+    res.status(200).send(savedProfessionals)
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: error
+    })
   }
 }
 
@@ -405,6 +486,9 @@ export async function searcher (req, res) {
     let data = await User.find({
       $or: [
         { 'bio.fullname': { $regex: req.params.key } },
+        { 'bio.firstname': { $regex: req.params.key } },
+        { 'bio.lastname': { $regex: req.params.key } },
+        { 'bio.middlename': { $regex: req.params.key } },
         { 'experience.company': { $regex: req.params.key } },
         { 'experience.region': { $regex: req.params.key } },
         { 'experience.country': { $regex: req.params.key } },
@@ -413,7 +497,7 @@ export async function searcher (req, res) {
         { 'education.school': { $regex: req.params.key } },
         { 'education.degree': { $regex: req.params.key } },
         { 'education.course': { $regex: req.params.key } },
-        { 'skills.name': { $regex: req.params.key } },
+        // { "skills.name": { $regex: req.params.key } },
         { 'address.state': { $regex: req.params.key } },
         { 'address.country': { $regex: req.params.key } },
         { 'address.city': { $regex: req.params.key } },
@@ -501,11 +585,11 @@ export async function searcherAdvanced (req, res) {
                   $regex: new RegExp(String(req.params.key), 'i')
                 }
               },
-              {
-                'skills.name': {
-                  $regex: new RegExp(String(req.params.key), 'i')
-                }
-              },
+              // {
+              //   "skills.name": {
+              //     $regex: new RegExp(String(req.params.key), "i"),
+              //   },
+              // },
               {
                 'address.state': {
                   $regex: new RegExp(String(req.params.key), 'i')
@@ -561,7 +645,9 @@ export async function searcherAdvanced (req, res) {
           },
           { 'jobLocation.city': { $regex: new RegExp(String(location), 'i') } },
           {
-            'jobLocation.country': { $regex: new RegExp(String(location), 'i') }
+            'jobLocation.country': {
+              $regex: new RegExp(String(location), 'i')
+            }
           }
         ]
       })
@@ -691,74 +777,6 @@ export async function searcherAdvanced (req, res) {
 //   }
 // }
 
-export async function saveConnection (req, res) {
-  try {
-    const { guestId, guestName, userId } = req.body
-    const { email } = req.params
-
-    const em = await User.findOne({ email })
-    if (!em)
-      return res
-        .status(404)
-        .send({ success: false, message: 'Account does not exist' })
-
-    await User.findByIdAndUpdate(
-      guestId,
-      {
-        $push: { connections: userId }
-      },
-      { new: true }
-    )
-
-
-    let usr = await User.findByIdAndUpdate(
-      userId,
-      {
-        $push: {
-          connections: guestId,
-          transactions: {
-            type: 'connection',
-            amount: 200,
-            summary: `You connected with ${guestName}`,
-            status: 'success',
-            reference: guestId,
-            createdAt: new Date().toISOString()
-          }
-        },
-        $set: {
-          'wallet.balance': em.wallet?.balance - 200,
-          'wallet.prevBalance': em?.wallet?.balance,
-          'wallet.updatedAt': new Date().toISOString()
-        }
-      },
-      { new: true }
-    )
-
-    await new Alert({
-      type: 'connection',
-      message: `You have successfully connected to ${guestName}`,
-      user: em?.id
-    }).save()
-
-    await new Alert({
-      type: 'connection',
-      message: `${em?.bio?.firstname} is now connected to you`,
-      user: guestId
-    }).save()
-
-    const { password, ...rest } = Object.assign({}, usr.toJSON())
-
-    return res.status(200).send({
-      success: true,
-      message: 'Successfully connected to ' + guestName,
-      data: rest
-    })
-  } catch (error) {
-    console.log('ERROR LIKING >>> ', error)
-    throw new Error(error)
-  }
-}
-
 export async function getConnections (req, res) {
   const { email } = req.params
   try {
@@ -767,21 +785,21 @@ export async function getConnections (req, res) {
         .status(404)
         .send({ success: false, message: 'Account does not exist' })
 
-    User.findOne({ email: email })
-      .then(user => {
-        const stringArray = user.connections.map(objectId =>
-          objectId.toString()
-        )
+    // User.findOne({ email: email })
+    //   .then((user) => {
+    //     const stringArray = user.connections.map((objectId) =>
+    //       objectId.toString()
+    //     );
 
-        User.find({ _id: { $in: stringArray } })
-          .then(rs => {
-            res
-              .status(200)
-              .send({ success: true, message: 'Success', data: rs })
-          })
-          .catch(error => console.log('ERR >> ', error))
-      })
-      .catch(err => console.log('ERRORRO >> ', err))
+    //     User.find({ _id: { $in: stringArray } })
+    //       .then((rs) => {
+    //         res
+    //           .status(200)
+    //           .send({ success: true, message: "Success", data: rs });
+    //       })
+    //       .catch((error) => console.log("ERR >> ", error));
+    //   })
+    //   .catch((err) => console.log("ERRORRO >> ", err));
   } catch (error) {
     throw new Error(error)
   }
@@ -928,10 +946,8 @@ export async function deleteReview (req, res) {
         .then(async val => {
           let existingReviews = val?.reviews
 
-
           existingReviews?.forEach(elem => {
             ratingsSum = ratingsSum + elem?.rating
-
           })
 
           let length = existingReviews?.length
@@ -1264,3 +1280,55 @@ export async function closeSupport (req, res) {
     })
   }
 }
+
+export async function addSkill (req, res) {
+  try {
+    const { purpose, message, user } = req.body
+    const { email } = user
+
+    const em = await User.findOne({ email }) // check if a user with the same email exists in the database
+
+    if (!em)
+      return res.status(404).json({
+        success: false,
+        message: 'The user does not exist on this platform!'
+      })
+    //Generate a ticket number
+    const ticketId = v4()
+    const support = new Support({
+      purpose: purpose,
+      message: message,
+      user: user,
+      ticket: ticketId
+    })
+
+    // return save result as a response
+    support
+      .save()
+      .then(async result => {
+        try {
+          await new Alert({
+            type: 'profile',
+            message: 'New support ticket opened ',
+            user: user?.id
+          }).save()
+          //Now send email here
+          return sendSupportEmail(user, ticketId, purpose).then(val => {
+            res.status(200).send({
+              success: true,
+              message: 'Request received! Check your email for your ticket ID '
+            })
+          })
+        } catch (error) {
+          return res.status(404).send({ success: false, message: error })
+        }
+      })
+      .catch(error => res.status(500).send({ success: false, message: error }))
+  } catch (error) {
+    console.log('MERROR ', error)
+    return res
+      .status(404)
+      .send({ success: false, message: 'Authentication error' })
+  }
+}
+
