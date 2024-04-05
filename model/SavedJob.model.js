@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import mongoosePaginate from 'mongoose-paginate-v2'
 
-export const HiredProfessionalSchema = mongoose.Schema(
+export const SavedJobSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -15,12 +15,12 @@ export const HiredProfessionalSchema = mongoose.Schema(
   { timestamps: true }
 )
 
-HiredProfessionalSchema.plugin(mongoosePaginate)
+SavedJobSchema.plugin(mongoosePaginate)
 
-HiredProfessionalSchema.method('toJSON', function () {
+SavedJobSchema.method('toJSON', function () {
   const { _id, ...object } = this.toObject()
   object.id = _id
   return object
 })
 
-export default mongoose.model('HiredProfessional', HiredProfessionalSchema)
+export default mongoose.model('SavedJob', SavedJobSchema)

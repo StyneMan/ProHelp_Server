@@ -105,7 +105,7 @@ export const UserSchema = new mongoose.Schema(
         required: false
       }
     },
-    previousWorkAddress: {
+    previousWorkInfo: {
       street: {
         type: String,
         default: '',
@@ -134,10 +134,13 @@ export const UserSchema = new mongoose.Schema(
         type: String,
         default: ''
       },
-      zipCode: {
+      company: {
         type: String,
         default: '',
-        required: false
+      },
+      role: {
+        type: String,
+        default: '',
       }
     },
     wallet: {
@@ -356,7 +359,6 @@ export const UserSchema = new mongoose.Schema(
     savedPros: [],
     hiredPros: [
     ],
-    savedJobs: [],
     pendingSentConnect: [],
     pendingReceivedConnect: [],
     blockedUsers: [],

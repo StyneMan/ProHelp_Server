@@ -61,8 +61,4 @@ JobSchema.method("toJSON", function () {
   return object;
 });
 
-// JobSchema.virtual("recruiter.fullname").get(function () {
-//   return this.recruiter.name;
-// });
-
 export default mongoose.model("Job", JobSchema);

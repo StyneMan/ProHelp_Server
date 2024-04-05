@@ -1,6 +1,6 @@
 import Support from '../model/Support.model.js'
 import { v4 } from 'uuid'
-import { sendConnectionRequestEmailNotice, sendSupportEmail } from './mailer.js'
+import { sendSupportEmail } from './mailer.js'
 import User from '../model/User.model.js'
 import Alert from '../model/Alert.model.js'
 import Review from '../model/Review.model.js'
@@ -21,6 +21,17 @@ const population2 = [
   },
   {
     path: 'professional',
+    select: '-password' // Exclude the password field
+  }
+]
+
+const population3 = [
+  {
+    path: 'user',
+    select: '-password' // Exclude the password field
+  },
+  {
+    path: 'reviewer',
     select: '-password' // Exclude the password field
   }
 ]
@@ -340,60 +351,78 @@ export async function getAllRecruiters (req, res) {
 }
 
 export async function saveWishlist (req, res) {
-  const { guestId, guestName, userId } = req.body
+  const { userId } = req.body
+  const { email } = req.params
   try {
     if (!userId)
       return res
         .status(404)
-        .send({ success: false, message: 'Account does not exist' })
+        .send({ success: false, message: 'No useer id provided!' })
 
     console.log('JKJD ::: ', req.body)
 
-    const user = await User.findById(userId)
-    const savedPros = await SavedProfessional.findOne({ user: userId })
-    if (!user) {
+    const currentUser = await User.findOne({ email })
+    const guestUser = await User.findById(userId)
+
+    if (!currentUser) {
       return res
         .status(404)
-        .send({ success: false, message: 'Not does not exist' })
+        .send({ success: false, message: 'User account does not exist' })
     }
 
-    const alreadyAdded = savedPros?.professional?.toString() === guestId
+    if (!guestUser) {
+      return res
+        .status(404)
+        .send({ success: false, message: 'User account does not exist' })
+    }
+
+    const savedPros = await SavedProfessional.findOne({ user: currentUser?.id })
+
+    const alreadyAdded = savedPros?.professional?.toString() === userId
     if (alreadyAdded) {
       await SavedProfessional.findOneAndDelete({
-        user: userId,
-        professional: guestId
+        user: currentUser?.id,
+        professional: userId
       })
 
       let usr = await User.findByIdAndUpdate(
-        userId,
+        currentUser?.id,
         {
-          $pull: { savedPros: guestId }
+          $pull: { savedPros: userId }
         },
         { new: true }
       )
 
       return res.status(200).send({
         success: false,
-        message: 'Successfully unliked ' + guestName,
+        message:
+          'Successfully unliked ' +
+          guestUser?.bio?.firstname +
+          ' ' +
+          guestUser?.bio?.lastname,
         data: usr
       })
     } else {
       await new SavedProfessional({
-        user: userId,
-        professional: guestId
+        user: currentUser?.id,
+        professional: userId
       }).save()
 
       let usr = await User.findByIdAndUpdate(
-        userId,
+        currentUser?.id,
         {
-          $push: { savedPros: guestId }
+          $push: { savedPros: userId }
         },
         { new: true }
       )
 
       return res.status(200).send({
         success: true,
-        message: 'Successfully liked ' + guestName,
+        message:
+          'Successfully liked ' +
+          guestUser?.bio?.firstname +
+          ' ' +
+          guestUser?.bio?.lastname,
         data: usr
       })
     }
@@ -777,42 +806,43 @@ export async function searcherAdvanced (req, res) {
 //   }
 // }
 
-export async function getConnections (req, res) {
-  const { email } = req.params
-  try {
-    if (!email)
-      res
-        .status(404)
-        .send({ success: false, message: 'Account does not exist' })
+// export async function getConnections (req, res) {
+//   const { email } = req.params
+//   try {
+//     if (!email)
+//       res
+//         .status(404)
+//         .send({ success: false, message: 'Account does not exist' })
 
-    // User.findOne({ email: email })
-    //   .then((user) => {
-    //     const stringArray = user.connections.map((objectId) =>
-    //       objectId.toString()
-    //     );
+//     // User.findOne({ email: email })
+//     //   .then((user) => {
+//     //     const stringArray = user.connections.map((objectId) =>
+//     //       objectId.toString()
+//     //     );
 
-    //     User.find({ _id: { $in: stringArray } })
-    //       .then((rs) => {
-    //         res
-    //           .status(200)
-    //           .send({ success: true, message: "Success", data: rs });
-    //       })
-    //       .catch((error) => console.log("ERR >> ", error));
-    //   })
-    //   .catch((err) => console.log("ERRORRO >> ", err));
-  } catch (error) {
-    throw new Error(error)
-  }
-}
+//     //     User.find({ _id: { $in: stringArray } })
+//     //       .then((rs) => {
+//     //         res
+//     //           .status(200)
+//     //           .send({ success: true, message: "Success", data: rs });
+//     //       })
+//     //       .catch((error) => console.log("ERR >> ", error));
+//     //   })
+//     //   .catch((err) => console.log("ERRORRO >> ", err));
+//   } catch (error) {
+//     throw new Error(error)
+//   }
+// }
 
 export async function saveReview (req, res) {
-  const { reviewer, comment, userId, rating, email, fullname } = req.body
+  const { comment, userId, rating, reviewer } = req.body
+  const { email } = req.params
+
+  console.log("PAYLOADS ::: ", req.body);
+
   try {
-    // const el = websocket.usersArr.filter((item) => item?.userId === userId);
-    // const roomId = el[0]
-    // console.log("ELEM SOCKET :: ", websocket.usersArr);
-    // console.log("ELEM SOCKET IO GLOBAL SAVE  :: ", global.io);
-    const findReviewer = User.findOne({ email })
+    const findReviewer = await User.findOne({ email })
+
     if (!findReviewer) {
       return res.status(404).send({
         success: false,
@@ -820,7 +850,7 @@ export async function saveReview (req, res) {
       })
     }
 
-    const findUser = await User.findOne({ _id: userId })
+    const findUser = await User.findOne({ id: userId })
     if (!findUser) {
       return res.status(404).send({
         success: false,
@@ -829,77 +859,64 @@ export async function saveReview (req, res) {
       })
     }
 
-    const review = await new Review({
+    await new Review({
       comment: comment,
       rating: rating,
       reviewer: reviewer,
-      userId: userId,
-      fullname: fullname
+      user: userId
+    }).save()
+
+    var ratingsSum = 0
+    var ratingsVal = 0
+
+    // const usere = await User.findOne({ _id: userId })
+
+    let existingReviews = await Review.find({})
+
+    console.log("EXISTING REVIEWS ::: ", existingReviews);
+
+    existingReviews?.forEach(elem => {
+      ratingsSum = ratingsSum + elem?.rating
+    })
+    let length = existingReviews?.length + 1
+    let netSum = ratingsSum + rating
+    ratingsVal = netSum / length
+
+    //Now update user's profile
+    let usr = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          rating: ratingsVal
+        }
+      },
+      { new: true }
+    )
+
+    await new Alert({
+      type: 'profile',
+      message: `You have a new review from ${findReviewer?.bio?.firstname} ${findReviewer?.bio?.lastname}`,
+      user: usr?.id
+    }).save()
+
+    // remove password and return user's profile
+    const { password, ...rest } = Object.assign({}, usr.toJSON())
+    const { password: pass, ...reviewerRest } = Object.assign({}, findReviewer.toJSON())
+
+    global.io.emit('new-review', {
+      message: 'Someone just reviewed you',
+      reviewedBy: reviewerRest,
+      user: rest
     })
 
-    review
-      .save()
-      .then(async result => {
-        //Recalculate rating for this user
-        var ratingsSum = 0
-        var ratingsVal = 0
-
-        User.findOne({ _id: userId }).then(async val => {
-          let existingReviews = val?.reviews
-
-          existingReviews?.forEach(elem => {
-            ratingsSum = ratingsSum + elem?.rating
-          })
-          let length = existingReviews?.length + 1
-          let netSum = ratingsSum + rating
-          ratingsVal = netSum / length
-
-          //Now update user's profile
-          let usr = await User.findByIdAndUpdate(
-            userId,
-            {
-              $push: {
-                reviews: {
-                  _id: result._id,
-                  reviewer: reviewer.id,
-                  rating: rating
-                }
-              },
-              $set: {
-                rating: ratingsVal
-              }
-            },
-            { new: true }
-          )
-
-          await new Alert({
-            type: 'profile',
-            message: `You have a new review from ${reviewer?.name}`,
-            user: usr?.id
-          }).save()
-
-          // remove password and return user's profile
-          const { password, ...rest } = Object.assign({}, usr.toJSON())
-
-          global.io.emit('new-review', {
-            message: 'Someone just reviewed you',
-            data: rest,
-            userId: userId
-          })
-
-          res.status(200).send({
-            success: true,
-            message: 'Your review was successful'
-          })
-        })
-      })
-      .catch(error => {
-        console.log('REVIEW ER R>> ', error)
-        return res.status(500).send({ success: false, message: error })
-      })
+    return res.status(200).send({
+      success: true,
+      message: 'Your review was successful'
+    })
+    
   } catch (error) {
     console.log('REVIEW ERR>> ', error)
-    return res.status(500).send({ success: false, message: error })
+    return res.status(500).send({ success: false, message: error?.message })
   }
 }
 
@@ -995,8 +1012,10 @@ export async function deleteReview (req, res) {
 export async function replyReview (req, res) {
   const { reviewId, reviewerId, replyBody } = req.body
 
+  console.log("REPLY RESPONS :: ", req.body);
+
   try {
-    const reviewer = await User.findOne({ _id: reviewerId })
+    const reviewer = await User.findOne({ id: reviewerId })
     if (!reviewer) {
       return res.status(404).send({
         success: false,
@@ -1004,7 +1023,7 @@ export async function replyReview (req, res) {
       })
     }
 
-    const review = await Review.findOne({ _id: reviewId })
+    const review = await Review.findOne({ _id: reviewId }).populate('user').populate('reviewer');
     if (!review) {
       return res
         .status(404)
@@ -1012,8 +1031,8 @@ export async function replyReview (req, res) {
     }
 
     let rep = await Review.findOneAndUpdate(
-      { _id: reviewId },
-      { $set: { reply: replyBody } },
+      review?._id,
+      { $set: { reply: replyBody?.message } },
       {
         new: true
       }
@@ -1021,13 +1040,13 @@ export async function replyReview (req, res) {
 
     await new Alert({
       type: 'profile',
-      message: `${review?.fullnamee} just replied your review`,
+      message: `${review?.user?.bio?.firstname} ${review?.user?.bio?.lastname} just replied your review`,
       user: review?.userId
     }).save()
 
     global.io.emit('review-reply', {
-      message: `${review?.fullname} just replied your review`,
-      userId: review?.userId
+      message: `${review?.user?.bio?.firstname} ${review?.user?.bio?.lastname} just replied your review`,
+      review: review
     })
 
     return res.status(200).send({
@@ -1044,35 +1063,26 @@ export async function replyReview (req, res) {
 export async function getReviewsByUser (req, res) {
   try {
     const { userId } = req.query
-    const { email } = req.params
+    const { email } = req.params;
 
-    const user = await User.findOne({ email })
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: 'User does not exist on our platform!'
-      })
+    let query
+    const { page = 1, limit = 25 } = req.query
+
+    // console.log('USER  ::: ', req.user)
+
+    query = {
+      user: userId
     }
 
     const options = {
-      page: parseInt(req.query.page) || 0,
-      limit: parseInt(req.query.limit) || 25
+      sort: { createdAt: -1 },
+      populate: population3,
+      page,
+      limit
     }
 
-    const reviews = await Review.aggregate([
-      { $match: { userId } },
-      { $sort: { createdAt: -1 } },
-
-      // apply pagination
-      { $skip: options.page * options.limit },
-      { $limit: options.limit },
-      { $sort: { createdAt: 1 } }
-    ])
-
-    return res.status(200).send({
-      success: true,
-      data: reviews
-    })
+    const reviews = await Review.paginate(query, options)
+    return res.status(200).send(reviews)
   } catch (error) {
     console.log('REVIEW ERR>> ', error)
     return res.status(500).send({ success: false, message: error })
@@ -1331,4 +1341,3 @@ export async function addSkill (req, res) {
       .send({ success: false, message: 'Authentication error' })
   }
 }
-

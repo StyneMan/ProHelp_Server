@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate-v2'
 
 export const ReviewSchema = mongoose.Schema(
   {
@@ -18,10 +19,12 @@ export const ReviewSchema = mongoose.Schema(
       ref: 'User'
     },
     reply: {
-      type: String
+      type: String,
     }
   },
-  { timestamps: true }
+  { timestamps: true } 
 )
+
+ReviewSchema.plugin(mongoosePaginate)
 
 export default mongoose.model('Review', ReviewSchema)

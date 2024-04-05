@@ -11,6 +11,8 @@ import * as adminController from '../controllers/adminController.js';
 import * as professionController from '../controllers/professionController.js';
 import * as cmsController from "../controllers/cmsController.js"
 import * as connectionController from "../controllers/connectionController.js"
+import * as userController from "../controllers/userController.js"
+import * as transactionController from "../controllers/transactionController.js"
 
 // import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
@@ -47,14 +49,28 @@ router.route('/createResetSession').get(controller.createResetSession) // reset 
 router.route('/logout/:email').get(Auth, controller.logout); //Log user out
 router.route('/updateuser/:email').put(Auth, controller.updateUser); // is use to update the user profile
 router.route('/likeUser/:email').put(Auth, appController.saveWishlist); // Like/Unlike user
-router.route('/connection/request/:email').post(Auth, connectionController.sendConnectionRequest); //Add connection after payment
 router.route('/users/savedPros/:email').get(Auth, appController.getSavedPros); //get saved pros/recruiters for user
-router.route('/users/connections/:email').get(Auth, appController.getConnections); //get all connections of a user
 router.route('/review/create/:email').post(Auth, appController.saveReview); //save a new review
 router.route('/review/delete/:email').put(Auth, appController.deleteReview); //Delete/Take down a review
 router.route('/review/byUser/:email').get(Auth, appController.getReviewsByUser); //get all user's reviews
 router.route('/review/reply/:email').put(Auth, appController.replyReview); //reply a specific review
 router.route('/alerts/all/:email').get(Auth, appController.getAlerts); //reply a specific review
+
+router.route('/account/report/:email').post(Auth, userController.reportUser); //reply a specific review
+router.route('/account/block/:email').post(Auth, userController.blockUser); //reply a specific review
+router.route('/account/unblock/:email').post(Auth, userController.unblockUser); //reply a specific review
+router.route('/account/transactions/byUser/:email').get(Auth, transactionController.getAllUserTransactions); //reply a specific review
+
+router.route('/connection/request/accept/:email/:connectionId').put(Auth, connectionController.acceptConnectionRequest); //Add connection after payment
+router.route('/connection/request/cancel/:email/:connectionId').put(Auth, connectionController.cancelConnectionRequest); //Add connection after payment
+router.route('/connection/request/decline/:email/:connectionId').put(Auth, connectionController.declineConnectionRequest); //Add connection after payment
+router.route('/connection/request/disconnect/:email/:connectionId').put(Auth, connectionController.disconnectConnection); //Add connection after payment
+router.route('/connection/byUser/all/:email').get(Auth, connectionController.getUserConnections); //get all user's reviewsc
+router.route('/connection/past/byUser/all/:email').get(Auth, connectionController.getUserPastConnections); //get all user's reviewsc
+router.route('/connection/byUser/pending-request/received/:email').get(Auth, connectionController.getUserPendingConnectionRequest); //get all user's reviewsc
+router.route('/connection/request/:email').post(Auth, connectionController.sendConnectionRequest); //Add connection after payment
+
+
 
  
 
@@ -73,7 +89,7 @@ router.route('/sections/all').get(cmsController.allSections);
 
                         // ***** JOBS ***** //
 router.route('/job/post/:email').post(Auth, jobController.postJob);
-router.route('/job/all/').get(jobController.getAllJobs);
+router.route('/job/all').get(jobController.getAllJobs);
 router.route('/job/search/:key').get(jobController.searchJob);
 router.route('/job/recommended/:email').get(Auth, jobController.getRecommendedJobs);
 router.route('/job/byUser/:email').get(Auth, jobController.getJobsByUser);
@@ -112,6 +128,8 @@ router.route('/profession/update/:id').put([verifyAdmin, verifyCookie], professi
 
 router.route('/legal/privacy/update').put([verifyAdmin, verifyCookie], cmsController.setPrivacyPolicy);
 router.route('/legal/terms/update').put([verifyAdmin, verifyCookie], cmsController.setTermsOfUse);
+
+router.route('/transactions/all').get([verifyAdmin, verifyCookie], transactionController.getAllTranactions);
 
 router.route('/cms/banners/add').post([verifyAdmin, verifyCookie], cmsController.addBanner);
 router.route('/cms/banners/update/:bannerId').put([verifyAdmin, verifyCookie], cmsController.updateBanner);

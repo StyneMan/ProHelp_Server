@@ -8,6 +8,7 @@ import connect from "./database/conn.js";
 import router from "./router/route.js";
 import { Server } from "socket.io";
 import WebSockets from "./utils/websocket.js";
+import { pusher } from "./utils/pusher.js";
 
 const app = express();
 
@@ -49,11 +50,12 @@ global.io = new Server(httpServer, { cors: { origin: "*" } });
 /** Create socket connection */
 global.io.on("connection", WebSockets.connection);
 
+pusher.
+
 /** start server only when we have valid connection */
 connect()
   .then(() => {
     try {
-
       httpServer.listen(port, () => {
         console.log(`Server connected to http://localhost:${port}`);
       });

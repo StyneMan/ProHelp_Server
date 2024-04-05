@@ -10,6 +10,7 @@ import Job from '../model/Job.model.js'
 import JobApplication from '../model/JobApplication.model.js'
 import Alert from '../model/Alert.model.js'
 import Transaction from '../model/Transaction.model.js'
+import SavedJob from '../model/SavedJob.model.js'
 
 let customErr = new Error()
 
@@ -22,12 +23,11 @@ const population = [
 const population2 = [
   {
     path: 'profession',
-    select: 'id name image skills description'
+    select: '-password'
   },
   {
     path: 'recruiter',
-    select:
-      'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+    select: '-password'
   }
 ]
 
@@ -37,25 +37,24 @@ const population3 = [
     populate: [
       {
         path: 'profession',
-        select: 'name image skills description'
+        select: '-password'
       },
       {
         path: 'recruiter',
-        select:
-          'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+        select: '-password'
       }
     ]
   },
   {
     path: 'applicant',
-    select:
-      'id bio address wallet transactions rating profession experienceYears languagesSpoken languagesWriteSpeak email authType isEmailVerified hasProfile experience education skills savedPros'
+    select: '-password'
   }
 ]
 
 const population4 = [
   {
-    path: 'recruiter'
+    path: 'recruiter',
+    select: '-password'
   }
 ]
 
@@ -84,8 +83,8 @@ export async function postJob (req, res) {
     const { hasPayment } = req.body
     const { email } = req.params
 
-    console.log("USER ::: ", req?.user);
-    console.log("PAYLOAD ::: ", req.body);
+    console.log('USER ::: ', req?.user)
+    console.log('PAYLOAD ::: ', req.body)
 
     const em = await User.findOne({ email })
 
@@ -131,7 +130,7 @@ export async function postJob (req, res) {
             $set: {
               'wallet.balance': em.wallet?.balance - 200,
               'wallet.prevBalance': em?.wallet?.balance,
-              'wallet.updatedAt': new Date().toISOString(),
+              'wallet.updatedAt': new Date().toISOString()
             }
           },
           {
@@ -173,13 +172,11 @@ export async function postJob (req, res) {
         })
       })
       .catch(error => {
-        console.log("zER:: ", error);
+        console.log('zER:: ', error)
         res
-        .status(500)
-        .send({ success: false, message: 'error msg =>> ' + error })
-      }
-       
-      )
+          .status(500)
+          .send({ success: false, message: 'error msg =>> ' + error })
+      })
   } catch (error) {
     console.log('MERROR ', error)
     return res
@@ -253,19 +250,14 @@ export async function getRecommendedJobs (req, res) {
 
 export async function getAllJobs (req, res) {
   try {
-    let query
+    // let query
     const { page = 1, range, limit = 25 } = req.query
 
-    if (range === 'recent') {
-      query = {
-        createdAt: {
-          $gte: startOfDay(new Date()),
-          $lte: endOfDay(new Date())
-        }
-      }
-    } else {
-      query = {}
-    }
+    
+
+    const query = {
+      recruiter: { $ne: null, $type: 'objectId' }
+    };
 
     const options = {
       sort: { createdAt: -1 },
@@ -276,7 +268,9 @@ export async function getAllJobs (req, res) {
 
     const jobs = await Job.paginate(query, options)
 
-    res.status(200).send(jobs)
+    console.log('JOB INSPECT ::: ', jobs)
+
+    return res.status(200).send(jobs)
   } catch (error) {
     res.status(500).send({
       message:
@@ -336,49 +330,6 @@ export async function updateJob (req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).send({ message: error })
-  }
-}
-
-export async function bookmarkJob (req, res) {
-  const { jobId, userId } = req.body
-  try {
-    if (!userId)
-      res
-        .status(404)
-        .send({ success: false, message: 'Account does not exist' })
-
-    const user = await User.findById(userId)
-    const alreadyAdded = user.savedJobs.find(id => id.toString() === jobId)
-    if (alreadyAdded) {
-      let usr = await User.findByIdAndUpdate(
-        userId,
-        {
-          $pull: { savedJobs: jobId }
-        },
-        { new: true }
-      )
-      return res.status(200).send({
-        success: false,
-        message: 'Successfully removed job from bookmark ',
-        data: usr
-      })
-    } else {
-      let usr = await User.findByIdAndUpdate(
-        userId,
-        {
-          $push: { savedJobs: jobId }
-        },
-        { new: true }
-      )
-      return res.status(200).send({
-        success: false,
-        message: 'Successfully bookmarked job',
-        data: usr
-      })
-    }
-  } catch (error) {
-    console.log('ERROR LIKING >>> ', error)
-    throw new Error(error)
   }
 }
 
@@ -589,7 +540,7 @@ export async function getJobApplicationsByUser (req, res) {
 
   // console.log("JONN APPLICATION BODY ::: ", req?.params);
   try {
-    const user = await User.findOne({ email: email })
+    const user = await User.findOne({ email })
 
     if (!user)
       return res
@@ -597,7 +548,11 @@ export async function getJobApplicationsByUser (req, res) {
         .send({ success: false, message: 'Account does not exist' })
 
     query = {
-      applicant: { $eq: user?._id }
+      $and: [
+        { applicant: { $eq: user?._id ?? user?.id } },
+        { job: { $ne: null } },
+        { applicant: { $ne: null } }
+      ]
     }
 
     const options = {
@@ -610,11 +565,10 @@ export async function getJobApplicationsByUser (req, res) {
     const applications = await JobApplication.paginate(query, options)
 
     return res.status(200).send({
-      success: true,
-      message: '',
-      data: applications
+      applications
     })
   } catch (error) {
+    console.log('JOB APPLLICATIONS ERR', error)
     return res.status(500).send({ success: false, message: error?.message })
   }
 }
@@ -781,6 +735,125 @@ export async function searchJob (req, res) {
     }
   } catch (error) {
     console.log(error)
+    throw new Error(error)
+  }
+}
+
+
+// export async function bookmarkJob (req, res) {
+//   const { jobId, userId } = req.body
+//   try {
+//     if (!userId)
+//       res
+//         .status(404)
+//         .send({ success: false, message: 'Account does not exist' })
+
+//     const user = await User.findById(userId)
+//     const alreadyAdded = user.savedJobs.find(id => id.toString() === jobId)
+//     if (alreadyAdded) {
+//       let usr = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           $pull: { savedJobs: jobId }
+//         },
+//         { new: true }
+//       )
+//       return res.status(200).send({
+//         success: false,
+//         message: 'Successfully removed job from bookmark ',
+//         data: usr
+//       })
+//     } else {
+//       let usr = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           $push: { savedJobs: jobId }
+//         },
+//         { new: true }
+//       )
+//       return res.status(200).send({
+//         success: false,
+//         message: 'Successfully bookmarked job',
+//         data: usr
+//       })
+//     }
+//   } catch (error) {
+//     console.log('ERROR LIKING >>> ', error)
+//     throw new Error(error)
+//   }
+// }
+
+export async function bookmarkJob (req, res) {
+  const { jobId } = req.body
+  const { email } = req.params
+
+  try {
+    
+    const currentUser = await User.findOne({ email })
+
+    if (!currentUser) {
+      return res
+        .status(404)
+        .send({ success: false, message: 'User account does not exist' })
+    }
+
+    const savedJob = await SavedJob.findOne({ job: jobId })
+
+    if (savedJob) {
+      await SavedJob.findOneAndDelete({
+        user: currentUser?.id,
+        job: jobId
+      })
+
+      let usr = await User.findByIdAndUpdate(
+        currentUser?.id,
+        {
+          $pull: { savedJobs: jobId }
+        },
+        { new: true }
+      )
+
+      global.io.emit('job-unsaved', {
+        jobId: jobId,
+        user: usr,
+        message: `You have unbookmarked this job successfully`
+      })
+
+      return res.status(200).send({
+        success: false,
+        message:
+          'Job sucessfully unsaved! ',
+        data: usr
+      })
+    } else {
+      await new SavedJob({
+        user: currentUser?.id,
+        job: jobId
+      }).save()
+
+      let usr = await User.findByIdAndUpdate(
+        currentUser?.id,
+        {
+          $push: { savedJobs: jobId }
+        },
+        { new: true }
+      )
+
+      global.io.emit('job-saved', {
+        jobId: jobId,
+        user: usr,
+        message: `You have bookmarked this job successfully`
+      })
+
+      return res.status(200).send({
+        success: true,
+        message:
+          'Job successfully saved ',
+        data: usr
+      })
+    }
+  } catch (error) {
+    console.log('ERROR LIKING >>> ', error)
     throw new Error(error)
   }
 }

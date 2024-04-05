@@ -1,5 +1,6 @@
 import Chat from "../model/Chat.model.js";
 import Message from "../model/Message.model.js";
+import { pusher } from "./pusher.js";
 
 class WebSockets {
   constructor() {
@@ -19,6 +20,8 @@ class WebSockets {
         userId: userId,
       });
     });
+
+    // pusher.trigger()
 
     client.on("setup", (userData) => {
       console.log("SETUP_USER_DATA :: ", userData);

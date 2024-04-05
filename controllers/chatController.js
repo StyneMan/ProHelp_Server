@@ -68,7 +68,7 @@ export async function accessChat(req, res) {
 //@route           GET /api/chat/
 //@access          Protected
 export async function fetchChats(req, res) {
-    console.log("ENTERED HERE JUST NOW ::: ");
+    // console.log("ENTERED HERE JUST NOW ::: ");
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
       .populate("users", "-password")
@@ -80,7 +80,7 @@ export async function fetchChats(req, res) {
           path: "latestMessage.sender",
           select: "bio id email",
         });
-        console.log("RESO CONVOS ::: ", results);
+        // console.log("RESO CONVOS ::: ", results);
         res.status(200).send({data: results, message: "", suceess: true});
       });
   } catch (error) {

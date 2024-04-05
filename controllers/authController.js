@@ -111,7 +111,7 @@ export async function register(req, res) {
                         { new: true }
                       );
                     } else {
-                      const addOTP = await new OTP({
+                       await new OTP({
                         user: result?.id,
                         emailAddress: email,
                         code,
@@ -465,7 +465,7 @@ export async function resendOTP(req, res) {
 
       if (otp) {
         // Update OTP code
-        const updated = await OTP.findOneAndUpdate(
+         await OTP.findOneAndUpdate(
           otp?._id,
           {
             $set: {
@@ -475,7 +475,7 @@ export async function resendOTP(req, res) {
           { new: true }
         );
       } else {
-        const addOTP = await new OTP({
+       await new OTP({
           user: user?.id,
           emailAddress: email,
           code,
@@ -495,14 +495,22 @@ export async function resendOTP(req, res) {
 export async function verifyOTP(req, res) {
   const { code, email } = req.query;
   try {
-    const otp = await OTP.findOne({ emailAddress: email });
+    const user = await User.findOne({email });
+
+    // console.log("USERS ::", user);
+    const otp = await OTP.findOne({ user: user?.id.toString() });
+
+    // console.log();('OTPDD ', otp);
+
     if (!otp) {
       return res
         .status(404)
         .send({ success: false, message: "Code not found!" });
     }
 
-    if (parseInt(otp?.code) === parseInt(code)) {
+    console.log("DB OTP CODE ", otp?.code);
+
+    if ((otp?.code) === (code)) {
       app.locals.otp = null; // reset the OTP value
       app.locals.resetSession = true; // start session for reset password
 
