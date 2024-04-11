@@ -1,6 +1,6 @@
 import Chat from "../model/Chat.model.js";
 import Message from "../model/Message.model.js";
-import { pusher } from "./pusher.js";
+// import { pusher } from "./pusher.js";
 
 class WebSockets {
   constructor() {
@@ -14,7 +14,7 @@ class WebSockets {
 
     // add identity of user mapped to the socket id
     client.on("identity", (userId) => {
-      console.log("USER IDENTITY >> ", userId);
+      // console.log("USER IDENTITY >> ", userId);
       this.usersArr?.push({
         socketId: client.id,
         userId: userId,

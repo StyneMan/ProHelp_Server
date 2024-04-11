@@ -10,6 +10,7 @@ import admin from "firebase-admin";
 // import serviceAccount from "../middleware/serviceAccKey.json";
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
+// import { pusher } from "../utils/pusher.js";
 
 
 const app = express();
@@ -293,6 +294,7 @@ export async function login(req, res) {
               user: user?.id,
             });
             await alert.save();
+           
 
             return res.status(200).send({
               message: "You have successfully logged in",

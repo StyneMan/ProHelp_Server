@@ -253,8 +253,6 @@ export async function getAllJobs (req, res) {
     // let query
     const { page = 1, range, limit = 25 } = req.query
 
-    
-
     const query = {
       recruiter: { $ne: null, $type: 'objectId' }
     };
@@ -267,8 +265,6 @@ export async function getAllJobs (req, res) {
     }
 
     const jobs = await Job.paginate(query, options)
-
-    console.log('JOB INSPECT ::: ', jobs)
 
     return res.status(200).send(jobs)
   } catch (error) {
@@ -538,7 +534,6 @@ export async function getJobApplicationsByUser (req, res) {
   const { page = 1, limit = 25 } = req.query
   let query
 
-  // console.log("JONN APPLICATION BODY ::: ", req?.params);
   try {
     const user = await User.findOne({ email })
 
