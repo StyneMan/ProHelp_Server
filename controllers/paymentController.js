@@ -14,6 +14,8 @@ const population = {
   select: "-password", // Exclude the password field
 };
 
+let customErr = new Error();
+
 export async function initPayment(req, res) {
   try {
     // let { terms,  } = req.body;
@@ -48,10 +50,10 @@ export async function initPayment(req, res) {
     // Create transaction here
     await new Transaction({
       user: user?.id ?? user?._id,
-      type: req.params?.transactionType,
+      type: req.query?.transactionType,
       reference: req.body?.tx_ref,
       amount: req.body?.amount,
-      summary: `${req.params?.transactionType} transaction`,
+      summary: `${req.query?.transactionType} transaction`,
       status: resp?.data?.status,
     }).save();
 

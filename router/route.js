@@ -87,7 +87,7 @@ router.route('/legal/all').get(appController.getLegal);
 router.route('/banners/all').get(cmsController.allBanners);
 router.route('/faqs/all').get(cmsController.allFAQs);
 router.route('/sections/all').get(cmsController.allSections);
-router.route('/payment/init/:email/:transactionType').post(Auth, paymentController.initPayment);
+router.route('/payment/init/:email').post(Auth, paymentController.initPayment);
 router.route('/payment/verify').post(paymentController.verifyPayment);
 router.route('/payment/webhook').post(paymentController.verifyPayment);
 
