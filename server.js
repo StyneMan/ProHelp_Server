@@ -69,8 +69,8 @@ const channelPusher2 = pusher.subscribe('my-channel');
 // });
 channelPusher2.bind('pusher:subscription_succeeded', function(members) {
   console.log('SUCCESSFULLY --- subscribed!');
-
-  channelPusher2.emit('client-from-server', {message: 'FROM SERVER to CLIENT !!!'});
+// 
+  // channelPusher2.emit('client-from-server', {message: 'FROM SERVER to CLIENT !!!'});
 });
 
 channelPusher2.bind('client-from-mobile', function(data) {

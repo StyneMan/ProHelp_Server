@@ -31,8 +31,8 @@ export default async function Auth(req, res, next) {
     // Use a consistent secret for signing and verifying tokens
     const secret =
       usr?.authType === "google"
-        ? process.env.GOOGLE_AUTH_CLIENT_SECRET
-        : process.env.JWT_SECRET;
+        ? process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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"
+        : process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b';
 
         // console.log("UNDECODED TOKEN :: ", token);
         
@@ -76,7 +76,7 @@ export function verifyCookie(req, res, next) {
   // decode token
   if (token) {
     // verifies secret and checks exp
-    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+    jwt.verify(token, process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b', function (err, decoded) {
       if (err) {
         // console.log('token err: ', err)
         return res.status(401).send({
@@ -99,7 +99,7 @@ export function verifyCookie(req, res, next) {
 export function verifyAdmin(req, res, next) {
   const secret = req.headers["secret-key"];
   // verifies secret
-  if (secret && secret === process.env.APP_SECRET) {
+  if (secret && secret === (process.env.APP_SECRET ?? "prohelp_ws300ab200cd100RDX199")) {
     next();
   } else {
     // return an error

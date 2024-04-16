@@ -1,6 +1,7 @@
 import User from "../model/User.model.js";
 import OTP from "../model/OTP.model.js";
 import Alert from "../model/Alert.model.js";
+import Gurantor from "../model/Gurantor.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import ENV from "../config.js";
@@ -16,7 +17,7 @@ import { OAuth2Client } from "google-auth-library";
 const app = express();
 
 const clientAndroid = new OAuth2Client(
-  process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID
+  process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?? "964741321159-c0hcfbf27c9v5mub4vadpau1o5rerqqe.apps.googleusercontent.com"
 );
 
 // const clientWeb = new OAuth2Client(
@@ -126,7 +127,7 @@ export async function register(req, res) {
                     await new Alert({
                       type: "auth",
                       message: "New account registration notification",
-                      user: result?.id,
+                      user: result?.id ?? result?._id,
                     }).save();
 
                     return res.status(200).send({
@@ -198,7 +199,7 @@ export async function register(req, res) {
                     await new Alert({
                       type: "auth",
                       message: "New account registration notification",
-                      user: result?.id,
+                      user: result?.id ?? result?._id,
                     }).save();
                   })
                   .catch((err) => {
@@ -280,7 +281,7 @@ export async function login(req, res) {
                 userId: user._id,
                 username: user.email,
               },
-              process.env.JWT_SECRET,
+              process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b',
               { expiresIn: "48h" }
             );
 
@@ -291,7 +292,7 @@ export async function login(req, res) {
             const alert = new Alert({
               type: "auth",
               message: "Account login notification",
-              user: user?.id,
+              user: user?.id ?? user?._id,
             });
             await alert.save();
            
@@ -413,6 +414,22 @@ export async function updateUser(req, res) {
         new: true,
       });
 
+      if (body.guarantor) {
+        // Add guarantor here
+        let added = await Gurantor.findOne({ user: usr?.id });
+        if (added) {
+          await Gurantor.findOneAndUpdate({ email: email }, {...body?.guarantor, user: usr?.id,}, {
+            new: true,
+          });
+        }
+        else {
+          await new Gurantor({
+            user: usr?.id,
+            ...body?.guarantor
+          }).save();
+        }
+      }
+
       /** remove password from user */
       // mongoose return unnecessary data with object so convert it into json
       const { password, ...rest } = Object.assign({}, usr.toJSON());
@@ -420,7 +437,7 @@ export async function updateUser(req, res) {
       await new Alert({
         type: "profile",
         message: "Your profile was updated ",
-        user: usr?.id,
+        user: usr?.id ?? usr?._id,
       }).save();
 
       res.status(200).send({
@@ -540,7 +557,7 @@ export async function verifyOTP(req, res) {
               userId: usr._id,
               username: usr.email,
             },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b',
             { expiresIn: "48h" }
           );
 
@@ -659,17 +676,24 @@ export async function getGoogleParams(req, res) {
           new: true,
         }
       )
-        .then((usr) => {
+        .then(async (usr) => {
           const jwtToken = jwt.sign(
             {
               userId,
               username: payload?.email,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
             { expiresIn: "24h" }
           );
 
           const { password, ...rest } = Object.assign({}, usr.toJSON());
+
+          const alert = new Alert({
+            type: "auth",
+            message: "Google account login",
+            user: usr?.id ?? usr?._id,
+          });
+          await alert.save();
 
           res.status(200).send({
             message: "User logged in successfully",
@@ -704,11 +728,19 @@ export async function getGoogleParams(req, res) {
               userId,
               username,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
             { expiresIn: "24h" }
           );
 
           const { password, ...rest } = Object.assign({}, result.toJSON());
+
+          const alert = new Alert({
+            type: "auth",
+            message: "You registered via Google",
+            user: result?.id ?? result?._id,
+          });
+          await alert.save();
+
 
           res.status(200).send({
             message: "Account created successfully",
@@ -745,17 +777,24 @@ export async function getGoogleParamsWeb(req, res) {
           new: true,
         }
       )
-        .then((usr) => {
+        .then(async (usr) => {
           const jwtToken = jwt.sign(
             {
               userId,
               username: email,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
             { expiresIn: "48h" }
           );
 
           const { password, ...rest } = Object.assign({}, usr.toJSON());
+
+          const alert = new Alert({
+            type: "auth",
+            message: "Google account login notification",
+            user: usr?.id ?? usr?._id,
+          });
+          await alert.save();
 
           res.status(200).send({
             message: "User logged in successfully",
@@ -789,11 +828,18 @@ export async function getGoogleParamsWeb(req, res) {
               userId,
               username,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET,
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
             { expiresIn: "24h" }
           );
 
           const { password, ...rest } = Object.assign({}, result.toJSON());
+
+          const alert = new Alert({
+            type: "auth",
+            message: "You registered via Google",
+            user: result?.id ?? result?._id,
+          });
+          await alert.save();
 
           res.status(200).send({
             message: "Account created successfully",

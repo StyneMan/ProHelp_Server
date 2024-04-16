@@ -1,6 +1,19 @@
-import User from '../model/User.model.js'
 import Chat from '../model/Chat.model.js'
 import Message from '../model/Message.model.js'
+
+const population = [
+  {
+    path: 'sender',
+    select: '-password' // Exclude the password field
+  },
+  {
+    path: 'chat',
+  },
+  {
+    path: 'readBy',
+    select: '-password' // Exclude the password field
+  }
+]
 
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId
@@ -13,6 +26,38 @@ export async function allMessages (req, res) {
     res.json(messages)
   } catch (error) {
     res.status(400).send({ message: error?.message })
+  }
+
+}
+
+
+export async function getChatMessages (req, res) {
+  try {
+    const { email, chatId, } = req.params
+    let query
+    const { page = 1, limit = 30 } = req.query
+
+    console.log('USER  ::: ', req.user)
+
+    query = {
+      chat: chatId,
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      populate: population,
+      page,
+      limit
+    }
+
+    const messages = await Message.paginate(query, options)
+    return res.status(200).send(messages)
+  } catch (error) {
+    console.log('ERROR', error)
+    res.status(500).send({
+      success: false,
+      message: error?.message
+    })
   }
 }
 

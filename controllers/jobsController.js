@@ -151,7 +151,7 @@ export async function postJob (req, res) {
         await new Alert({
           type: 'job',
           message: `You have successfully posted a job ${req.body?.jobTitle}`,
-          user: usr?.id
+          user: usr?.id ?? usr?._id
         }).save()
 
         //Now send email here
@@ -413,7 +413,7 @@ export async function applyJob (req, res) {
       await new Alert({
         type: 'job',
         message: `You have successfully applied for ${req.body?.job?.jobTitle}`,
-        user: usr?.id
+        user: usr?.id ?? usr?._id
       }).save()
 
       global.io.emit('job-application', {

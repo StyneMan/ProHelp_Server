@@ -7,6 +7,20 @@ import Chat from "../model/Chat.model.js";
 // import { ObjectId } from "mongodb";
 // import Message from "../model/Message2.model.js";
 
+const population = [
+  {
+    path: 'users',
+    select: '-password' // Exclude the password field
+  },
+  {
+    path: 'groupAdmin',
+    select: '-password' // Exclude the password field
+  },
+  {
+    path: 'latestMessage',
+  }
+]
+
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
 //@access          Protected
@@ -80,11 +94,47 @@ export async function fetchChats(req, res) {
           path: "latestMessage.sender",
           select: "bio id email",
         });
-        // console.log("RESO CONVOS ::: ", results);
+
+        console.log("RESO CONVOS ::: ", results);
+
         res.status(200).send({data: results, message: "", suceess: true});
       });
   } catch (error) {
     console.log("Error :Pkdk :: ", error);
     res.status(400).send({ message: error?.message });
+  }
+}
+
+
+export async function getChats (req, res) {
+  try {
+    const { email } = req.params
+    let query
+    const { page = 1, limit = 25 } = req.query
+
+    console.log('USER  ::: ', req.user)
+
+    query = {
+      $or: [
+        { "users.0": req?.user?._id ?? req?.user?.id }, // First user's ID matches current user's ID
+        { "users.1": req?.user?._id ?? req?.user?.id }, // Second user's ID matches current user's ID
+      ]
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      populate: population,
+      page,
+      limit
+    }
+
+    const myChats = await Chat.paginate(query, options)
+    return res.status(200).send(myChats)
+  } catch (error) {
+    console.log('ERROR', error)
+    res.status(500).send({
+      success: false,
+      message: error?.message
+    })
   }
 }

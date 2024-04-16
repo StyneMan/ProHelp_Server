@@ -173,7 +173,7 @@ export async function login(req, res) {
                 userId: admin._id,
                 username: admin.email,
               },
-              process.env.JWT_SECRET,
+              process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b' , 
               { expiresIn: "24h" }
             );
 

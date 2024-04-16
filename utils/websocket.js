@@ -14,7 +14,7 @@ class WebSockets {
 
     // add identity of user mapped to the socket id
     client.on("identity", (userId) => {
-      // console.log("USER IDENTITY >> ", userId);
+      console.log("USER IDENTITY >> ", userId);
       this.usersArr?.push({
         socketId: client.id,
         userId: userId,
@@ -26,7 +26,7 @@ class WebSockets {
     client.on("setup", (userData) => {
       console.log("SETUP_USER_DATA :: ", userData);
       client.join(userData.id);
-      client.emit("userConnected");
+      client.emit("userConnected", "User has connected");
     });
 
     client.on("join chat", (room) => {

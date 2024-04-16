@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export const MessageSchema = mongoose.Schema(
   {
@@ -9,5 +10,7 @@ export const MessageSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+MessageSchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Message", MessageSchema);

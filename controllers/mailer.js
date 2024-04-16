@@ -22,7 +22,7 @@ export const registerMail = async (req, res) => {
   const { userEmail, subject, message } = req.body;
 
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject: subject || "Registration successful!",
     html: emailBody,
@@ -41,7 +41,7 @@ export const registerMail = async (req, res) => {
 export const sendVerificationCode = async (userEmail, code, name, type) => {
 
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject:
       type === "register" ? "Account Verification" : "Password Reset Request",
@@ -1097,7 +1097,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
 
 export const sendSupportEmail = async (user, ticketNo, title) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: user?.email,
     subject: title,
     html: `<head>
@@ -1897,7 +1897,7 @@ export const sendSupportEmail = async (user, ticketNo, title) => {
 
 export const sendJobEmail = async (userEmail, jobTitle, name) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject: "ProHelp Job Posting",
     html: `<body
@@ -2978,7 +2978,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
 // Send this email once applicant submits job application
 export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject: "ProHelp Job Application",
     html: `<body
@@ -4064,7 +4064,7 @@ export const sendJobApplicationEmailNotice = async (
   applicantName
 ) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject: "New Job Application",
     html: `<body
@@ -5146,7 +5146,7 @@ export const sendJobApplicationEmailNotice = async (
 // Send this email once applicant submits job application
 export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status, subject, message) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
     subject: subject,
     html: `<body
@@ -6230,7 +6230,7 @@ export const sendConnectionRequestEmailNotice = async (
   guest
 ) => {
   let msg = {
-    from: process.env.MAILER_ID,
+    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: guest?.email,
     subject: subject,
     html: `<body

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-import mongoosePaginate from "mongoose-paginate-v2";
+import mongoosePaginate from "mongoose-paginate-v2"; 
 
 export const ChatSchema = mongoose.Schema(
   {

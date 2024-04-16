@@ -13,6 +13,7 @@ import * as cmsController from "../controllers/cmsController.js"
 import * as connectionController from "../controllers/connectionController.js"
 import * as userController from "../controllers/userController.js"
 import * as transactionController from "../controllers/transactionController.js"
+import * as paymentController from "../controllers/paymentController.js"
 
 // import { registerMail } from '../controllers/mailer.js'
 import Auth, { localVariables, verifyAdmin, verifyCookie } from '../middleware/auth.js';
@@ -32,8 +33,9 @@ router.route('/resetPassword').put(controller.verifyUser, controller.resetPasswo
 
                         // ***** CHAT ***** //
 router.route('/chat/init/:email').put(Auth, chatController.accessChat); 
-router.route('/chat/allChats/:email').get(Auth, chatController.fetchChats); 
-router.route('/chat/messages/:email/:chatId').get(Auth, messageController.allMessages); 
+// router.route('/chat/allChats/:email').get(Auth, chatController.fetchChats); 
+router.route('/chat/allChats/:email').get(Auth, chatController.getChats); 
+router.route('/chat/messages/:email/:chatId').get(Auth, messageController.getChatMessages); 
 router.route('/chat/message/post/:email').post(Auth, messageController.sendMessage); 
 
 
@@ -54,7 +56,8 @@ router.route('/review/create/:email').post(Auth, appController.saveReview); //sa
 router.route('/review/delete/:email').put(Auth, appController.deleteReview); //Delete/Take down a review
 router.route('/review/byUser/:email').get(Auth, appController.getReviewsByUser); //get all user's reviews
 router.route('/review/reply/:email').put(Auth, appController.replyReview); //reply a specific review
-router.route('/alerts/all/:email').get(Auth, appController.getAlerts); //reply a specific review
+router.route('/alerts/all/:email').get(Auth, appController.getAlerts); //Get all alerts
+router.route('/alerts/byUser/:email').get(Auth, userController.getUserAlerts); //Get all alerts by user
 
 router.route('/account/report/:email').post(Auth, userController.reportUser); //reply a specific review
 router.route('/account/block/:email').post(Auth, userController.blockUser); //reply a specific review
@@ -84,6 +87,9 @@ router.route('/legal/all').get(appController.getLegal);
 router.route('/banners/all').get(cmsController.allBanners);
 router.route('/faqs/all').get(cmsController.allFAQs);
 router.route('/sections/all').get(cmsController.allSections);
+router.route('/payment/init/:email/:transactionType').post(Auth, paymentController.initPayment);
+router.route('/payment/verify').post(paymentController.verifyPayment);
+router.route('/payment/webhook').post(paymentController.verifyPayment);
 
  
 
@@ -140,7 +146,6 @@ router.route('/cms/faqs/delete/:faqId').delete([verifyAdmin, verifyCookie], cmsC
 router.route('/cms/sections/add').post([verifyAdmin, verifyCookie], cmsController.addSection);
 router.route('/cms/sections/update/:sectionId').put([verifyAdmin, verifyCookie], cmsController.updateSection);
 router.route('/cms/sections/delete/:sectionId').delete([verifyAdmin, verifyCookie], cmsController.deleteSection);
-
 
 
 

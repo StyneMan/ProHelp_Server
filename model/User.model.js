@@ -241,28 +241,6 @@ export const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    guarantor: {
-      name: {
-        type: String,
-        required: false
-      },
-      address: {
-        type: String,
-        required: false
-      },
-      email: {
-        type: String,
-        required: false
-      },
-      phone: {
-        type: String,
-        required: false
-      },
-      relationship: {
-        type: String,
-        required: false
-      }
-    },
     hasProfile: {
       type: Boolean,
       default: false
@@ -376,6 +354,7 @@ export const UserSchema = new mongoose.Schema(
         },
       },
     ],
+    
   },
   { timestamps: true }
 )

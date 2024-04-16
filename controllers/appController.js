@@ -85,7 +85,7 @@ export async function addSupport (req, res) {
           await new Alert({
             type: 'profile',
             message: 'New support ticket opened ',
-            user: user?.id
+            user: user?.id ?? user?._id
           }).save()
           //Now send email here
           return sendSupportEmail(user, ticketId, purpose).then(val => {
@@ -896,7 +896,7 @@ export async function saveReview (req, res) {
     await new Alert({
       type: 'profile',
       message: `You have a new review from ${findReviewer?.bio?.firstname} ${findReviewer?.bio?.lastname}`,
-      user: usr?.id
+      user: usr?.id ?? usr?._id
     }).save()
 
     // remove password and return user's profile
@@ -1126,7 +1126,7 @@ export async function topUpWallet (req, res) {
     await new Alert({
       type: 'wallet',
       message: `You have successfully funded your wallet`,
-      user: usr?.id
+      user: usr?.id ?? usr?._id
     }).save()
 
     return res
@@ -1320,7 +1320,7 @@ export async function addSkill (req, res) {
           await new Alert({
             type: 'profile',
             message: 'New support ticket opened ',
-            user: user?.id
+            user: user?.id ?? user?._id
           }).save()
           //Now send email here
           return sendSupportEmail(user, ticketId, purpose).then(val => {

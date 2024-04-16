@@ -219,7 +219,7 @@ export async function acceptConnectionRequest (req, res) {
     await new Alert({
       type: 'connection',
       message: `${guest?.bio?.firstname} ${guest?.bio?.lastname} is now a connection`,
-      user: em?.id
+      user: em?.id ?? em?._id
     }).save()
 
     await sendConnectionRequestEmailNotice(
@@ -309,7 +309,7 @@ export async function declineConnectionRequest (req, res) {
     await new Alert({
       type: 'connection',
       message: `${guest?.bio?.firstname} ${guest?.bio?.lastname} connection request declined`,
-      user: em?.id
+      user: em?.id ?? em?._id
     }).save()
 
     global.io.emit('connection-declined', {
@@ -373,7 +373,7 @@ export async function disconnectConnection (req, res) {
     await new Alert({
       type: 'connection',
       message: `You disconnected from ${guest?.bio?.firstname} ${guest?.bio?.lastname}`,
-      user: em?.id
+      user: em?.id ?? em?._id
     }).save()
 
     global.io.emit('connection-disconnected', {
@@ -455,7 +455,7 @@ export async function cancelConnectionRequest (req, res) {
     await new Alert({
       type: 'connection',
       message: `Connection request to ${guest?.bio?.firstname} ${guest?.bio?.lastname} has been cancelled successfully`,
-      user: em?.id
+      user: em?.id ?? em?._id
     }).save()
 
     global.io.emit('connection-cancelled', {

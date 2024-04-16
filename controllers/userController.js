@@ -75,7 +75,7 @@ export async function reportUser(req, res) {
     await new Alert({
       type: "connection",
       message: `You reported ${user?.bio?.firstname}  ${user?.bio?.lastname}'s account to admin management`,
-      user: em?.id,
+      user: em?.id ?? em?._id,
     }).save();
 
     return res.status(200).send({
@@ -127,7 +127,7 @@ export async function blockUser(req, res) {
     await new Alert({
       type: "connection",
       message: `You blocked connection to ${user?.bio?.firstname} ${user?.bio?.lastname}'s account`,
-      user: em?.id,
+      user: em?.id ?? em?._id,
     }).save();
 
     global.io.emit("user-blocked", {
@@ -194,7 +194,7 @@ export async function unblockUser(req, res) {
     await new Alert({
       type: "connection",
       message: `You unblocked connection to ${user?.bio?.firstname} ${user?.bio?.lastname}'s account`,
-      user: em?.id,
+      user: em?.id ?? em?._id,
     }).save();
 
     global.io.emit("user-unblocked", {
@@ -209,5 +209,81 @@ export async function unblockUser(req, res) {
   } catch (error) {
     console.log("BLOCKING ERR:: ", error);
     return res.status(500).send(error);
+  }
+}
+
+export async function getUserAlerts (req, res) {
+  try {
+    let query
+    const { page = 1, range, limit = 25, userId } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date())
+        }
+      }
+    } else {
+      query = {
+        user: userId
+      }
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+      populate: population
+    }
+
+    const alerts = await Alert.paginate(query, options)
+
+    res.status(200).send(alerts)
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while fetching loan.'
+    })
+  }
+}
+
+export async function getUserGurantor (req, res) {
+  try {
+    let query
+    const { page = 1, range, limit = 25, userId } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date())
+        }
+      }
+    } else {
+      query = {
+        user: userId
+      }
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      page,
+      limit,
+      populate: population
+    }
+
+    const alerts = await Alert.paginate(query, options)
+
+    res.status(200).send(alerts)
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while fetching loan.'
+    })
   }
 }
