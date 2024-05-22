@@ -8,19 +8,22 @@ import Alert from "../model/Alert.model.js";
 import Transaction from "../model/Transaction.model.js";
 import Admin from "../model/Admin.model.js";
 import axios from "axios";
+// import Flutterwave from "flutterwave-node-v3";
 
 const population = {
   path: "user",
   select: "-password", // Exclude the password field
 };
 
-let customErr = new Error();
+// let customErr = new Error();
+// const flw = new Flutterwave("FLWPUBK_TEST-3d9167e11cc023e3b2c6164520da7ac8-X", "FLWSECK_TEST-4e96610a3ea8b485f1ddc2bda8459acc-X");
 
 export async function initPayment(req, res) {
   try {
     // let { terms,  } = req.body;
     if (!req.params?.email) {
       //forbidden
+      let customErr = new Error();
       customErr.message = "You are forbidden!";
       customErr.code = 403;
       throw customErr;
@@ -57,17 +60,7 @@ export async function initPayment(req, res) {
       status: resp?.data?.status,
     }).save();
 
-    // Create alert here
-    await new Alert({
-      user: user?.id ?? user?._id,
-      type: `${req.params?.transactionType}`.includes("wallet")
-        ? "wallet"
-        : `${req.params?.transactionType}`.includes("job")
-        ? "job"
-        : "connection",
-      message: `${req.params?.transactionType} transaction`,
-      status: resp?.data?.status,
-    }).save();
+    console.log("RESPONE ;; ", resp.data);
 
     res.status(200).send({ ...resp.data });
   } catch (error) {
@@ -79,19 +72,43 @@ export async function initPayment(req, res) {
   }
 }
 
-export async function verifyPayment(req, res) { 
-    try {
-        console.log("QUERY PARAMS ::: ", req.query);
-    } catch (error) {
-        console.log(error);
+export async function verifyPayment(req, res) {
+  try {
+    console.log("QUERY PARAMS ::: ", req.query);
+    if (req?.query?.status === "successful") {
+      // Now update this user's wallet balance
+      // const transactionRef = req.query?.tx_ref;
+      const transactionDetails = await Transaction.find({
+        reference: req.query?.tx_ref,
+      });
+
+      console.log("FOUND TRANSACTION :::: ", transactionDetails);
+
+      // const response = await flw.Transaction.verify({
+      //   id: req.query.transaction_id,
+      // });
+      // if (
+      //   response.data.status === "successful" &&
+      //   response.data.amount === transactionDetails.amount &&
+      //   response.data.currency === "NGN"
+      // ) {
+      //   // Success! Confirm the customer's payment
+      // } else {
+      //   // Inform the customer their payment was unsuccessful
+      // }
+
+      // find transaction with this reference
+      // then find the user that initiated this transaction
     }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-
 export async function paymentWebHook(req, res) {
-    try {
-        console.log("WEBHOOK RSP :: ", req.data);
-    } catch (error) {
-        console.log(error);
-    }
+  try {
+    console.log("WEBHOOK RSP :: ", req.data);
+  } catch (error) {
+    console.log(error);
+  }
 }

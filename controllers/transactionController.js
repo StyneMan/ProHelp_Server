@@ -65,7 +65,7 @@ export async function getAllUserTransactions (req, res) {
     }
 
     const transactions = await Transaction.paginate(query, options)
-    console.log("TRANSACTIONS RESPONSE HERE  ::::: ", transactions);
+    // console.log("TRANSACTIONS RESPONSE HERE  ::::: ", transactions);
     return res.status(200).send(transactions)
   } catch (error) {
     return res.status(500).send({ success: false, message: error?.message })

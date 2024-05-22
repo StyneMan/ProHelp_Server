@@ -354,7 +354,35 @@ export const UserSchema = new mongoose.Schema(
         },
       },
     ],
-    
+    guarantor: {
+      name: {
+        type: String,
+      },
+      address: {
+        type: String,
+      },
+      email: {
+        type: String,
+        required: false
+      },
+      phone: {
+        type: String,
+        required: false
+      },
+      idCard: {
+        type: String,
+        required: false
+      },
+      meansOfID: {
+        type: String,
+        enum: ["voter's-card", "driver's-license", "national-ID", "utility-bill"],
+        required: false
+      },
+      relationship: {
+        type: String,
+        required: false
+      }
+    }
   },
   { timestamps: true }
 )

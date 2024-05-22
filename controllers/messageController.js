@@ -44,7 +44,7 @@ export async function getChatMessages (req, res) {
     }
 
     const options = {
-      sort: { createdAt: -1 },
+      sort: { createdAt: 1 },
       populate: population,
       page,
       limit

@@ -89,7 +89,7 @@ router.route('/faqs/all').get(cmsController.allFAQs);
 router.route('/sections/all').get(cmsController.allSections);
 router.route('/payment/init/:email').post(Auth, paymentController.initPayment);
 router.route('/payment/verify').post(paymentController.verifyPayment);
-router.route('/payment/webhook').post(paymentController.verifyPayment);
+router.route('/payment/webhook').post(paymentController.paymentWebHook);
 
  
 
@@ -104,7 +104,8 @@ router.route('/job/delete/:email').put(Auth, jobController.deleteJob);
 router.route('/job/update/:email').put(Auth, jobController.updateJob);
 router.route('/job/save/:email').put(Auth, jobController.bookmarkJob);
 router.route('/job/apply/:email').post(Auth, jobController.applyJob);
-router.route('/job/applications/:email').get([verifyAdmin, verifyCookie], jobController.getJobApplications);
+router.route('/job/applications/:email').get(Auth, jobController.getJobApplications);
+router.route('/admin/job/applications/:email').get([verifyAdmin, verifyCookie], jobController.getJobApplications);
 router.route('/job/applications/byUser/:email').get(Auth, jobController.getJobApplicationsByUser);
 router.route('/job/applications/accept/:email').put(Auth, jobController.acceptJobApplication);
 router.route('/job/applications/decline/:email').put(Auth, jobController.declineJobApplication);

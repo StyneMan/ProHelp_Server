@@ -1091,7 +1091,7 @@ export async function getReviewsByUser (req, res) {
 
 export async function topUpWallet (req, res) {
   try {
-    const { userId, amount, value, reference, type, summary, status } = req.body
+    const { userId, value, } = req.body
     const { email } = req.params
     const user = await User.findOne({ email })
     if (!user) {
@@ -1102,16 +1102,6 @@ export async function topUpWallet (req, res) {
     let usr = await User.findByIdAndUpdate(
       userId,
       {
-        $push: {
-          transactions: {
-            type: type,
-            reference: reference,
-            createdAt: new Date().toISOString(),
-            amount: amount,
-            summary: summary,
-            status: status
-          }
-        },
         $set: {
           wallet: {
             balance: user.wallet.balance + value,
@@ -1128,6 +1118,11 @@ export async function topUpWallet (req, res) {
       message: `You have successfully funded your wallet`,
       user: usr?.id ?? usr?._id
     }).save()
+
+    global.io.emit('wallet-topup', {
+      message: 'You have sucessfully funded your wallet',
+      user: usr
+    })
 
     return res
       .status(200)

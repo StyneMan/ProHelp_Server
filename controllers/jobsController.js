@@ -498,12 +498,7 @@ export async function getJobApplications (req, res) {
   const { jobId, page = 1, limit = 25 } = req.query
   let query
   try {
-    if (!req.decoded) {
-      //forbidden
-      customErr.message = 'You Are Forbidden!'
-      customErr.code = 403
-      throw customErr
-    }
+
 
     query = {
       jobId: { $eq: jobId }
@@ -518,6 +513,8 @@ export async function getJobApplications (req, res) {
 
     const applications = await JobApplication.paginate(query, options)
 
+    console.log("JOB APPLICATIONS :::: ", applications);
+
     return res.status(200).send({
       success: true,
       message: '',
@@ -531,7 +528,7 @@ export async function getJobApplications (req, res) {
 
 export async function getJobApplicationsByUser (req, res) {
   const { email } = req.params
-  const { page = 1, limit = 25 } = req.query
+  const { page = 1, limit = 25, } = req.query
   let query
 
   try {

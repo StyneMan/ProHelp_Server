@@ -343,7 +343,7 @@ export async function getUser(req, res) {
   try {
     if (!email)
       return res
-        .status(501)
+        .status(404)
         .send({ success: false, message: "Invalid Username" });
 
     User.findOne({ email })
@@ -371,7 +371,7 @@ export async function getUser(req, res) {
       });
   } catch (error) {
     return res
-      .status(404)
+      .status(500)
       .send({ success: false, message: "Cannot Find User Data" });
   }
 }
@@ -414,21 +414,21 @@ export async function updateUser(req, res) {
         new: true,
       });
 
-      if (body.guarantor) {
-        // Add guarantor here
-        let added = await Gurantor.findOne({ user: usr?.id });
-        if (added) {
-          await Gurantor.findOneAndUpdate({ email: email }, {...body?.guarantor, user: usr?.id,}, {
-            new: true,
-          });
-        }
-        else {
-          await new Gurantor({
-            user: usr?.id,
-            ...body?.guarantor
-          }).save();
-        }
-      }
+      // if (body.guarantor) {
+      //   // Add guarantor here
+      //   let added = await Gurantor.findOne({ user: usr?.id });
+      //   if (added) {
+      //     await Gurantor.findOneAndUpdate({ email: email }, {...body?.guarantor, user: usr?.id,}, {
+      //       new: true,
+      //     });
+      //   }
+      //   else {
+      //     await new Gurantor({
+      //       user: usr?.id,
+      //       ...body?.guarantor
+      //     }).save();
+      //   }
+      // }
 
       /** remove password from user */
       // mongoose return unnecessary data with object so convert it into json
@@ -760,7 +760,7 @@ export async function getGoogleParams(req, res) {
 
 export async function getGoogleParamsWeb(req, res) {
   try {
-    const {email, firstname, lastname, name, picture, id} = req.body;
+    const {email, firstname, lastname, name, picture, id, accountType} = req.body;
     
 
     app.locals.authType = "google";
@@ -772,7 +772,7 @@ export async function getGoogleParamsWeb(req, res) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isEmailVerified: true, authType: 'google', 'bio.image': picture } },
+        { $set: { isEmailVerified: true, authType: 'google', 'bio.image': picture, accountType: accountType ?? "professional" } },
         {
           new: true,
         }
