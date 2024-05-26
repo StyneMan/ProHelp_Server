@@ -41,7 +41,7 @@ export const registerMail = async (req, res) => {
 export const sendVerificationCode = async (userEmail, code, name, type) => {
 
   let msg = {
-    from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
+    from: 'info.prohelpng@gmail.com',
     to: userEmail,
     subject:
       type === "register" ? "Account Verification" : "Password Reset Request",
