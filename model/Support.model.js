@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const SupportSchema = mongoose.Schema(
+ const SupportSchema = mongoose.Schema(
   {
     purpose: {
       type: String,
@@ -47,4 +47,4 @@ SupportSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Support", SupportSchema);
+module.exports = mongoose.model("Support", SupportSchema);

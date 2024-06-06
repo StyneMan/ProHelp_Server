@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const ReportedUserSchema = mongoose.Schema(
+ const ReportedUserSchema = mongoose.Schema(
   {
     reportedBy: {
         type: mongoose.Schema.Types.ObjectId, ref: "User",
@@ -24,4 +24,4 @@ ReportedUserSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("ReportedUser", ReportedUserSchema);
+module.exports = mongoose.model("ReportedUser", ReportedUserSchema);

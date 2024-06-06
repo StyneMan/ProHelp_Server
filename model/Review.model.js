@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const ReviewSchema = mongoose.Schema(
+const ReviewSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -27,4 +27,4 @@ export const ReviewSchema = mongoose.Schema(
 
 ReviewSchema.plugin(mongoosePaginate)
 
-export default mongoose.model('Review', ReviewSchema)
+module.exports = mongoose.model('Review', ReviewSchema)

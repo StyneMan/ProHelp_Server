@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const SectionSchema = new mongoose.Schema(
+ const SectionSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -44,4 +44,4 @@ SectionSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Section", SectionSchema);
+module.exports = mongoose.model("Section", SectionSchema);

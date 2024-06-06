@@ -1,14 +1,14 @@
-import { v4 } from "uuid";
-import {
-  sendConnectionRequestEmailNotice,
-  sendSupportEmail,
-} from "./mailer.js";
-import User from "../model/User.model.js";
-import Alert from "../model/Alert.model.js";
-import Transaction from "../model/Transaction.model.js";
-import Admin from "../model/Admin.model.js";
-import axios from "axios";
-// import Flutterwave from "flutterwave-node-v3";
+// const { v4 } from "uuid";
+// const {
+//   sendConnectionRequestEmailNotice,
+//   sendSupportEmail,
+// } from "./mailer.js";
+const User = require("../model/User.model.js");
+// const Alert from "../model/Alert.model.js";
+const Transaction = require("../model/Transaction.model.js");
+// const Admin from "../model/Admin.model.js";
+const axios = require("axios");
+// const Flutterwave from "flutterwave-node-v3";
 
 const population = {
   path: "user",
@@ -18,7 +18,7 @@ const population = {
 // let customErr = new Error();
 // const flw = new Flutterwave("FLWPUBK_TEST-3d9167e11cc023e3b2c6164520da7ac8-X", "FLWSECK_TEST-4e96610a3ea8b485f1ddc2bda8459acc-X");
 
-export async function initPayment(req, res) {
+exports.initPayment = async function (req, res) {
   try {
     // let { terms,  } = req.body;
     if (!req.params?.email) {
@@ -72,7 +72,7 @@ export async function initPayment(req, res) {
   }
 }
 
-export async function verifyPayment(req, res) {
+exports.verifyPayment = async function (req, res) {
   try {
     console.log("QUERY PARAMS ::: ", req.query);
     if (req?.query?.status === "successful") {
@@ -105,7 +105,7 @@ export async function verifyPayment(req, res) {
   }
 }
 
-export async function paymentWebHook(req, res) {
+exports.paymentWebHook = async function (req, res) {
   try {
     console.log("WEBHOOK RSP :: ", req.data);
   } catch (error) {

@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
-export const UserSchema = new mongoose.Schema(
+const UserSchema = new mongoose.Schema(
   {
     bio: {
       middlename: {
@@ -399,4 +399,4 @@ UserSchema.virtual('bio.fullname').get(function () {
   return this.bio.firstname + ' ' + this.bio.lastname
 })
 
-export default mongoose.model('User', UserSchema)
+module.exports = mongoose.model('User', UserSchema)

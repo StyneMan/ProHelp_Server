@@ -1,6 +1,6 @@
-import User from "../model/User.model.js";
+const User = require("../model/User.model.js");
 
-export const encode = async (req, res, next) => {
+exports.encode  = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await User.findOne({ _id: userId });

@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const TransactionSchema = mongoose.Schema(
+const TransactionSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,4 +33,4 @@ TransactionSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('Transaction', TransactionSchema)
+module.exports = mongoose.model('Transaction', TransactionSchema)

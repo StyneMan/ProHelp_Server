@@ -1,6 +1,6 @@
-import Chat from "../model/Chat.model.js";
-import Message from "../model/Message.model.js";
-// import { pusher } from "./pusher.js";
+const Chat = require("../model/Chat.model.js");
+const Message = require("../model/Message.model.js");
+// const { pusher } from "./pusher.js";
 
 class WebSockets {
   constructor() {
@@ -132,4 +132,4 @@ function subscribeOtherUser(usersArr, room, otherUserId) {
   });
 }
 
-export default new WebSockets();
+module.exports = new WebSockets();

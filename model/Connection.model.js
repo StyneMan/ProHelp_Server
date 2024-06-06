@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const ConnectionSchema = mongoose.Schema(
+const ConnectionSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,4 +28,4 @@ ConnectionSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('Connection', ConnectionSchema)
+module.exports = mongoose.model('Connection', ConnectionSchema)

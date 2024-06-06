@@ -1,14 +1,14 @@
-import Support from "../model/Support.model.js";
-import { v4 } from "uuid";
-import {
-  sendConnectionRequestEmailNotice,
-  sendSupportEmail,
-} from "./mailer.js";
-import User from "../model/User.model.js";
-import Alert from "../model/Alert.model.js";
-import ReportedUser from "../model/ReportedUser.model.js";
-import BlockedUser from "../model/BlockedUser.model.js";
-import Admin from "../model/Admin.model.js";
+// const Support = require("../model/Support.model.js";
+// const { v4 } = require("uuid";
+// const {
+//   sendConnectionRequestEmailNotice,
+//   sendSupportEmail,
+// } = require("./mailer.js";
+const User = require("../model/User.model.js");
+const Alert = require("../model/Alert.model.js");
+const ReportedUser = require("../model/ReportedUser.model.js");
+const BlockedUser = require("../model/BlockedUser.model.js");
+// const Admin = require("../model/Admin.model.js";
 
 const population = {
   path: "user",
@@ -27,7 +27,7 @@ const population2 = [
 ];
 
 /** middleware for verify user */
-export async function verifyUser(req, res, next) {
+exports.verifyUser = async function (req, res, next) {
   try {
     const { email } = req.method == "GET" ? req.query : req.body;
 
@@ -46,7 +46,7 @@ export async function verifyUser(req, res, next) {
   }
 }
 
-export async function reportUser(req, res) {
+exports.reportUser = async function (req, res) {
   try {
     const { userId, reason } = req.body;
     const { email } = req.params;
@@ -89,7 +89,7 @@ export async function reportUser(req, res) {
   }
 }
 
-export async function blockUser(req, res) {
+exports.blockUser = async function (req, res) {
   try {
     const { userId } = req.body;
     const { email } = req.params;
@@ -146,7 +146,7 @@ export async function blockUser(req, res) {
   }
 }
 
-export async function unblockUser(req, res) {
+exports.unblockUser = async function (req, res) {
   try {
     const { userId } = req.body;
     const { email } = req.params;
@@ -212,7 +212,7 @@ export async function unblockUser(req, res) {
   }
 }
 
-export async function getUserAlerts (req, res) {
+exports.getUserAlerts = async function  (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25, userId } = req.query
@@ -250,7 +250,7 @@ export async function getUserAlerts (req, res) {
   }
 }
 
-export async function getUserGurantor (req, res) {
+exports.getUserGurantor = async function  (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25, userId } = req.query

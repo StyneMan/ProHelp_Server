@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const JobSchema = new mongoose.Schema(
+const JobSchema = new mongoose.Schema(
   {
     jobTitle: {
       type: String,
@@ -61,4 +61,4 @@ JobSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Job", JobSchema);
+module.exports = mongoose.model("Job", JobSchema);

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 // import { MongoMemoryServer } from "mongodb-memory-server";
 // import ENV from '../config.js'
@@ -15,4 +15,4 @@ async function connect(){
     return db;
 }
 
-export default connect;
+module.exports = connect;

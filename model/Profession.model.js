@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const ProfessionSchema = mongoose.Schema(
+ const ProfessionSchema = mongoose.Schema(
   {
     name: {
       type: String,
@@ -25,4 +25,4 @@ ProfessionSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Profession", ProfessionSchema);
+module.exports = mongoose.model("Profession", ProfessionSchema);

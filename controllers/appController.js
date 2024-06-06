@@ -1,13 +1,13 @@
-import Support from '../model/Support.model.js'
-import { v4 } from 'uuid'
-import { sendSupportEmail } from './mailer.js'
-import User from '../model/User.model.js'
-import Alert from '../model/Alert.model.js'
-import Review from '../model/Review.model.js'
-import Legal from '../model/Legal.model.js'
-import Job from '../model/Job.model.js'
-import Admin from '../model/Admin.model.js'
-import SavedProfessional from '../model/SavedProfessional.model.js'
+const Support = require('../model/Support.model.js')
+const { v4 } = require('uuid')
+const { sendSupportEmail } = require('./mailer.js')
+const User = require('../model/User.model.js')
+const Alert = require('../model/Alert.model.js')
+const Review = require('../model/Review.model.js')
+const Legal = require('../model/Legal.model.js')
+const Job = require('../model/Job.model.js')
+const Admin = require('../model/Admin.model.js')
+const SavedProfessional = require('../model/SavedProfessional.model.js')
 
 const population = {
   path: 'user',
@@ -37,7 +37,7 @@ const population3 = [
 ]
 
 /** middleware for verify user */
-export async function verifyUser (req, res, next) {
+exports.verifyUser = async function  (req, res, next) {
   try {
     const { email } = req.method == 'GET' ? req.query : req.body
 
@@ -56,7 +56,7 @@ export async function verifyUser (req, res, next) {
   }
 }
 
-export async function addSupport (req, res) {
+exports.addSupport = async function (req, res) {
   try {
     const { purpose, message, user } = req.body
     const { email } = user
@@ -107,7 +107,7 @@ export async function addSupport (req, res) {
   }
 }
 
-export async function getAllProfessionals (req, res) {
+exports.getAllProfessionals = async function  (req, res) {
   // const { email } = req.params;
   try {
     let query
@@ -165,7 +165,7 @@ function calculateAge (dateOfBirth) {
   return years
 }
 
-export async function getAllProfessionalsByProfession (req, res) {
+exports.getAllProfessionalsByProfession = async function  (req, res) {
   const { profession } = req.params
   try {
     let query
@@ -285,7 +285,7 @@ export async function getAllProfessionalsByProfession (req, res) {
   }
 }
 
-export async function getAllRecruiters (req, res) {
+exports.getAllRecruiters = async function  (req, res) {
   const { email } = req.params
   try {
     if (!email)
@@ -350,7 +350,7 @@ export async function getAllRecruiters (req, res) {
   }
 }
 
-export async function saveWishlist (req, res) {
+exports.saveWishlist = async function  (req, res) {
   const { userId } = req.body
   const { email } = req.params
   try {
@@ -432,7 +432,7 @@ export async function saveWishlist (req, res) {
   }
 }
 
-export async function getLikedUsers (req, res) {
+exports.getLikedUsers = async function  (req, res) {
   const { email } = req.params
   try {
     let query
@@ -470,7 +470,7 @@ export async function getLikedUsers (req, res) {
   }
 }
 
-export async function getSavedPros (req, res) {
+exports.getSavedPros = async function  (req, res) {
   const { email } = req.params
   try {
     let query
@@ -509,7 +509,7 @@ export async function getSavedPros (req, res) {
   }
 }
 
-export async function searcher (req, res) {
+exports.searcher = async function  (req, res) {
   // const { key } = req.params;
   try {
     let data = await User.find({
@@ -545,7 +545,7 @@ export async function searcher (req, res) {
   }
 }
 
-export async function searcherAdvanced (req, res) {
+exports.searcherAdvanced = async function  (req, res) {
   const { key } = req.params
   const { location } = req.query
   try {
@@ -695,146 +695,7 @@ export async function searcherAdvanced (req, res) {
   }
 }
 
-// export async function searcherAdvanced2 (req, res) {
-//   const { key } = req.params
-//   const { location } = req.query
-
-//   try {
-//     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-//     console.log('LOCATION:: :: ', location)
-
-//     if (location) {
-//       let data = await User.find({
-//         $or: [
-//           { 'bio.firstname': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.company': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.region': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.country': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.workType': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.role': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.school': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.degree': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.course': { $regex: escapedKey, $options: 'i' } },
-//           { 'skills.name': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.state': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.country': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.city': { $regex: escapedKey, $options: 'i' } },
-//           { profession: { $regex: escapedKey, $options: 'i' } },
-//           { accountType: { $regex: escapedKey, $options: 'i' } }
-//         ],
-//         $or: [
-//           { 'address.state': { $regex: new RegExp(location, 'i') } },
-//           { 'address.city': { $regex: new RegExp(location, 'i') } }
-//         ]
-//       })
-
-//       let jobData = await Job.find({
-//         $or: [
-//           { company: { $regex: escapedKey, $options: 'i' } },
-//           { jobType: { $regex: escapedKey, $options: 'i' } },
-//           { jobTitle: { $regex: escapedKey, $options: 'i' } },
-//           { profession: { $regex: escapedKey, $options: 'i' } },
-//           { workplaceType: { $regex: escapedKey, $options: 'i' } }
-//         ],
-//         $or: [
-//           { 'jobLocation.state': { $regex: new RegExp(location, 'i') } },
-//           { 'jobLocation.city': { $regex: new RegExp(location, 'i') } }
-//         ]
-//       })
-
-//       const combinedResults = [...data, ...jobData]
-
-//       console.log('KLL', combinedResults?.length)
-//       console.log('D', data?.length)
-//       console.log('J', jobData?.length)
-
-//       res.status(200).send({
-//         success: true,
-//         message: 'search success',
-//         data: combinedResults
-//       })
-//     } else {
-//       let data = await User.find({
-//         $or: [
-//           { 'bio.firstname': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.company': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.region': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.country': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.workType': { $regex: escapedKey, $options: 'i' } },
-//           { 'experience.role': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.school': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.degree': { $regex: escapedKey, $options: 'i' } },
-//           { 'education.course': { $regex: escapedKey, $options: 'i' } },
-//           { 'skills.name': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.state': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.country': { $regex: escapedKey, $options: 'i' } },
-//           { 'address.city': { $regex: escapedKey, $options: 'i' } },
-//           { profession: { $regex: escapedKey, $options: 'i' } },
-//           { accountType: { $regex: escapedKey, $options: 'i' } }
-//         ]
-//       })
-
-//       let jobData = await Job.find({
-//         $or: [
-//           { company: { $regex: escapedKey, $options: 'i' } },
-//           { jobType: { $regex: escapedKey, $options: 'i' } },
-//           { jobTitle: { $regex: escapedKey, $options: 'i' } },
-//           { profession: { $regex: escapedKey, $options: 'i' } },
-//           { workplaceType: { $regex: escapedKey, $options: 'i' } }
-//         ]
-//       })
-
-//       const combinedResults = [...data, ...jobData]
-
-//       console.log('KLL', combinedResults?.length)
-//       console.log('D', data?.length)
-//       // console.log('J', jobData?.length)
-
-//       res.status(200).send({
-//         success: true,
-//         message: 'search success',
-//         data: combinedResults
-//       })
-//     }
-//   } catch (error) {
-//     console.log('ERROR RESPONSE HERE :: ', error)
-//     res.status(500).send({
-//       success: false,
-//       message: 'An error occurred during the search process'
-//     })
-//   }
-// }
-
-// export async function getConnections (req, res) {
-//   const { email } = req.params
-//   try {
-//     if (!email)
-//       res
-//         .status(404)
-//         .send({ success: false, message: 'Account does not exist' })
-
-//     // User.findOne({ email: email })
-//     //   .then((user) => {
-//     //     const stringArray = user.connections.map((objectId) =>
-//     //       objectId.toString()
-//     //     );
-
-//     //     User.find({ _id: { $in: stringArray } })
-//     //       .then((rs) => {
-//     //         res
-//     //           .status(200)
-//     //           .send({ success: true, message: "Success", data: rs });
-//     //       })
-//     //       .catch((error) => console.log("ERR >> ", error));
-//     //   })
-//     //   .catch((err) => console.log("ERRORRO >> ", err));
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
-
-export async function saveReview (req, res) {
+exports.saveReview = async function  (req, res) {
   const { comment, userId, rating, reviewer } = req.body
   const { email } = req.params
 
@@ -895,7 +756,7 @@ export async function saveReview (req, res) {
 
     await new Alert({
       type: 'profile',
-      message: `You have a new review from ${findReviewer?.bio?.firstname} ${findReviewer?.bio?.lastname}`,
+      message: `You have a new review = require(${findReviewer?.bio?.firstname} ${findReviewer?.bio?.lastname}`,
       user: usr?.id ?? usr?._id
     }).save()
 
@@ -920,7 +781,7 @@ export async function saveReview (req, res) {
   }
 }
 
-export async function deleteReview (req, res) {
+exports.deleteReview = async function  (req, res) {
   const { userId, reviewerId, reviewId, rating } = req.body
   const { email } = req.params
 
@@ -975,7 +836,7 @@ export async function deleteReview (req, res) {
           // console.log('RATING SUM ', ratingsSum)
           // console.log('RATING NET VALUE >> ', ratingsVal)
 
-          //Now remove review from user's reviews
+          //Now remove review = require(user's reviews
           let usr = await User.findByIdAndUpdate(
             userId,
             { $set: { rating: ratingsVal } },
@@ -1009,7 +870,7 @@ export async function deleteReview (req, res) {
   }
 }
 
-export async function replyReview (req, res) {
+exports.replyReview = async function  (req, res) {
   const { reviewId, reviewerId, replyBody } = req.body
 
   console.log("REPLY RESPONS :: ", req.body);
@@ -1060,7 +921,7 @@ export async function replyReview (req, res) {
   }
 }
 
-export async function getReviewsByUser (req, res) {
+exports.getReviewsByUser = async function (req, res) {
   try {
     const { userId } = req.query
     const { email } = req.params;
@@ -1089,7 +950,7 @@ export async function getReviewsByUser (req, res) {
   }
 }
 
-export async function topUpWallet (req, res) {
+exports.topUpWallet = async function  (req, res) {
   try {
     const { userId, value, } = req.body
     const { email } = req.params
@@ -1133,7 +994,7 @@ export async function topUpWallet (req, res) {
   }
 }
 
-export async function getSupports (req, res) {
+exports.getSupports = async function (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25 } = req.query
@@ -1168,7 +1029,7 @@ export async function getSupports (req, res) {
   }
 }
 
-export async function getAlerts (req, res) {
+exports.getAlerts = async function (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25 } = req.query
@@ -1204,7 +1065,7 @@ export async function getAlerts (req, res) {
   }
 }
 
-export async function getLegal (req, res) {
+exports.getLegal = async function (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25 } = req.query
@@ -1235,7 +1096,7 @@ export async function getLegal (req, res) {
   }
 }
 
-export async function closeSupport (req, res) {
+exports.closeSupport = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -1286,7 +1147,7 @@ export async function closeSupport (req, res) {
   }
 }
 
-export async function addSkill (req, res) {
+exports.addSkill = async function (req, res) {
   try {
     const { purpose, message, user } = req.body
     const { email } = user

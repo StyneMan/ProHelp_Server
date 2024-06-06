@@ -1,16 +1,15 @@
-// import { v4 } from "uuid";
-import {
+const {
   sendJobApplicationEmail,
   sendJobApplicationEmailNotice,
   sendJobApplicationStatus,
   sendJobEmail
-} from './mailer.js'
-import User from '../model/User.model.js'
-import Job from '../model/Job.model.js'
-import JobApplication from '../model/JobApplication.model.js'
-import Alert from '../model/Alert.model.js'
-import Transaction from '../model/Transaction.model.js'
-import SavedJob from '../model/SavedJob.model.js'
+} = require('./mailer.js')
+const User = require('../model/User.model.js')
+const Job = require('../model/Job.model.js')
+const JobApplication = require('../model/JobApplication.model.js')
+const Alert = require('../model/Alert.model.js')
+const Transaction = require('../model/Transaction.model.js')
+const SavedJob = require('../model/SavedJob.model.js')
 
 let customErr = new Error()
 
@@ -59,7 +58,7 @@ const population4 = [
 ]
 
 /** middleware for verify user */
-export async function verifyUser (req, res, next) {
+exports.verifyUser = async function  (req, res, next) {
   try {
     const { email } = req.method == 'GET' ? req.query : req.body
 
@@ -78,7 +77,7 @@ export async function verifyUser (req, res, next) {
   }
 }
 
-export async function postJob (req, res) {
+exports.postJob = async function  (req, res) {
   try {
     const { hasPayment } = req.body
     const { email } = req.params
@@ -185,7 +184,7 @@ export async function postJob (req, res) {
   }
 }
 
-export async function getJobsByUser (req, res) {
+exports.getJobsByUser = async function  (req, res) {
   try {
     const { email } = req.params
     let query
@@ -213,7 +212,7 @@ export async function getJobsByUser (req, res) {
   }
 }
 
-export async function getRecommendedJobs (req, res) {
+exports.getRecommendedJobs = async function  (req, res) {
   const { email } = req.params
   const { profession, page = 1, limit = 25 } = req.query
   let query
@@ -248,7 +247,7 @@ export async function getRecommendedJobs (req, res) {
   }
 }
 
-export async function getAllJobs (req, res) {
+exports.getAllJobs = async function  (req, res) {
   try {
     // let query
     const { page = 1, range, limit = 25 } = req.query
@@ -277,7 +276,7 @@ export async function getAllJobs (req, res) {
   }
 }
 
-export async function deleteJob (req, res) {
+exports.deleteJob = async function  (req, res) {
   try {
     const { jobId } = req.query
     const job = Job.findOne({ _id: jobId })
@@ -300,7 +299,7 @@ export async function deleteJob (req, res) {
   }
 }
 
-export async function updateJob (req, res) {
+exports.updateJob = async function  (req, res) {
   try {
     const payload = req.body
     const { jobId } = req.query
@@ -329,7 +328,7 @@ export async function updateJob (req, res) {
   }
 }
 
-export async function applyJob (req, res) {
+exports.applyJob = async function  (req, res) {
   try {
     const { email } = req.params
     const { job, applicant, jobId } = req.body
@@ -461,7 +460,7 @@ export async function applyJob (req, res) {
   }
 }
 
-export async function getSavedJobs (req, res) {
+exports.getSavedJobs = async function  (req, res) {
   const { email, page = 1, limit = 25 } = req.params // Default page and limit values
 
   try {
@@ -494,11 +493,10 @@ export async function getSavedJobs (req, res) {
   }
 }
 
-export async function getJobApplications (req, res) {
+exports.getJobApplications = async function  (req, res) {
   const { jobId, page = 1, limit = 25 } = req.query
   let query
   try {
-
 
     query = {
       jobId: { $eq: jobId }
@@ -526,7 +524,7 @@ export async function getJobApplications (req, res) {
   }
 }
 
-export async function getJobApplicationsByUser (req, res) {
+exports.getJobApplicationsByUser = async function  (req, res) {
   const { email } = req.params
   const { page = 1, limit = 25, } = req.query
   let query
@@ -565,7 +563,7 @@ export async function getJobApplicationsByUser (req, res) {
   }
 }
 
-export async function acceptJobApplication (req, res) {
+exports.acceptJobApplication = async function  (req, res) {
   try {
     const { data } = req.body
     const { jobId, applicant, id, job, status } = data
@@ -614,7 +612,7 @@ export async function acceptJobApplication (req, res) {
   }
 }
 
-export async function declineJobApplication (req, res) {
+exports.declineJobApplication = async function  (req, res) {
   try {
     const { data } = req.body
     const { jobId, applicant, id, job, status } = data
@@ -663,7 +661,7 @@ export async function declineJobApplication (req, res) {
   }
 }
 
-export async function getAllApplications (req, res) {
+exports.getAllApplications = async function  (req, res) {
   try {
     let query
     const { page = 1, range, limit = 25 } = req.query
@@ -699,7 +697,7 @@ export async function getAllApplications (req, res) {
   }
 }
 
-export async function searchJob (req, res) {
+exports.searchJob = async function (req, res) {
   try {
     if (!req.params.key) {
       //Return all jobs by default since nothing is typed yet
@@ -731,51 +729,7 @@ export async function searchJob (req, res) {
   }
 }
 
-
-// export async function bookmarkJob (req, res) {
-//   const { jobId, userId } = req.body
-//   try {
-//     if (!userId)
-//       res
-//         .status(404)
-//         .send({ success: false, message: 'Account does not exist' })
-
-//     const user = await User.findById(userId)
-//     const alreadyAdded = user.savedJobs.find(id => id.toString() === jobId)
-//     if (alreadyAdded) {
-//       let usr = await User.findByIdAndUpdate(
-//         userId,
-//         {
-//           $pull: { savedJobs: jobId }
-//         },
-//         { new: true }
-//       )
-//       return res.status(200).send({
-//         success: false,
-//         message: 'Successfully removed job from bookmark ',
-//         data: usr
-//       })
-//     } else {
-//       let usr = await User.findByIdAndUpdate(
-//         userId,
-//         {
-//           $push: { savedJobs: jobId }
-//         },
-//         { new: true }
-//       )
-//       return res.status(200).send({
-//         success: false,
-//         message: 'Successfully bookmarked job',
-//         data: usr
-//       })
-//     }
-//   } catch (error) {
-//     console.log('ERROR LIKING >>> ', error)
-//     throw new Error(error)
-//   }
-// }
-
-export async function bookmarkJob (req, res) {
+exports.bookmarkJob = async function  (req, res) {
   const { jobId } = req.body
   const { email } = req.params
 

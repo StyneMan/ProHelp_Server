@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const PortfolioSchema = mongoose.Schema(
+const PortfolioSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -37,4 +37,4 @@ PortfolioSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('Portfolio', PortfolioSchema)
+module.exports = mongoose.model('Portfolio', PortfolioSchema)

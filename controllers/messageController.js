@@ -1,5 +1,5 @@
-import Chat from '../model/Chat.model.js'
-import Message from '../model/Message.model.js'
+const Chat = require('../model/Chat.model.js')
+const Message = require('../model/Message.model.js')
 
 const population = [
   {
@@ -18,7 +18,7 @@ const population = [
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId
 //@access          Protected
-export async function allMessages (req, res) {
+exports.allMessages = async function  (req, res) {
   try {
     const messages = await Message.find({ chat: req.params.chatId })
       .populate('sender', 'name pic email')
@@ -31,7 +31,7 @@ export async function allMessages (req, res) {
 }
 
 
-export async function getChatMessages (req, res) {
+exports.getChatMessages = async function  (req, res) {
   try {
     const { email, chatId, } = req.params
     let query
@@ -64,7 +64,7 @@ export async function getChatMessages (req, res) {
 //@description     Create New Message
 //@route           POST /api/Message/
 //@access          Protected
-export async function sendMessage (req, res) {
+exports.sendMessage = async function (req, res) {
   const { content, chatId } = req.body
 
   console.log('USER :-:-: ', req.user?._id.toString())

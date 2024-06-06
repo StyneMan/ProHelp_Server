@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
-import { v4 as uuidv4 } from "uuid";
-import mongoosePaginate from "mongoose-paginate-v2"; 
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const ChatSchema = mongoose.Schema(
+const ChatSchema = mongoose.Schema(
   {
     isGroupChat:  { type: Boolean, default: false },
     chatName: { type: String, trim: true },
@@ -24,4 +23,4 @@ ChatSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Chat", ChatSchema);
+module.exports = mongoose.model("Chat", ChatSchema);

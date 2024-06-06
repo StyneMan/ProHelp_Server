@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const LegalSchema = mongoose.Schema(
+ const LegalSchema = mongoose.Schema(
   {
     privacy: {
       type: String,
@@ -24,4 +24,4 @@ LegalSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Legal", LegalSchema);
+module.exports = mongoose.model("Legal", LegalSchema);

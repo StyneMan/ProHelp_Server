@@ -1,17 +1,14 @@
-import User from "../model/User.model.js";
-import OTP from "../model/OTP.model.js";
-import Alert from "../model/Alert.model.js";
-import Gurantor from "../model/Gurantor.model.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+const User = require("../model/User.model.js");
+const OTP = require("../model/OTP.model.js");
+const Alert = require("../model/Alert.model.js");
+const Gurantor = require("../model/Gurantor.model.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 // import ENV from "../config.js";
-import otpGenerator from "otp-generator";
-import { sendVerificationCode } from "./mailer.js";
-import admin from "firebase-admin";
-// import serviceAccount from "../middleware/serviceAccKey.json";
-import express from "express";
-import { OAuth2Client } from "google-auth-library";
-// import { pusher } from "../utils/pusher.js";
+const otpGenerator = require("otp-generator");
+const { sendVerificationCode } = require("./mailer.js");
+const express = require("express");
+const { OAuth2Client } = require("google-auth-library");
 
 
 const app = express();
@@ -25,7 +22,7 @@ const clientAndroid = new OAuth2Client(
 // );
 
 /** middleware for verify user */
-export async function verifyUser(req, res, next) {
+exports.verifyUser = async (req, res, next) => {
   try {
     const { email } = req.method == "GET" ? req.query : req.body;
 
@@ -50,7 +47,7 @@ export async function verifyUser(req, res, next) {
   "email": "example@gmail.com",
 }
 */
-export async function register(req, res) {
+exports.signup = async(req, res) => {
   try {
     const { password, email, source } = req.body;
 
@@ -223,7 +220,7 @@ export async function register(req, res) {
   }
 }
 
-export async function forgotPassword(req, res) {
+exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -252,7 +249,7 @@ export async function forgotPassword(req, res) {
   }
 }
 
-export async function login(req, res) {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -329,7 +326,7 @@ export async function login(req, res) {
   }
 }
 
-export async function logout(req, res) {
+exports.logout = async (req, res) => {
   
   app.locals.resetSession = false; // reset session
   return res
@@ -337,7 +334,7 @@ export async function logout(req, res) {
     .send({ success: true, message: "Logged out successfully" });
 }
 
-export async function getUser(req, res) {
+exports.getUser =  async (req, res) => {
   const { email } = req.params;
 
   try {
@@ -376,7 +373,7 @@ export async function getUser(req, res) {
   }
 }
 
-export async function getAllUsers(req, res, next) {
+exports.getAllUsers = async(req, res, next) => {
   const { email } = req.params;
   try {
     if (!email)
@@ -402,7 +399,7 @@ export async function getAllUsers(req, res, next) {
   }
 }
 
-export async function updateUser(req, res) {
+exports.updateUser = async (req, res) => {
   try {
     const { email } = req.params;
 
@@ -463,7 +460,7 @@ function generateOTP() {
   });
 }
 
-export async function resendOTP(req, res) {
+exports.resendOTP =  async (req, res) => {
   try {
     const { email, type } = req.query;
     const user = await User.findOne({ email });
@@ -511,7 +508,7 @@ export async function resendOTP(req, res) {
   }
 }
 
-export async function verifyOTP(req, res) {
+exports.verifyOTP = async (req, res) => {
   const { code, email } = req.query;
   try {
     const user = await User.findOne({email });
@@ -590,7 +587,7 @@ export async function verifyOTP(req, res) {
 
 // successfully redirect user when OTP is valid
 /** GET: http://localhost:8080/api/createResetSession */
-export async function createResetSession(req, res) {
+exports.createResetSession = async (req, res) => {
   if (app.locals.resetSession) {
     return res.status(201).send({ flag: app.locals.resetSession });
   }
@@ -599,7 +596,7 @@ export async function createResetSession(req, res) {
 
 // update the password when we have valid session
 /** PUT: http://localhost:8080/api/resetPassword */
-export async function resetPassword(req, res) {
+exports.resetPassword = async (req, res) => {
   try {
     if (!app.locals.resetSession)
       return res
@@ -643,7 +640,7 @@ export async function resetPassword(req, res) {
   }
 }
 
-export async function getGoogleParams(req, res) {
+exports.getGoogleParams = async(req, res) => {
   try {
     const {token, accountType} = req.body;
     const tic = await clientAndroid
@@ -758,7 +755,7 @@ export async function getGoogleParams(req, res) {
   }
 }
 
-export async function getGoogleParamsWeb(req, res) {
+exports.getGoogleParamsWeb = async(req, res) => {
   try {
     const {email, firstname, lastname, name, picture, id, accountType} = req.body;
     
@@ -857,7 +854,7 @@ export async function getGoogleParamsWeb(req, res) {
   }
 }
 
-export async function allUsers(req, res) {
+exports.allUsers = async (req, res) => {
   try {
     let query;
     const { page = 1, range, limit = 25 } = req.query;

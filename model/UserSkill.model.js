@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const UserSkillSchema = mongoose.Schema(
+const UserSkillSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,4 +28,4 @@ UserSkillSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('UserSkill', UserSkillSchema)
+module.exports = mongoose.model('UserSkill', UserSkillSchema)

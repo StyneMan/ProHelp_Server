@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const AlertSchema = mongoose.Schema(
+ const AlertSchema = mongoose.Schema(
   {
     type: {
       type: String,
@@ -32,4 +32,4 @@ AlertSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("Alert", AlertSchema);
+module.exports = mongoose.model("Alert", AlertSchema);

@@ -1,6 +1,6 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose')
 
-export const AdminSchema = new mongoose.Schema(
+const AdminSchema = new mongoose.Schema(
   {
     bio: {
       firstname: {
@@ -81,4 +81,5 @@ AdminSchema.virtual('fullname').get(function () {
   return this.firstname + ' ' + this.lastname
 })
 
-export default mongoose.model('Admin', AdminSchema)
+exports.AdminSchema;
+module.exports = mongoose.model('Admin', AdminSchema)

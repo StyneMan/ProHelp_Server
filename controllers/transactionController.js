@@ -1,14 +1,14 @@
-import User from '../model/User.model.js'
-import Alert from '../model/Alert.model.js'
-import Admin from '../model/Admin.model.js'
-import Transaction from '../model/Transaction.model.js'
+const User = require('../model/User.model.js')
+// const Alert from '../model/Alert.model.js'
+const Admin = require('../model/Admin.model.js')
+const Transaction = require('../model/Transaction.model.js')
 
 const population = {
   path: 'user',
   select: '-password' // Exclude the password field
 }
 
-export async function getAllTranactions (req, res) {
+exports.getAllTranactions = async function  (req, res) {
   const { page = 1, limit = 25 } = req.query
   let query
 
@@ -39,7 +39,7 @@ export async function getAllTranactions (req, res) {
   }
 }
 
-export async function getAllUserTransactions (req, res) {
+exports.getAllUserTransactions = async function  (req, res) {
   const { email } = req.params
   const { page = 1, limit = 25 } = req.query
   let query

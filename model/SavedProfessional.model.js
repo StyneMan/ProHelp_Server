@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const SavedProfessionalSchema = mongoose.Schema(
+ const SavedProfessionalSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,4 +23,4 @@ SavedProfessionalSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('SavedProfessional', SavedProfessionalSchema)
+module.exports = mongoose.model('SavedProfessional', SavedProfessionalSchema)

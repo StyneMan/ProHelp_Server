@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const FAQSchema = new mongoose.Schema(
+const FAQSchema = new mongoose.Schema(
   {
     question: {
       type: String, 
@@ -22,4 +22,4 @@ FAQSchema.method("toJSON", function () {
 });
 
 
-export default mongoose.model("FAQ", FAQSchema);
+module.exports = mongoose.model("FAQ", FAQSchema);

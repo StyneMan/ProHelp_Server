@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const MessageSchema = mongoose.Schema(
+ const MessageSchema = mongoose.Schema(
   {
     sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     content: { type: String, trim: true },
@@ -13,4 +13,4 @@ export const MessageSchema = mongoose.Schema(
 
 MessageSchema.plugin(mongoosePaginate);
 
-export default mongoose.model("Message", MessageSchema);
+module.exports = mongoose.model("Message", MessageSchema);

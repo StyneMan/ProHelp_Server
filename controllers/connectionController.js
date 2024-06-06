@@ -1,11 +1,11 @@
-import Support from '../model/Support.model.js'
-import { v4 } from 'uuid'
-import { sendConnectionRequestEmailNotice, sendSupportEmail } from './mailer.js'
-import User from '../model/User.model.js'
-import Alert from '../model/Alert.model.js'
-import Connection from '../model/Connection.model.js'
-import Transaction from '../model/Transaction.model.js'
-// import { pusher } from '../utils/pusher.js'
+const Support = require('../model/Support.model.js')
+const { v4 } = require('uuid')
+const { sendConnectionRequestEmailNotice, sendSupportEmail } = require('./mailer.js')
+const User = require('../model/User.model.js')
+const Alert = require('../model/Alert.model.js')
+const Connection = require('../model/Connection.model.js')
+const Transaction = require('../model/Transaction.model.js')
+// const { pusher } = require('../utils/pusher.js'
 
 const population = {
   path: 'user',
@@ -24,7 +24,7 @@ const population2 = [
 ]
 
 /** middleware for verify user */
-export async function verifyUser (req, res, next) {
+exports.verifyUser = async function  (req, res, next) {
   try {
     const { email } = req.method == 'GET' ? req.query : req.body
 
@@ -43,7 +43,7 @@ export async function verifyUser (req, res, next) {
   }
 }
 
-export async function sendConnectionRequest (req, res) {
+exports.sendConnectionRequest = async function  (req, res) {
   try {
     const { guestId, guestName, userId } = req.body
     const { email } = req.params
@@ -161,7 +161,7 @@ export async function sendConnectionRequest (req, res) {
   }
 }
 
-export async function acceptConnectionRequest (req, res) {
+exports.acceptConnectionRequest = async function  (req, res) {
   try {
     const { accepterId, userId } = req.body
     const { connectionId } = req.params
@@ -254,7 +254,7 @@ export async function acceptConnectionRequest (req, res) {
   }
 }
 
-export async function declineConnectionRequest (req, res) {
+exports.declineConnectionRequest = async function  (req, res) {
   try {
     const { accepterId, userId } = req.body
     const { connectionId } = req.params
@@ -334,7 +334,7 @@ export async function declineConnectionRequest (req, res) {
   }
 }
 
-export async function disconnectConnection (req, res) {
+exports.disconnectConnection = async function  (req, res) {
   try {
     const { userId } = req.body
     const { connectionId, email } = req.params
@@ -372,7 +372,7 @@ export async function disconnectConnection (req, res) {
 
     await new Alert({
       type: 'connection',
-      message: `You disconnected from ${guest?.bio?.firstname} ${guest?.bio?.lastname}`,
+      message: `You disconnected = require(${guest?.bio?.firstname} ${guest?.bio?.lastname}`,
       user: em?.id ?? em?._id
     }).save()
 
@@ -391,7 +391,7 @@ export async function disconnectConnection (req, res) {
     return res
       .status(200)
       .send({
-        message: `Successfully disconnected from ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${guest?.bio?.lastname} `
+        message: `Successfully disconnected = require(${guest?.bio?.firstname} ${guest?.bio?.middlename} ${guest?.bio?.lastname} `
       })
   } catch (error) {
     console.log('COOEN : ERRO', error)
@@ -399,7 +399,7 @@ export async function disconnectConnection (req, res) {
   }
 }
 
-export async function cancelConnectionRequest (req, res) {
+exports.cancelConnectionRequest = async function  (req, res) {
   try {
     const { requesterId, userId } = req.body
     const { connectionId } = req.params
@@ -479,7 +479,7 @@ export async function cancelConnectionRequest (req, res) {
   }
 }
 
-export async function getUserConnections (req, res) {
+exports.getUserConnections = async function  (req, res) {
   try {
     const { email } = req.params
     let query
@@ -512,7 +512,7 @@ export async function getUserConnections (req, res) {
   }
 }
 
-export async function getUserPastConnections (req, res) {
+exports.getUserPastConnections = async function  (req, res) {
   try {
     const { email } = req.params
     let query
@@ -545,7 +545,7 @@ export async function getUserPastConnections (req, res) {
   }
 }
 
-export async function getUserPendingConnectionRequest (req, res) {
+exports.getUserPendingConnectionRequest = async function  (req, res) {
   try {
     const { email } = req.params
     let query

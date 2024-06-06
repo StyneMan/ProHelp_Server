@@ -1,12 +1,12 @@
-import Admin from "../model/Admin.model.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { sendAdminCredentials } from "./sendEmailLink.js";
-import User from "../model/User.model.js";
+const Admin = require("../model/Admin.model.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { sendAdminCredentials } = require("./sendEmailLink.js");
+const User = require("../model/User.model.js");
 
 let customErr = new Error();
 
-export async function register(req, res) {
+exports.register = async (req, res) => {
   try {
     const { password, email, bio, device, privilege } = req.body;
 
@@ -58,7 +58,7 @@ export async function register(req, res) {
 }
 
 // Create admin
-export async function create(req, res) {
+exports.create = async function (req, res) {
   try {
     // console.log("DECODE ADMIN :: ", req.decoded);
     if (!req.decoded) {
@@ -152,7 +152,7 @@ export async function create(req, res) {
   }
 }
 
-export async function login(req, res) {
+exports.login = async function (req, res) {
   const { email, password } = req.body;
   // console.log("PAYLOADS", req.body);
   try {
@@ -204,14 +204,14 @@ export async function login(req, res) {
   }
 }
 
-export async function logout(req, res) {
+exports.logout = async function (req, res) {
   // app.locals.resetSession = false; // reset session
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });
 }
 
-export async function getAdmins(req, res, next) {
+exports.getAdmins = async function (req, res, next) {
   const { email } = req.params;
   try {
     if (!req.decoded) {
@@ -240,7 +240,7 @@ export async function getAdmins(req, res, next) {
   }
 }
 
-export async function profile(req, res) {
+exports.profile = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -269,7 +269,7 @@ export async function profile(req, res) {
   }
 }
 
-export async function otherAdminUpdate(req, res) {
+exports.otherAdminUpdate = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -357,7 +357,7 @@ export async function otherAdminUpdate(req, res) {
   }
 }
 
-export async function otherAdminsDelete(req, res) {
+exports.otherAdminsDelete = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -393,7 +393,7 @@ export async function otherAdminsDelete(req, res) {
   }
 }
 
-export async function updateProfile(req, res) {
+exports.updateProfile = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -462,7 +462,7 @@ export async function updateProfile(req, res) {
 }
 
 // Update General User Account
-export async function updateUser(req, res) {
+exports.updateUser = async function (req, res) {
   try {
     if (!req.decoded) {
       //forbidden
@@ -509,3 +509,8 @@ export async function updateUser(req, res) {
     });
   }
 }
+
+// module.exports = {
+//   register,
+// .login,
+// };

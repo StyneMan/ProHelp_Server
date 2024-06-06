@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
-// import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
 
-export const OTPSchema = mongoose.Schema(
+const OTPSchema = mongoose.Schema(
   {
     user: {
       type: String,
@@ -24,4 +23,4 @@ OTPSchema.method("toJSON", function () {
   return object;
 });
 
-export default mongoose.model("OTP", OTPSchema);
+module.exports = mongoose.model("OTP", OTPSchema);

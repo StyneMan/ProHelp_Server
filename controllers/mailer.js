@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
-import Mailgen from "mailgen";
+const nodemailer = require("nodemailer");
+const Mailgen = require("mailgen");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -18,7 +18,7 @@ let MailGenerator = new Mailgen({
   },
 });
 
-export const registerMail = async (req, res) => {
+exports.registerMail = async (req, res) => {
   const { userEmail, subject, message } = req.body;
 
   let msg = {
@@ -38,7 +38,7 @@ export const registerMail = async (req, res) => {
     .catch((error) => res.status(500).send({ success: false }));
 };
 
-export const sendVerificationCode = async (userEmail, code, name, type) => {
+exports.sendVerificationCode = async (userEmail, code, name, type) => {
 
   let msg = {
     from: 'info.prohelpng@gmail.com',
@@ -77,7 +77,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -115,7 +115,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -179,7 +179,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -240,7 +240,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -386,7 +386,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -595,7 +595,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -695,8 +695,8 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -714,7 +714,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -733,11 +733,11 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -753,8 +753,8 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -772,7 +772,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -791,11 +791,11 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -811,8 +811,8 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -830,7 +830,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -849,11 +849,11 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -869,8 +869,8 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -888,7 +888,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -907,11 +907,11 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -927,8 +927,8 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -946,7 +946,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -965,11 +965,11 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -1024,7 +1024,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -1095,7 +1095,7 @@ export const sendVerificationCode = async (userEmail, code, name, type) => {
   return transporter.sendMail(msg);
 };
 
-export const sendSupportEmail = async (user, ticketNo, title) => {
+exports.sendSupportEmail = async (user, ticketNo, title) => {
   let msg = {
     from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: user?.email,
@@ -1273,7 +1273,7 @@ export const sendSupportEmail = async (user, ticketNo, title) => {
                                             text-decoration: none;
                                             -ms-interpolation-mode: bicubic;
                                             clear: both;
-                                            display: inline-block !important;
+                                            display: inline-block !constant;
                                             border: none;
                                             height: auto;
                                             float: none;
@@ -1895,7 +1895,7 @@ export const sendSupportEmail = async (user, ticketNo, title) => {
     .catch((error) => console.log("error: ", error));
 };
 
-export const sendJobEmail = async (userEmail, jobTitle, name) => {
+exports.sendJobEmail = async (userEmail, jobTitle, name) => {
   let msg = {
     from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
@@ -1932,7 +1932,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -1970,7 +1970,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -2034,7 +2034,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -2095,7 +2095,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -2274,7 +2274,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -2475,7 +2475,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -2575,8 +2575,8 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -2594,7 +2594,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -2613,11 +2613,11 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -2633,8 +2633,8 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -2652,7 +2652,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -2671,11 +2671,11 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -2691,8 +2691,8 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -2710,7 +2710,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -2729,11 +2729,11 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -2749,8 +2749,8 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -2768,7 +2768,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -2787,11 +2787,11 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -2807,8 +2807,8 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -2826,7 +2826,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -2845,11 +2845,11 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -2904,7 +2904,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -2976,7 +2976,7 @@ export const sendJobEmail = async (userEmail, jobTitle, name) => {
 };
 
 // Send this email once applicant submits job application
-export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
+exports.sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
   let msg = {
     from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
@@ -3013,7 +3013,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -3051,7 +3051,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -3115,7 +3115,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -3176,7 +3176,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -3355,7 +3355,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -3556,7 +3556,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -3656,8 +3656,8 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -3675,7 +3675,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -3694,11 +3694,11 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -3714,8 +3714,8 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -3733,7 +3733,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -3752,11 +3752,11 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -3772,8 +3772,8 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -3791,7 +3791,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -3810,11 +3810,11 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -3830,8 +3830,8 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -3849,7 +3849,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -3868,11 +3868,11 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -3888,8 +3888,8 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -3907,7 +3907,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -3926,11 +3926,11 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -3985,7 +3985,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -4057,7 +4057,7 @@ export const sendJobApplicationEmail = async (userEmail, jobTitle, name) => {
 };
 
 // Send this email to the job poster/recruiter once an applicant applies for a job
-export const sendJobApplicationEmailNotice = async (
+exports.sendJobApplicationEmailNotice = async (
   userEmail,
   jobTitle,
   name,
@@ -4099,7 +4099,7 @@ export const sendJobApplicationEmailNotice = async (
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -4137,7 +4137,7 @@ export const sendJobApplicationEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -4201,7 +4201,7 @@ export const sendJobApplicationEmailNotice = async (
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -4262,7 +4262,7 @@ export const sendJobApplicationEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -4441,7 +4441,7 @@ export const sendJobApplicationEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -4642,7 +4642,7 @@ export const sendJobApplicationEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -4742,8 +4742,8 @@ export const sendJobApplicationEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -4761,7 +4761,7 @@ export const sendJobApplicationEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -4780,11 +4780,11 @@ export const sendJobApplicationEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -4800,8 +4800,8 @@ export const sendJobApplicationEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -4819,7 +4819,7 @@ export const sendJobApplicationEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -4838,11 +4838,11 @@ export const sendJobApplicationEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -4858,8 +4858,8 @@ export const sendJobApplicationEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -4877,7 +4877,7 @@ export const sendJobApplicationEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -4896,11 +4896,11 @@ export const sendJobApplicationEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -4916,8 +4916,8 @@ export const sendJobApplicationEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -4935,7 +4935,7 @@ export const sendJobApplicationEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -4954,11 +4954,11 @@ export const sendJobApplicationEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -4974,8 +4974,8 @@ export const sendJobApplicationEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -4993,7 +4993,7 @@ export const sendJobApplicationEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -5012,11 +5012,11 @@ export const sendJobApplicationEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -5071,7 +5071,7 @@ export const sendJobApplicationEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -5144,7 +5144,7 @@ export const sendJobApplicationEmailNotice = async (
 
 
 // Send this email once applicant submits job application
-export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status, subject, message) => {
+exports.sendJobApplicationStatus = async (userEmail, jobTitle, name, status, subject, message) => {
   let msg = {
     from: process.env.MAILER_ID ?? 'info.prohelpng@gmail.com',
     to: userEmail,
@@ -5181,7 +5181,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -5219,7 +5219,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -5283,7 +5283,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -5344,7 +5344,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -5523,7 +5523,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -5724,7 +5724,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -5824,8 +5824,8 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -5843,7 +5843,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -5862,11 +5862,11 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -5882,8 +5882,8 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -5901,7 +5901,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -5920,11 +5920,11 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -5940,8 +5940,8 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -5959,7 +5959,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -5978,11 +5978,11 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -5998,8 +5998,8 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -6017,7 +6017,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -6036,11 +6036,11 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -6056,8 +6056,8 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -6075,7 +6075,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -6094,11 +6094,11 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -6153,7 +6153,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -6224,7 +6224,7 @@ export const sendJobApplicationStatus = async (userEmail, jobTitle, name, status
   return transporter.sendMail(msg);
 };
 
-export const sendConnectionRequestEmailNotice = async (
+exports.sendConnectionRequestEmailNotice = async (
   user,
   subject,
   guest
@@ -6265,7 +6265,7 @@ export const sendConnectionRequestEmailNotice = async (
           <td
             style="
               word-break: break-word;
-              border-collapse: collapse !important;
+              border-collapse: collapse !constant;
               vertical-align: top;
             "
           >
@@ -6303,7 +6303,7 @@ export const sendConnectionRequestEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -6367,7 +6367,7 @@ export const sendConnectionRequestEmailNotice = async (
                                         text-decoration: none;
                                         -ms-interpolation-mode: bicubic;
                                         clear: both;
-                                        display: inline-block !important;
+                                        display: inline-block !constant;
                                         border: none;
                                         height: auto;
                                         float: none;
@@ -6428,7 +6428,7 @@ export const sendConnectionRequestEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -6562,7 +6562,7 @@ export const sendConnectionRequestEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -6763,7 +6763,7 @@ export const sendConnectionRequestEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;
@@ -6863,8 +6863,8 @@ export const sendConnectionRequestEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -6882,7 +6882,7 @@ export const sendConnectionRequestEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -6901,11 +6901,11 @@ export const sendConnectionRequestEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -6921,8 +6921,8 @@ export const sendConnectionRequestEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -6940,7 +6940,7 @@ export const sendConnectionRequestEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -6959,11 +6959,11 @@ export const sendConnectionRequestEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -6979,8 +6979,8 @@ export const sendConnectionRequestEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -6998,7 +6998,7 @@ export const sendConnectionRequestEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -7017,11 +7017,11 @@ export const sendConnectionRequestEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -7037,8 +7037,8 @@ export const sendConnectionRequestEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -7056,7 +7056,7 @@ export const sendConnectionRequestEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -7075,11 +7075,11 @@ export const sendConnectionRequestEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -7095,8 +7095,8 @@ export const sendConnectionRequestEmailNotice = async (
                                       width="32"
                                       height="32"
                                       style="
-                                        width: 32px !important;
-                                        height: 32px !important;
+                                        width: 32px !constant;
+                                        height: 32px !constant;
                                         display: inline-block;
                                         border-collapse: collapse;
                                         table-layout: fixed;
@@ -7114,7 +7114,7 @@ export const sendConnectionRequestEmailNotice = async (
                                             valign="middle"
                                             style="
                                               word-break: break-word;
-                                              border-collapse: collapse !important;
+                                              border-collapse: collapse !constant;
                                               vertical-align: top;
                                             "
                                           >
@@ -7133,11 +7133,11 @@ export const sendConnectionRequestEmailNotice = async (
                                                   text-decoration: none;
                                                   -ms-interpolation-mode: bicubic;
                                                   clear: both;
-                                                  display: block !important;
+                                                  display: block !constant;
                                                   border: none;
                                                   height: auto;
                                                   float: none;
-                                                  max-width: 32px !important;
+                                                  max-width: 32px !constant;
                                                 "
                                               />
                                             </a>
@@ -7192,7 +7192,7 @@ export const sendConnectionRequestEmailNotice = async (
                       vertical-align: top;
                     "
                   >
-                    <div style="height: 100%; width: 100% !important">
+                    <div style="height: 100%; width: 100% !constant">
                       <div
                         style="
                           box-sizing: border-box;

@@ -1,10 +1,10 @@
-import Admin from "../model/Admin.model.js";
-import Legal from "../model/Legal.model.js";
-import Banner from "../model/Banner.model.js";
-import Section from "../model/Section.model.js";
-import FAQ from "../model/FAQ.model.js";
+const Admin = require("../model/Admin.model.js");
+const Legal = require("../model/Legal.model.js");
+const Banner = require("../model/Banner.model.js");
+const Section = require("../model/Section.model.js");
+const FAQ = require("../model/FAQ.model.js");
 
-export async function setPrivacyPolicy(req, res) {
+exports.setPrivacyPolicy = async function (req, res) {
   try {
     let { privacy, id } = req.body;
     if (!req.decoded) {
@@ -90,9 +90,9 @@ export async function setPrivacyPolicy(req, res) {
   }
 }
 
-export async function setCookiePolicy() {}
+exports.setCookiePolicy = async function () {}
 
-export async function setTermsOfUse(req, res) {
+exports.setTermsOfUse = async function (req, res) {
   try {
     let { terms, id } = req.body;
     if (!req.decoded) {
@@ -178,7 +178,7 @@ export async function setTermsOfUse(req, res) {
   }
 }
 
-export async function addBanner(req, res) {
+exports.addBanner = async function (req, res) {
   try {
     // let { terms,  } = req.body;
     if (!req.decoded) {
@@ -224,7 +224,7 @@ export async function addBanner(req, res) {
   }
 }
 
-export async function allBanners(req, res) {
+exports.allBanners = async function (req, res) {
   try {
     let query;
     const { page = 1, range, limit = 25 } = req.query;
@@ -259,7 +259,7 @@ export async function allBanners(req, res) {
   }
 }
 
-export async function updateBanner(req, res) {
+exports.updateBanner = async function (req, res) {
   try {
     const payload = req.body;
     const { bannerId } = req.params;
@@ -297,7 +297,7 @@ export async function updateBanner(req, res) {
   }
 }
 
-export async function deleteBanner(req, res) {
+exports.deleteBanner = async function (req, res) {
   try {
     const { bannerId } = req.params;
 
@@ -329,7 +329,7 @@ export async function deleteBanner(req, res) {
   }
 }
 
-export async function addFAQ(req, res) {
+exports.addFAQ = async function (req, res) {
   try {
     // let { terms,  } = req.body;
     if (!req.decoded) {
@@ -371,7 +371,7 @@ export async function addFAQ(req, res) {
   }
 }
 
-export async function allFAQs(req, res) {
+exports.allFAQs = async function (req, res) {
   try {
     let query;
     const { page = 1, range, limit = 25 } = req.query;
@@ -406,7 +406,7 @@ export async function allFAQs(req, res) {
   }
 }
 
-export async function updateFAQ(req, res) {
+exports.updateFAQ = async function (req, res) {
   try {
     const payload = req.body;
     const { faqId } = req.params;
@@ -444,7 +444,7 @@ export async function updateFAQ(req, res) {
   }
 }
 
-export async function deleteFAQ(req, res) {
+exports.deleteFAQ = async function (req, res) {
   try {
     const { faqId } = req.params;
 
@@ -475,7 +475,7 @@ export async function deleteFAQ(req, res) {
   }
 }
 
-export async function addSection(req, res) {
+exports.addSection = async function (req, res) {
   try {
     // let { terms,  } = req.body;
     if (!req.decoded) {
@@ -517,7 +517,7 @@ export async function addSection(req, res) {
   }
 }
 
-export async function allSections(req, res) {
+exports.allSections = async function (req, res) {
   try {
     let query;
     const { page = 1, range, limit = 25 } = req.query;
@@ -552,7 +552,7 @@ export async function allSections(req, res) {
   }
 }
 
-export async function updateSection(req, res) {
+exports.updateSection = async function(req, res) {
   try {
     const payload = req.body;
     const {sectionId } = req.params;
@@ -590,7 +590,7 @@ export async function updateSection(req, res) {
   }
 }
 
-export async function deleteSection(req, res) {
+exports.deleteSection = async function (req, res) {
   try {
     const { sectionId } = req.params;
 

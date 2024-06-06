@@ -1,11 +1,11 @@
-import jwt from "jsonwebtoken";
-import express from "express";
-import User from "../model/User.model.js";
+const jwt = require("jsonwebtoken");
+const express = require("express");
+const User = require("../model/User.model.js");
 
 const app = express();
 
 /** auth middleware */
-export default async function Auth(req, res, next) {
+exports.Auth = async function (req, res, next) {
   try {
     const { email: paramEmail } = req.params;
     // access authorize header to validate request
@@ -60,7 +60,7 @@ export default async function Auth(req, res, next) {
   }
 }
 
-export function localVariables(req, res, next) {
+exports.localVariables = function (req, res, next) {
   app.locals = {
     otp: null,
     resetSession: false,
@@ -68,7 +68,7 @@ export function localVariables(req, res, next) {
   next();
 }
 
-export function verifyCookie(req, res, next) {
+exports.verifyCookie = function (req, res, next) {
   //check accesspro api key first process.env.ACCESSPRO_API_KEY
   const token = req.headers["authorization"]?.split(" ")[1];
   // console.log('REQ CHECK EHERE :::', req)
@@ -96,7 +96,7 @@ export function verifyCookie(req, res, next) {
   }
 }
 
-export function verifyAdmin(req, res, next) {
+exports.verifyAdmin = function (req, res, next) {
   const secret = req.headers["secret-key"];
   // verifies secret
   if (secret && secret === (process.env.APP_SECRET ?? "prohelp_ws300ab200cd100RDX199")) {
@@ -104,7 +104,7 @@ export function verifyAdmin(req, res, next) {
   } else {
     // return an error
     return res.status(403).send({
-      message: "You are forbidden from this application!",
+      message: "You are forbidden = require(this application!",
     });
   }
 }

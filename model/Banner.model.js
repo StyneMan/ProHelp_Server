@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const BannerSchema = new mongoose.Schema(
+const BannerSchema = new mongoose.Schema(
   {
     title: {
       type: String, 
@@ -29,4 +29,4 @@ BannerSchema.method("toJSON", function () {
 });
 
 
-export default mongoose.model("Banner", BannerSchema);
+module.exports = mongoose.model("Banner", BannerSchema);

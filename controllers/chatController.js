@@ -1,11 +1,6 @@
-// const asyncHandler = require("express-async-handler");
-// const Chat = require("../models/chatModel");
-// const User = require("../models/userModel");
 
-import User from "../model/User.model.js";
-import Chat from "../model/Chat.model.js";
-// import { ObjectId } from "mongodb";
-// import Message from "../model/Message2.model.js";
+const User = require("../model/User.model.js");
+const Chat = require("../model/Chat.model.js");
 
 const population = [
   {
@@ -24,7 +19,7 @@ const population = [
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
 //@access          Protected
-export async function accessChat(req, res) {
+exports.accessChat = async function (req, res) {
   try {
     const { userId } = req.body;
 
@@ -81,7 +76,7 @@ export async function accessChat(req, res) {
 //@description     Fetch all chats for a user
 //@route           GET /api/chat/
 //@access          Protected
-export async function fetchChats(req, res) {
+exports.fetchChats = async function (req, res) {
     // console.log("ENTERED HERE JUST NOW ::: ");
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
@@ -106,7 +101,7 @@ export async function fetchChats(req, res) {
 }
 
 
-export async function getChats (req, res) {
+exports.getChats = async function  (req, res) {
   try {
     const { email } = req.params
     let query

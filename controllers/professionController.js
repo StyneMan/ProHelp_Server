@@ -1,7 +1,7 @@
 // import { errorMonitor } from "nodemailer/lib/xoauth2";
-import Profession from "../model/Profession.model.js";
+const Profession = require("../model/Profession.model.js");
 
-export async function addProfession(req, res) {
+exports.addProfession = async function (req, res) {
   try {
     if (!req.decoded) {
       return res.status(403).send({
@@ -33,7 +33,7 @@ export async function addProfession(req, res) {
   }
 }
 
-export async function allProfession(req, res) {
+exports.allProfession = async function (req, res) {
   try {
     let query;
     const { page = 1, range, limit = 25 } = req.query;
@@ -70,7 +70,7 @@ export async function allProfession(req, res) {
   }
 }
 
-export async function deleteProfession(req, res) {
+exports.deleteProfession = async function (req, res) {
   try {
     if (!req.decoded) {
       return res.status(403).send({
@@ -110,7 +110,7 @@ export async function deleteProfession(req, res) {
   }
 }
 
-export async function updateProfession(req, res) {
+exports.updateProfession = async function (req, res) {
   const customErr = new Error();
   try {
     const payload = req.body;

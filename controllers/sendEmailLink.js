@@ -1,6 +1,6 @@
 
-import nodemailer from "nodemailer";
-import axios from "axios"
+const nodemailer = require("nodemailer");
+// import axios from "axios"
 
 
 const transporter = nodemailer.createTransport({
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
   connectionTimeout: 30000, // 30 seconds
 })
 
-// exports.sendMail = async (code) => {
+// exports.s.sendMail = async (code) => {
 //   var data = {
 //     api_key: 'TLY2OAr9Rb0MZlNAsjZymMl9t5mS7ZvCDfeg7W9loRcSYz8xwBlJlXRpawf23g',
 //     message_type: 'NUMERIC',
@@ -39,7 +39,7 @@ const transporter = nodemailer.createTransport({
 //     })
 // }
 
-export async function sendUserEmailLink(payload) {
+exports.sendUserEmailLink = async function (payload) {
   let msg = {
     from: 'info.prohelpng@gmail.com',
     to: payload?.email,
@@ -1166,7 +1166,7 @@ export async function sendUserEmailLink(payload) {
   return transporter.sendMail(msg)
 }
 
-export async function sendAdminCredentials(payload) {
+exports.sendAdminCredentials = async function (payload) {
   let msg = {
     from: 'info.prohelpng@gmail.com',
     to: payload?.email,

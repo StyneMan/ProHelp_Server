@@ -1,16 +1,17 @@
-import dot from "dotenv";
-dot.config();
-import express from "express";
-import cors from "cors";
-import morgan from "morgan";
-import http from "http";
-import connect from "./database/conn.js";
-import router from "./router/route.js";
-import { Server } from "socket.io";
-import WebSockets from "./utils/websocket.js";
+// import dot from "dotenv";
+// dot.config();
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+const http = require("http");
+const connect = require("./database/conn.js");
+const router = require("./router/route.js");
+const { Server } = require("socket.io");
+const WebSockets = require("./utils/websocket.js");
 // import { pusher } from "./utils/pusher.js";
-import Pusher from 'pusher'
-import { pusher } from "./utils/pusher.js";
+// import Pusher from 'pusher'
+// import { pusher } from "./utils/pusher.js";
 
 const app = express();
 
@@ -27,13 +28,13 @@ app.get("/", (req, res) => {
   res.status(201).json({ message: "Welcome to ProHelp" });
 });
 
-const pushr = new Pusher({
-  appId: "1782638",
-  key: "1c215c902be56f87e08f",
-  secret: "ff248e804ca4bd09a001",
-  cluster: "mt1",
-  useTLS: true,
-});
+// const pushr = new Pusher({
+//   appId: "1782638",
+//   key: "1c215c902be56f87e08f",
+//   secret: "ff248e804ca4bd09a001",
+//   cluster: "mt1",
+//   useTLS: true,
+// });
 
 // Pusher 
 // app.post('/pusher/auth', (req, res) => {
@@ -61,27 +62,27 @@ const pushr = new Pusher({
 // pushr.get({path: "", params: {}})
 // pusher.s //trigger('connect', 'established', {message: 'pusher connection established'});
 // const channelPusher = pusher.subscribe('presence-my-channel');
-const channelPusher2 = pusher.subscribe('my-channel');
+// const channelPusher2 = pusher.subscribe('my-channel');
 
 // channelPusher.callbacks.get((val) => console.log("CALLBACK ::: ", val));
 // channelPusher.bind('client-message', function(data) {
 //   console.log('DATA FROM CLIENT:', data);
 // });
-channelPusher2.bind('pusher:subscription_succeeded', function(members) {
-  console.log('SUCCESSFULLY --- subscribed!');
-// 
-  // channelPusher2.emit('client-from-server', {message: 'FROM SERVER to CLIENT !!!'});
-});
+// channelPusher2.bind('pusher:subscription_succeeded', function(members) {
+//   console.log('SUCCESSFULLY --- subscribed!');
+// // 
+//   // channelPusher2.emit('client-from-server', {message: 'FROM SERVER to CLIENT !!!'});
+// });
 
-channelPusher2.bind('client-from-mobile', function(data) {
-  console.log('DATA FROM CLIENT:', data);
-});
-// 
+// channelPusher2.bind('client-from-mobile', function(data) {
+//   console.log('DATA FROM CLIENT:', data);
+// });
+// // 
 
 
 
 /** api routes */
-app.use("/api", router);
+// app.use("/api", router);
 
 app.use("*", (req, res) => {
   return res.status(404).json({
@@ -96,6 +97,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
+
+require("./router/route.js")(app);
 
 const httpServer = http.createServer(app);
 global.io = new Server(httpServer, { cors: { origin: "*" } });

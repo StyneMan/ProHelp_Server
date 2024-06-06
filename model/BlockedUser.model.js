@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate-v2'
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
-export const BlockedUserSchema = mongoose.Schema(
+const BlockedUserSchema = mongoose.Schema(
   {
     blockedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,4 +23,4 @@ BlockedUserSchema.method('toJSON', function () {
   return object
 })
 
-export default mongoose.model('BlockedUser', BlockedUserSchema)
+module.exports = mongoose.model('BlockedUser', BlockedUserSchema)
