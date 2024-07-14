@@ -9,12 +9,13 @@ const otpGenerator = require("otp-generator");
 const { sendVerificationCode } = require("./mailer.js");
 const express = require("express");
 const { OAuth2Client } = require("google-auth-library");
-
+const appleSignin = require("apple-signin-auth");
 
 const app = express();
 
 const clientAndroid = new OAuth2Client(
-  process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?? "964741321159-c0hcfbf27c9v5mub4vadpau1o5rerqqe.apps.googleusercontent.com"
+  process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ??
+    "964741321159-c0hcfbf27c9v5mub4vadpau1o5rerqqe.apps.googleusercontent.com"
 );
 
 // const clientWeb = new OAuth2Client(
@@ -39,7 +40,7 @@ exports.verifyUser = async (req, res, next) => {
       .status(404)
       .send({ success: false, message: "Authentication error" });
   }
-}
+};
 
 /** POST: http://localhost:8080/api/register 
  * @param : {
@@ -47,7 +48,7 @@ exports.verifyUser = async (req, res, next) => {
   "email": "example@gmail.com",
 }
 */
-exports.signup = async(req, res) => {
+exports.signup = async (req, res) => {
   try {
     const { password, email, source } = req.body;
 
@@ -91,46 +92,44 @@ exports.signup = async(req, res) => {
                   "register"
                 )
                   .then(async (val) => {
-                    
                     try {
                       //Now save the otp code here
-                    app.locals.otp = code;
-                    const otp = await OTP.findOne({ user: result?.id });
+                      app.locals.otp = code;
+                      const otp = await OTP.findOne({ user: result?.id });
 
-                    if (otp) {
-                      //Override OTP code
+                      if (otp) {
+                        //Override OTP code
 
-                     await OTP.findOneAndUpdate(
-                        otp?._id,
-                        {
-                          $set: {
-                            code: code,
+                        await OTP.findOneAndUpdate(
+                          otp?._id,
+                          {
+                            $set: {
+                              code: code,
+                            },
                           },
-                        },
-                        { new: true }
-                      );
-                    } else {
-                       await new OTP({
-                        user: result?.id,
-                        emailAddress: email,
-                        code,
+                          { new: true }
+                        );
+                      } else {
+                        await new OTP({
+                          user: result?.id,
+                          emailAddress: email,
+                          code,
+                        }).save();
+                      }
+
+                      //Save for uauth type
+                      app.locals.authType = "normal";
+
+                      await new Alert({
+                        type: "auth",
+                        message: "New account registration notification",
+                        user: result?.id ?? result?._id,
                       }).save();
 
-                    }
-
-                    //Save for uauth type
-                    app.locals.authType = "normal";
-
-                    await new Alert({
-                      type: "auth",
-                      message: "New account registration notification",
-                      user: result?.id ?? result?._id,
-                    }).save();
-
-                    return res.status(200).send({
-                      success: true,
-                      message: "An OTP code has been sent to your email. ",
-                    });
+                      return res.status(200).send({
+                        success: true,
+                        message: "An OTP code has been sent to your email. ",
+                      });
                     } catch (error) {
                       console.log(error);
                       res.status(400).send({ success: false, message: err });
@@ -186,7 +185,6 @@ exports.signup = async(req, res) => {
                         emailAddress: email,
                         code,
                       }).save();
-
                     }
 
                     app.locals.otp = code;
@@ -218,7 +216,7 @@ exports.signup = async(req, res) => {
   } catch (error) {
     return res.status(500).send(error);
   }
-}
+};
 
 exports.forgotPassword = async (req, res) => {
   try {
@@ -247,7 +245,7 @@ exports.forgotPassword = async (req, res) => {
       message: "An error occurred ",
     });
   }
-}
+};
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -264,42 +262,42 @@ exports.login = async (req, res) => {
 
         bcrypt
           .compare(password, user.password)
-          .then( async (passwordCheck) => {
+          .then(async (passwordCheck) => {
             try {
               if (!passwordCheck)
-              return res.status(400).send({
-                success: false,
-                message: "Incorrect user credentials. Try again.",
+                return res.status(400).send({
+                  success: false,
+                  message: "Incorrect user credentials. Try again.",
+                });
+
+              // create jwt token
+              const token = jwt.sign(
+                {
+                  userId: user._id,
+                  username: user.email,
+                },
+                process.env.JWT_SECRET ??
+                  "2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b",
+                { expiresIn: "48h" }
+              );
+
+              app.locals.authType = "normal";
+
+              const { password, ...rest } = Object.assign({}, user.toJSON());
+
+              const alert = new Alert({
+                type: "auth",
+                message: "Account login notification",
+                user: user?.id ?? user?._id,
               });
+              await alert.save();
 
-            // create jwt token
-            const token = jwt.sign(
-              {
-                userId: user._id,
-                username: user.email,
-              },
-              process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b',
-              { expiresIn: "48h" }
-            );
-
-            app.locals.authType = "normal";
-
-            const { password, ...rest } = Object.assign({}, user.toJSON());
-
-            const alert = new Alert({
-              type: "auth",
-              message: "Account login notification",
-              user: user?.id ?? user?._id,
-            });
-            await alert.save();
-           
-
-            return res.status(200).send({
-              message: "You have successfully logged in",
-              success: true,
-              token,
-              data: rest,
-            });
+              return res.status(200).send({
+                message: "You have successfully logged in",
+                success: true,
+                token,
+                data: rest,
+              });
             } catch (error) {
               return res.status(400).send({
                 success: false,
@@ -324,17 +322,16 @@ exports.login = async (req, res) => {
   } catch (error) {
     return res.status(500).send({ error });
   }
-}
+};
 
 exports.logout = async (req, res) => {
-  
   app.locals.resetSession = false; // reset session
   return res
     .status(200)
     .send({ success: true, message: "Logged out successfully" });
-}
+};
 
-exports.getUser =  async (req, res) => {
+exports.getUser = async (req, res) => {
   const { email } = req.params;
 
   try {
@@ -371,9 +368,9 @@ exports.getUser =  async (req, res) => {
       .status(500)
       .send({ success: false, message: "Cannot Find User Data" });
   }
-}
+};
 
-exports.getAllUsers = async(req, res, next) => {
+exports.getAllUsers = async (req, res, next) => {
   const { email } = req.params;
   try {
     if (!email)
@@ -397,12 +394,11 @@ exports.getAllUsers = async(req, res, next) => {
     console.log("ERROR OCCURED >. ", error);
     return res.status(404).send({ error: "Cannot Find User Data" });
   }
-}
+};
 
 exports.updateUser = async (req, res) => {
   try {
     const { email } = req.params;
-
 
     if (email) {
       const body = req.body;
@@ -450,7 +446,7 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     return res.status(500).send({ error });
   }
-}
+};
 
 function generateOTP() {
   return otpGenerator.generate(6, {
@@ -460,7 +456,7 @@ function generateOTP() {
   });
 }
 
-exports.resendOTP =  async (req, res) => {
+exports.resendOTP = async (req, res) => {
   try {
     const { email, type } = req.query;
     const user = await User.findOne({ email });
@@ -481,7 +477,7 @@ exports.resendOTP =  async (req, res) => {
 
       if (otp) {
         // Update OTP code
-         await OTP.findOneAndUpdate(
+        await OTP.findOneAndUpdate(
           otp?._id,
           {
             $set: {
@@ -491,7 +487,7 @@ exports.resendOTP =  async (req, res) => {
           { new: true }
         );
       } else {
-       await new OTP({
+        await new OTP({
           user: user?.id,
           emailAddress: email,
           code,
@@ -506,12 +502,12 @@ exports.resendOTP =  async (req, res) => {
     });
     console.log("ERROR", error);
   }
-}
+};
 
 exports.verifyOTP = async (req, res) => {
   const { code, email } = req.query;
   try {
-    const user = await User.findOne({email });
+    const user = await User.findOne({ email });
 
     // console.log("USERS ::", user);
     const otp = await OTP.findOne({ user: user?.id.toString() });
@@ -526,7 +522,7 @@ exports.verifyOTP = async (req, res) => {
 
     console.log("DB OTP CODE ", otp?.code);
 
-    if ((otp?.code) === (code)) {
+    if (otp?.code === code) {
       app.locals.otp = null; // reset the OTP value
       app.locals.resetSession = true; // start session for reset password
 
@@ -554,7 +550,8 @@ exports.verifyOTP = async (req, res) => {
               userId: usr._id,
               username: usr.email,
             },
-            process.env.JWT_SECRET ?? '2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b',
+            process.env.JWT_SECRET ??
+              "2148286a112343a0c679e483234c01752481398ec876c7137ed5a6be1156d185098c9df6d1610d017d773f8feb8aaaeb5357e436495fdfce5def944a1fb0de3b",
             { expiresIn: "48h" }
           );
 
@@ -583,7 +580,7 @@ exports.verifyOTP = async (req, res) => {
     console.log("ERROR VERIFICATION", error);
     return res.status(500).send({ error });
   }
-}
+};
 
 // successfully redirect user when OTP is valid
 /** GET: http://localhost:8080/api/createResetSession */
@@ -592,7 +589,7 @@ exports.createResetSession = async (req, res) => {
     return res.status(201).send({ flag: app.locals.resetSession });
   }
   return res.status(403).send({ error: "Session expired!" });
-}
+};
 
 // update the password when we have valid session
 /** PUT: http://localhost:8080/api/resetPassword */
@@ -638,18 +635,17 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     return res.status(401).send({ error });
   }
-}
+};
 
-exports.getGoogleParams = async(req, res) => {
+exports.getGoogleParams = async (req, res) => {
   try {
-    const {token, accountType} = req.body;
+    const { token, accountType } = req.body;
     const tic = await clientAndroid
       .verifyIdToken({
         idToken: token,
         // audience: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID,
       })
-      .catch((err) => {
-      });
+      .catch((err) => {});
 
     app.locals.authType = "google";
 
@@ -660,8 +656,8 @@ exports.getGoogleParams = async(req, res) => {
     console.log("PAYLOAD ", payload);
     console.log("ATTRIBBUTES ", tic.getAttributes());
 
-    const userId = payload?.sub
-    const username = payload?.name
+    const userId = payload?.sub;
+    const username = payload?.name;
     let user = await User.findOne({ email: payload?.email });
 
     if (user) {
@@ -679,7 +675,8 @@ exports.getGoogleParams = async(req, res) => {
               userId,
               username: payload?.email,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ??
+              "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",
             { expiresIn: "24h" }
           );
 
@@ -706,14 +703,18 @@ exports.getGoogleParams = async(req, res) => {
     } else {
       //Does not exist, register here
       const user = new User({
-        "bio.firstname": username.toLowerCase().split(" ")[0] ?? tic.getAttributes().payload.given_name,
-        "bio.lastname": username.toLowerCase().split(" ")[1] ?? tic.getAttributes().payload.family_name,
+        "bio.firstname":
+          username.toLowerCase().split(" ")[0] ??
+          tic.getAttributes().payload.given_name,
+        "bio.lastname":
+          username.toLowerCase().split(" ")[1] ??
+          tic.getAttributes().payload.family_name,
         "bio.image": tic.getAttributes()?.payload?.picture,
         email: tic.getAttributes().payload.email,
         "bio.phone": `${tic.getAttributes().payload?.phone}`,
         isEmailVerified: true,
         authType: "google",
-        password: "google-auth"
+        password: "google-auth",
       });
 
       // return save result as a response
@@ -725,7 +726,8 @@ exports.getGoogleParams = async(req, res) => {
               userId,
               username,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ??
+              "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",
             { expiresIn: "24h" }
           );
 
@@ -737,7 +739,6 @@ exports.getGoogleParams = async(req, res) => {
             user: result?.id ?? result?._id,
           });
           await alert.save();
-
 
           res.status(200).send({
             message: "Account created successfully",
@@ -753,23 +754,122 @@ exports.getGoogleParams = async(req, res) => {
   } catch (error) {
     res.status(500).send({ success: false, message: error });
   }
-}
+};
 
-exports.getGoogleParamsWeb = async(req, res) => {
+exports.getAppleParams = async (req, res) => {
   try {
-    const {email, firstname, lastname, name, picture, id, accountType} = req.body;
-    
+    const { token } = req.body;
+    const clientID = "com.prohelpng.applelogin.app";
+    const clientSecret =
+      "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjlVOFlNRzVIN1UifQ.eyJpc3MiOiJGQzgzWDU0NEo1IiwiaWF0IjoxNzIwOTg5NDU1LCJleHAiOjE3MzY1NDE0NTUsImF1ZCI6Imh0dHBzOi8vYXBwbGVpZC5hcHBsZS5jb20iLCJzdWIiOiJjb20ucHJvaGVscG5nLmFwcGxlbG9naW4uYXBwIn0.8ybD4jmLUTHMtSjCV1SiQUo1VP14_FMlBEqi-0jk406tcA4om7zYwHc2Qnq1w8ybYUxMgBsakbN_dQGdy8yA1g";
+
+    const appleUser = await appleSignin.verifyIdToken(token, {
+      audience: process.env.APPLE_AUTH_CLIENT_ID ?? clientID,
+      nonce: "nonce", // optional
+    });
+
+    console.log("Apple User", appleUser);
+
+    const userId = appleUser?.sub;
+    const email =
+      appleUser?.email || appleUser?.sub + "@privaterelay.appleid.com";
+    const username = `${appleUser?.given_name || ""} ${
+      appleUser?.family_name || ""
+    }`.trim();
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Already exists, update status to verified
+      user = await User.findOneAndUpdate(
+        { email },
+        { $set: { isEmailVerified: true } },
+        { new: true }
+      );
+
+      const jwtToken = jwt.sign(
+        { userId, email },
+        process.env.APPLE_AUTH_CLIENT_SECRET ?? clientSecret,
+        { expiresIn: "24h" }
+      );
+
+      const { password, ...rest } = user.toObject();
+
+      const alert = new Alert({
+        type: "auth",
+        message: "Apple account login",
+        user: user._id,
+      });
+      await alert.save();
+
+      res.status(200).json({
+        message: "User logged in successfully",
+        success: true,
+        token: jwtToken,
+        data: rest,
+      });
+    } else {
+      // Does not exist, register new user
+      user = new User({
+        "bio.firstname": appleUser?.given_name,
+        "bio.lastname": appleUser?.family_name,
+        "bio.image": appleUser?.picture,
+        email: email,
+        isEmailVerified: true,
+        authType: "apple",
+        password: "apple-auth",
+      });
+
+      await user.save();
+
+      const jwtToken = jwt.sign(
+        { userId, email },
+        process.env.APPLE_AUTH_CLIENT_SECRET ?? clientSecret,
+        { expiresIn: "24h" }
+      );
+
+      const { password, ...rest } = user.toObject();
+
+      const alert = new Alert({
+        type: "auth",
+        message: "You registered via Apple",
+        user: user._id,
+      });
+      await alert.save();
+
+      res.status(200).json({
+        message: "Account created successfully",
+        success: true,
+        token: jwtToken,
+        data: rest,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getGoogleParamsWeb = async (req, res) => {
+  try {
+    const { email, firstname, lastname, name, picture, id, accountType } =
+      req.body;
 
     app.locals.authType = "google";
     const userId = id;
-    const username = name
+    const username = name;
     let user = await User.findOne({ email: email });
 
     if (user) {
       //Already exists so now change status to verified
       User.findOneAndUpdate(
         { email: email },
-        { $set: { isEmailVerified: true, authType: 'google', 'bio.image': picture, accountType: accountType ?? "professional" } },
+        {
+          $set: {
+            isEmailVerified: true,
+            authType: "google",
+            "bio.image": picture,
+            accountType: accountType ?? "professional",
+          },
+        },
         {
           new: true,
         }
@@ -780,7 +880,8 @@ exports.getGoogleParamsWeb = async(req, res) => {
               userId,
               username: email,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ??
+              "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",
             { expiresIn: "48h" }
           );
 
@@ -813,7 +914,7 @@ exports.getGoogleParamsWeb = async(req, res) => {
         email: email,
         isEmailVerified: true,
         authType: "google",
-        password: "google-auth"
+        password: "google-auth",
       });
 
       // return save result as a response
@@ -825,7 +926,8 @@ exports.getGoogleParamsWeb = async(req, res) => {
               userId,
               username,
             },
-            process.env.GOOGLE_AUTH_CLIENT_SECRET ?? "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",
+            process.env.GOOGLE_AUTH_CLIENT_SECRET ??
+              "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",
             { expiresIn: "24h" }
           );
 
@@ -852,7 +954,7 @@ exports.getGoogleParamsWeb = async(req, res) => {
   } catch (error) {
     res.status(500).send({ success: false, message: error });
   }
-}
+};
 
 exports.allUsers = async (req, res) => {
   try {
@@ -887,4 +989,4 @@ exports.allUsers = async (req, res) => {
         "Some error occurred while fetching loan.",
     });
   }
-}
+};

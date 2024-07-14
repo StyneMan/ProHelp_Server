@@ -9,9 +9,6 @@ const connect = require("./database/conn.js");
 const router = require("./router/route.js");
 const { Server } = require("socket.io");
 const WebSockets = require("./utils/websocket.js");
-// import { pusher } from "./utils/pusher.js";
-// import Pusher from 'pusher'
-// import { pusher } from "./utils/pusher.js";
 
 const app = express();
 
@@ -28,68 +25,6 @@ app.get("/", (req, res) => {
   res.status(201).json({ message: "Welcome to ProHelp" });
 });
 
-// const pushr = new Pusher({
-//   appId: "1782638",
-//   key: "1c215c902be56f87e08f",
-//   secret: "ff248e804ca4bd09a001",
-//   cluster: "mt1",
-//   useTLS: true,
-// });
-
-// Pusher 
-// app.post('/pusher/auth', (req, res) => {
-//   // Now authenticate user
-//   try {
-//     const socketId = req.body?.socket_id;
-
-//   const user = {
-//     id: req.body?.id,
-//     user_info: {
-//       name: `${req.body?.firstname} ${req.body?.lastname}`,
-//       email: `${req.body?.email}`
-//     },
-//   };
-//   pushr.trigger('my-channel', 'client-authed', {"message": "Hello Welcome"})
-//   const authResponse = pushr.authenticateUser(socketId, user);
-//   console.log("PUSHER SIGNI RESP ::: ", authResponse);
-//   res.send(authResponse);
-//   } catch (error) {
-//     console.log("PUSHER AUTH ERROR::: ", error);
-//   }
-// })
-
-
-// pushr.get({path: "", params: {}})
-// pusher.s //trigger('connect', 'established', {message: 'pusher connection established'});
-// const channelPusher = pusher.subscribe('presence-my-channel');
-// const channelPusher2 = pusher.subscribe('my-channel');
-
-// channelPusher.callbacks.get((val) => console.log("CALLBACK ::: ", val));
-// channelPusher.bind('client-message', function(data) {
-//   console.log('DATA FROM CLIENT:', data);
-// });
-// channelPusher2.bind('pusher:subscription_succeeded', function(members) {
-//   console.log('SUCCESSFULLY --- subscribed!');
-// // 
-//   // channelPusher2.emit('client-from-server', {message: 'FROM SERVER to CLIENT !!!'});
-// });
-
-// channelPusher2.bind('client-from-mobile', function(data) {
-//   console.log('DATA FROM CLIENT:', data);
-// });
-// // 
-
-
-
-/** api routes */
-// app.use("/api", router);
-
-app.use("*", (req, res) => {
-  return res.status(404).json({
-    success: false,
-    message: "API endpoint doesnt exist",
-  });
-});
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -102,6 +37,14 @@ require("./router/route.js")(app);
 
 const httpServer = http.createServer(app);
 global.io = new Server(httpServer, { cors: { origin: "*" } });
+
+
+// app.use("*", (req, res) => {
+//   return res.status(404).json({
+//     success: false,
+//     message: "API endpoint doesnt exist",
+//   });
+// });
 
 
 /** Create socket connection */

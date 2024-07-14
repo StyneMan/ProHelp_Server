@@ -30,6 +30,7 @@ module.exports = (app) => {
   router.post("/login", controller.login); // login in app
   router.post("/forgotPassword", controller.forgotPassword); // forgot password send email
   router.post("/auth/google", controller.getGoogleParams);
+  router.post("/auth/apple", controller.getAppleParams);
   router.post("/auth/google/web", controller.getGoogleParamsWeb);
   router.get("/verifyOTP", controller.verifyOTP); // verify generated OTP
   router.get("/resendOTP", controller.resendOTP); // verify generated OTP
