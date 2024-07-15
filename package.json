@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
     "server": "node server.js",
-    "build": "npm install --legacy-peer-deps --omit=dev && npm run build"
+    "build": "npm install --production"
   },
-  "keywords": [],
+  "keywords": ["jobs", "professioals"],
   "author": {
     "name": "Stanley Nyekpeye",
     "email": "stanleynyekpeye@gmail.com"
