@@ -1,6 +1,6 @@
 // import dot from "dotenv";
 // dot.config();
-require("dotenv").config();
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -11,6 +11,7 @@ const { Server } = require("socket.io");
 const WebSockets = require("./utils/websocket.js");
 
 const app = express();
+const port = 8082;
 
 /** middlewares */
 app.use(express.json());
@@ -18,34 +19,22 @@ app.use(cors());
 app.use(morgan("tiny")); 
 app.disable("x-powered-by"); // less hackers know about our stack
 
-const port = 8082;
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', "GET, POST, PUT, PATCH, DELETE");
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 /** HTTP GET Request */
 app.get("/", (req, res) => {
   res.status(201).json({ message: "Welcome to ProHelp" });
 });
 
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
 require("./router/route.js")(app);
 
 const httpServer = http.createServer(app);
 global.io = new Server(httpServer, { cors: { origin: "*" } });
-
-
-// app.use("*", (req, res) => {
-//   return res.status(404).json({
-//     success: false,
-//     message: "API endpoint doesnt exist",
-//   });
-// });
-
 
 /** Create socket connection */
 global.io.on("connection", WebSockets.connection);
