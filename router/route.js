@@ -21,7 +21,6 @@ const {
   verifyCookie,
 } = require("../middleware/auth.js");
 
-
 module.exports = (app) => {
   const router = require("express").Router();
 
