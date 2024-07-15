@@ -24,6 +24,7 @@ const {
 module.exports = (app) => {
   const router = require("express").Router();
 
+
   // ***** AUTHENTICATION ***** //
   router.post('/register', controller.signup)
   router.post("/login", controller.login); // login in app
@@ -36,7 +37,7 @@ module.exports = (app) => {
   router
     .put("/resetPassword", controller.verifyUser, controller.resetPassword); // use to reset password
 
-    
+
   // ***** CHAT ***** //
   router.put("/chat/init/:email", Auth, chatController.accessChat);
   router.get("/chat/allChats/:email", Auth, chatController.getChats);
@@ -90,6 +91,7 @@ module.exports = (app) => {
   router
     .post("/connection/request/:email", Auth, connectionController.sendConnectionRequest); //Add connection after payment
 
+
   // ***** APPLICATION ***** //
   router.get("/search/:key", appController.searcher); //Search endpoint
   router.get("/searching/:key", appController.searcherAdvanced); //Search endpoint
@@ -104,6 +106,7 @@ module.exports = (app) => {
     .post("/payment/init/:email", Auth, paymentController.initPayment);
   router.post("/payment/verify", paymentController.verifyPayment);
   router.post("/payment/webhook", paymentController.paymentWebHook);
+
 
   // ***** JOBS ***** //
   router.post("/job/post/:email", Auth, jobController.postJob);
@@ -128,6 +131,7 @@ module.exports = (app) => {
   router
     .put("/job/applications/decline/:email", Auth, jobController.declineJobApplication);
 
+    
   // ***** ADMIN ***** //
   router.post("/admin/create", verifyAdmin, adminController.register);
   router

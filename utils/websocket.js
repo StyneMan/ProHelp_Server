@@ -1,6 +1,5 @@
 const Chat = require("../model/Chat.model.js");
 const Message = require("../model/Message.model.js");
-// const { pusher } from "./pusher.js";
 
 class WebSockets {
   constructor() {
@@ -20,8 +19,6 @@ class WebSockets {
         userId: userId,
       });
     });
-
-    // pusher.trigger()
 
     client.on("setup", (userData) => {
       console.log("SETUP_USER_DATA :: ", userData);

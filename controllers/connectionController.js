@@ -5,7 +5,6 @@ const User = require('../model/User.model.js')
 const Alert = require('../model/Alert.model.js')
 const Connection = require('../model/Connection.model.js')
 const Transaction = require('../model/Transaction.model.js')
-// const { pusher } = require('../utils/pusher.js'
 
 const population = {
   path: 'user',
@@ -131,12 +130,6 @@ exports.sendConnectionRequest = async function  (req, res) {
               message: `${em?.bio?.firstname} ${em?.bio?.middlename} ${em?.bio?.lastname} requested to connect`
             })
 
-            // pusher.trigger('connection', 'connection-requested', {
-            //   requestBy: em,
-            //   user: guestUser,
-            //   message: `${em?.bio?.firstname} ${em?.bio?.middlename} ${em?.bio?.lastname} requested to connect`
-            // })
-
             return res.status(200).send({
               success: true,
               message: 'Successfully sent connection request to ' + guestName
@@ -239,12 +232,6 @@ exports.acceptConnectionRequest = async function  (req, res) {
       message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${eguestm?.bio?.lastname} was accepted`
     })
 
-    // pusher.trigger('connection', 'connection-accepted', {
-    //   acceptedBy: em,
-    //   user: guest,
-    //   message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${eguestm?.bio?.lastname} was accepted`
-    // })
-
     return res
       .status(200)
       .send({ message: 'Successfully added a new connection' })
@@ -318,13 +305,6 @@ exports.declineConnectionRequest = async function  (req, res) {
       message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${guest?.bio?.lastname} was accepted`
     })
 
-    // pusher.trigger('connection', 'connection-declined', {
-    //   declinedBy: em,
-    //   user: guest,
-    //   message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${guest?.bio?.lastname} was accepted`
-    // })
-
-
     return res
       .status(200)
       .send({ message: 'Successfully declined connection request' })
@@ -381,12 +361,6 @@ exports.disconnectConnection = async function  (req, res) {
       user: guest,
       message: `Connection disconnected ${em?.bio?.firstname} ${em?.bio?.middlename} ${em?.bio?.lastname} was accepted`
     })
-
-    // pusher.trigger('connection', 'connection-disconnected', {
-    //   disconnectedBy: em,
-    //   user: guest,
-    //   message: `Connection disconnected ${em?.bio?.firstname} ${em?.bio?.middlename} ${em?.bio?.lastname} was accepted`
-    // })
 
     return res
       .status(200)
@@ -463,12 +437,6 @@ exports.cancelConnectionRequest = async function  (req, res) {
       user: guest,
       message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${eguestm?.bio?.lastname}  was cancelled`
     })
-
-    // pusher.trigger('connection', 'connection-cancelled', {
-    //   cancedBy: em,
-    //   user: guest,
-    //   message: `Connection request by ${guest?.bio?.firstname} ${guest?.bio?.middlename} ${eguestm?.bio?.lastname}  was cancelled`
-    // })
 
     return res
       .status(200)
